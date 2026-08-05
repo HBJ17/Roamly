@@ -1,4 +1,4 @@
-# Minimal Flask Dashboard Web Application
+# Roamly - Minimal Flask Dashboard Web Application
 
 A minimal, clean Flask web application built with HTML, simple CSS, and SQLite. Features user signup, login, and an empty dashboard accessible after logging in.
 

@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Flask Dashboard{% endblock %}</title>
+    <title>{% block title %}Roamly{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     {% if session.get('user_id') %}
     <header>
-        <h1>Student Dashboard</h1>
+        <h1>Roamly</h1>
         <nav>
             <a href="{{ url_for('logout') }}">Logout ({{ session.get('username') }})</a>
         </nav>
