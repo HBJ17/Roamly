@@ -27,7 +27,7 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Initialize the database when app starts
+# initialize the database 
 init_db()
 
 @app.route('/')
@@ -55,7 +55,7 @@ def signup():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Check if username or email already exists
+        # existence check
         cursor.execute('SELECT * FROM users WHERE username = ? OR email = ?', (username, email))
         existing_user = cursor.fetchone()
 
@@ -64,7 +64,7 @@ def signup():
             flash('Username or email already registered. Please login.', 'danger')
             return render_template('signup.html')
 
-        # Insert user into database (plaintext password as requested)
+        # insert user 
         cursor.execute(
             'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
             (username, email, password)
