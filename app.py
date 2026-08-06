@@ -7,13 +7,11 @@ app.secret_key = 'super_secret_key_for_session'
 DATABASE = 'database.db'
 
 def get_db_connection():
-    """Establish and return a database connection."""
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
 
 def init_db():
-    """Create the users table if it does not exist."""
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
@@ -32,14 +30,12 @@ init_db()
 
 @app.route('/')
 def home():
-    """Redirect to dashboard if logged in, otherwise to login."""
     if 'user_id' in session:
         return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    """Handle user registration."""
     if 'user_id' in session:
         return redirect(url_for('dashboard'))
 
@@ -79,7 +75,6 @@ def signup():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """Handle user login."""
     if 'user_id' in session:
         return redirect(url_for('dashboard'))
 
@@ -110,7 +105,6 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
-    """Display empty user dashboard if authenticated."""
     if 'user_id' not in session:
         flash('Please log in to access the dashboard.', 'danger')
         return redirect(url_for('login'))
@@ -119,7 +113,6 @@ def dashboard():
 
 @app.route('/logout')
 def logout():
-    """Clear session and log user out."""
     session.clear()
     flash('You have been logged out.', 'success')
     return redirect(url_for('login'))
