@@ -3,18 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Roamly{% endblock %}</title>
+    <title>{% block title %}Roamly - Discover Tamil Nadu & Beyond{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    {% if session.get('user_id') %}
     <header>
-        <h1>Roamly</h1>
-        <nav>
-            <a href="{{ url_for('logout') }}">Logout ({{ session.get('username') }})</a>
+        <div class="header-brand">
+            <a href="{{ url_for('packages') if session.get('user_id') else url_for('home') }}" class="logo-link">
+                <h1>Roamly 🌴</h1>
+            </a>
+        </div>
+        <nav class="nav-menu">
+            <a href="{{ url_for('packages') }}">Explore Packages</a>
+            <a href="{{ url_for('compare') }}">Compare {% if compare_count > 0 %}<span class="badge">{{ compare_count }}</span>{% endif %}</a>
+            {% if session.get('user_id') %}
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('logout') }}" class="nav-logout">Logout ({{ session.get('username') }})</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('signup') }}" class="nav-signup">Sign Up</a>
+            {% endif %}
         </nav>
     </header>
-    {% endif %}
 
     <main class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -29,5 +39,10 @@
 
         {% block content %}{% endblock %}
     </main>
+
+    <footer>
+        <p>&copy; 2026 Roamly Travel & Destinations. Explore Kodaikanal, Ooty, Yercaud, Madurai, Tanjore & Tamil Nadu.</p>
+    </footer>
 </body>
 </html>
+

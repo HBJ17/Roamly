@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ package['title'] }} - Roamly{% endblock %}
+
+{% block content %}
+<div class="package-detail-container">
+    <div class="breadcrumb">
+        <a href="{{ url_for('packages') }}">← Back to Packages</a>
+    </div>
+
+    <div class="package-detail-layout">
+        <!-- Main Details Column -->
+        <div class="detail-main">
+            <div class="detail-header-card">
+                <div class="detail-header-top">
+                    <span class="category-badge">{{ package['category'] }}</span>
+                    <span class="rating-badge">★ {{ package['rating'] }} / 5.0</span>
+                </div>
+                <h2>{{ package['title'] }}</h2>
+                <p class="detail-location">📍 <strong>Destination:</strong> {{ package['destination'] }}</p>
+                <p class="detail-duration">⏱️ <strong>Duration:</strong> {{ package['duration_days'] }} Days / {{ package['duration_nights'] }} Nights</p>
+            </div>
+
+            <div class="card mt-20">
+                <h3>About This Package</h3>
+                <p class="detail-description">{{ package['description'] }}</p>
+            </div>
+
+            <div class="card mt-20">
+                <h3>Key Sightseeing Highlights</h3>
+                <ul class="highlights-list">
+                    {% for hl in package['highlights'].split(',') %}
+                        <li>✨ {{ hl.strip() }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="card mt-20">
+                <h3>Included Amenities & Services</h3>
+                <ul class="amenities-list">
+                    {% for item in package['included_amenities'].split(',') %}
+                        <li>✔️ {{ item.strip() }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Booking Sidebar Column -->
+        <div class="detail-sidebar">
+            <div class="booking-card">
+                <div class="price-box">
+                    <span class="price-tag">₹{{ "{:,.0f}".format(package['price']) }}</span>
+                    <span class="price-sub">/ traveler</span>
+                </div>
+
+                {% if session.get('user_id') %}
+                <form action="{{ url_for('book_package', package_id=package['id']) }}" method="POST" class="booking-form">
+                    <div class="form-group">
+                        <label for="travel_date">Select Travel Date *</label>
+                        <input type="date" id="travel_date" name="travel_date" required min="2026-08-15">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="num_travelers">Number of Travelers *</label>
+                        <select id="num_travelers" name="num_travelers" required onchange="updateTotalPrice(this.value, {{ package['price'] }})">
+                            <option value="1">1 Person</option>
+                            <option value="2">2 Persons</option>
+                            <option value="3">3 Persons</option>
+                            <option value="4">4 Persons</option>
+                            <option value="5">5+ Group</option>
+                        </select>
+                    </div>
+
+                    <div class="total-calc-box">
+                        <span>Total Estimated Cost:</span>
+                        <strong id="total_price_display">₹{{ "{:,.0f}".format(package['price']) }}</strong>
+                    </div>
+
+                    <button type="submit" class="btn btn-book-now">Instant Book Package</button>
+                </form>
+                {% else %}
+                <div class="login-prompt-box">
+                    <p>Log in to book this Tamil Nadu package and track your booking history in your dashboard.</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-primary-inline mt-10">Log In to Book</a>
+                </div>
+                {% endif %}
+
+                <hr class="divider">
+
+                <form action="{{ url_for('compare_toggle', package_id=package['id']) }}" method="POST">
+                    <button type="submit" class="btn btn-secondary-inline block-btn {% if is_in_compare %}active{% endif %}">
+                        {% if is_in_compare %}✓ In Comparison List (Remove){% else %}+ Add to Compare{% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateTotalPrice(travelers, unitPrice) {
+    const total = parseInt(travelers) * parseFloat(unitPrice);
+    document.getElementById('total_price_display').innerText = '₹' + total.toLocaleString('en-IN');
+}
+</script>
+{% endblock %}

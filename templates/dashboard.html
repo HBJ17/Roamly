@@ -1,13 +1,265 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard - Roamly{% endblock %}
+{% block title %}User Dashboard - Roamly{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>Welcome, {{ username }}!</h2>
-    <div class="dashboard-empty">
-        <h3>Dashboard</h3>
-        <p>You have successfully logged in.</p>
+<div class="dashboard-wrapper">
+    <div class="dashboard-header">
+        <h2>User Dashboard</h2>
+        <p class="welcome-text">Welcome back, <strong>{{ user['username'] }}</strong>!</p>
     </div>
+
+    <!-- Dashboard Navigation Tabs -->
+    <div class="dashboard-tabs">
+        <a href="{{ url_for('dashboard', tab='overview') }}" class="tab-btn {% if active_tab == 'overview' %}active{% endif %}">
+            📊 Overview
+        </a>
+        <a href="{{ url_for('dashboard', tab='profile') }}" class="tab-btn {% if active_tab == 'profile' %}active{% endif %}">
+            👤 Profile
+        </a>
+        <a href="{{ url_for('dashboard', tab='preferences') }}" class="tab-btn {% if active_tab == 'preferences' %}active{% endif %}">
+            ⚙️ Preferences
+        </a>
+        <a href="{{ url_for('dashboard', tab='bookings') }}" class="tab-btn {% if active_tab == 'bookings' %}active{% endif %}">
+            🧳 Booking History ({% if bookings %}{{ bookings|length }}{% else %}0{% endif %})
+        </a>
+    </div>
+
+    <!-- Tab 1: Overview -->
+    {% if active_tab == 'overview' %}
+    <div class="tab-content">
+        <div class="overview-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🧳</div>
+                <div class="stat-info">
+                    <h3>{% if bookings %}{{ bookings|length }}{% else %}0{% endif %}</h3>
+                    <p>Total Bookings</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🚆</div>
+                <div class="stat-info">
+                    <h3>{{ preferences['preferred_travel_mode'] if preferences else 'Train' }}</h3>
+                    <p>Preferred Mode</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏷️</div>
+                <div class="stat-info">
+                    <h3>{{ preferences['budget_range'] if preferences else 'Moderate' }}</h3>
+                    <p>Budget Tier</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-20">
+            <h3>Quick Actions</h3>
+            <p>Explore handpicked Tamil Nadu holiday destinations or manage your profile and trip preferences.</p>
+            <div class="action-buttons mt-15">
+                <a href="{{ url_for('packages') }}" class="btn btn-primary-inline">🌴 Browse Destinations & Packages</a>
+                <a href="{{ url_for('dashboard', tab='profile') }}" class="btn btn-secondary-inline">✏️ Edit Profile</a>
+                <a href="{{ url_for('dashboard', tab='preferences') }}" class="btn btn-secondary-inline">⚙️ Travel Preferences</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Tab 2: Profile -->
+    {% if active_tab == 'profile' %}
+    <div class="tab-content">
+        <div class="card">
+            <h3>User Profile Details</h3>
+            <p class="section-desc">Manage your personal information and contact details.</p>
+            
+            <form action="{{ url_for('profile') }}" method="POST" class="form">
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" value="{{ user['username'] }}" disabled class="input-disabled">
+                        <small>Username cannot be changed.</small>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" value="{{ user['email'] or '' }}" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="full_name">Full Name</label>
+                        <input type="text" id="full_name" name="full_name" value="{{ user['full_name'] or '' }}" placeholder="e.g. Ramesh Kumar">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" value="{{ user['phone'] or '' }}" placeholder="e.g. +91 9876543210">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Residential Address</label>
+                    <input type="text" id="address" name="address" value="{{ user['address'] or '' }}" placeholder="City, State, Country">
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">Short Bio / About Me</label>
+                    <textarea id="bio" name="bio" rows="3" placeholder="Avid explorer who loves hill stations and heritage temples...">{{ user['bio'] or '' }}</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-submit">Save Profile Changes</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Tab 3: Preferences -->
+    {% if active_tab == 'preferences' %}
+    <div class="tab-content">
+        <div class="card">
+            <h3>Travel Preferences</h3>
+            <p class="section-desc">Customize your travel style so we can tailor the best Tamil Nadu packages for you.</p>
+            
+            <form action="{{ url_for('preferences') }}" method="POST" class="form">
+                <div class="form-group">
+                    <label>Preferred Mode of Transport</label>
+                    <div class="radio-group">
+                        {% set current_mode = preferences['preferred_travel_mode'] if preferences else 'Train' %}
+                        <label class="radio-label">
+                            <input type="radio" name="preferred_travel_mode" value="Train" {% if current_mode == 'Train' %}checked{% endif %}> 🚆 Train
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="preferred_travel_mode" value="Flight" {% if current_mode == 'Flight' %}checked{% endif %}> ✈️ Flight
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="preferred_travel_mode" value="Bus" {% if current_mode == 'Bus' %}checked{% endif %}> 🚌 Bus / Volvo
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="preferred_travel_mode" value="Private Car" {% if current_mode == 'Private Car' %}checked{% endif %}> 🚗 Private Cab
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group mt-20">
+                    <label>Dietary Requirement</label>
+                    <div class="radio-group">
+                        {% set current_diet = preferences['dietary_preference'] if preferences else 'Vegetarian' %}
+                        <label class="radio-label">
+                            <input type="radio" name="dietary_preference" value="Vegetarian" {% if current_diet == 'Vegetarian' %}checked{% endif %}> 🥗 Pure Vegetarian
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="dietary_preference" value="Non-Vegetarian" {% if current_diet == 'Non-Vegetarian' %}checked{% endif %}> 🍗 Non-Vegetarian
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="dietary_preference" value="Vegan" {% if current_diet == 'Vegan' %}checked{% endif %}> 🌱 Vegan
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group mt-20">
+                    <label>Budget Tier</label>
+                    <div class="radio-group">
+                        {% set current_budget = preferences['budget_range'] if preferences else 'Moderate' %}
+                        <label class="radio-label">
+                            <input type="radio" name="budget_range" value="Budget" {% if current_budget == 'Budget' %}checked{% endif %}> 💰 Budget (Economical)
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="budget_range" value="Moderate" {% if current_budget == 'Moderate' %}checked{% endif %}> 💳 Moderate (Comfort)
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="budget_range" value="Luxury" {% if current_budget == 'Luxury' %}checked{% endif %}> 💎 Luxury (Premium)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group mt-20">
+                    <label>Preferred Destination Types</label>
+                    <div class="checkbox-group">
+                        {% set prefs_cat = preferences['preferred_categories'] if preferences else 'Hill Station' %}
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="preferred_categories" value="Hill Station" {% if 'Hill Station' in prefs_cat %}checked{% endif %}> ⛰️ Hill Stations (Ooty, Kodaikanal, Yercaud)
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="preferred_categories" value="Heritage & Culture" {% if 'Heritage & Culture' in prefs_cat %}checked{% endif %}> 🏛️ Heritage & Temples (Madurai, Tanjore)
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="preferred_categories" value="Coastal & Urban" {% if 'Coastal & Urban' in prefs_cat %}checked{% endif %}> 🏖️ Coastal & Beaches (Chennai, Mahabalipuram)
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="preferred_categories" value="Pilgrimage & Coastal" {% if 'Pilgrimage & Coastal' in prefs_cat %}checked{% endif %}> 🕉️ Pilgrimage Coast (Rameswaram, Kanyakumari)
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-submit mt-20">Save Travel Preferences</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Tab 4: Booking History -->
+    {% if active_tab == 'bookings' %}
+    <div class="tab-content">
+        <div class="card">
+            <h3>Your Booking History</h3>
+            <p class="section-desc">View all your active and past holiday bookings.</p>
+            
+            {% if bookings %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Booking #</th>
+                            <th>Package & Destination</th>
+                            <th>Category</th>
+                            <th>Travel Date</th>
+                            <th>Travelers</th>
+                            <th>Total Price</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in bookings %}
+                        <tr>
+                            <td>#ROAM-{{ b['id'] }}</td>
+                            <td>
+                                <strong>{{ b['package_title'] }}</strong><br>
+                                <small class="text-muted">📍 {{ b['destination'] }}</small>
+                            </td>
+                            <td><span class="category-tag">{{ b['category'] }}</span></td>
+                            <td>📅 {{ b['travel_date'] }}</td>
+                            <td>👥 {{ b['num_travelers'] }}</td>
+                            <td><strong>₹{{ "{:,.2f}".format(b['total_price']) }}</strong></td>
+                            <td>
+                                {% if b['status'] == 'Confirmed' %}
+                                    <span class="badge badge-success">Confirmed</span>
+                                {% elif b['status'] == 'Cancelled' %}
+                                    <span class="badge badge-danger">Cancelled</span>
+                                {% else %}
+                                    <span class="badge badge-warning">{{ b['status'] }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('package_detail', package_id=b['package_id']) }}" class="btn-link">View Package</a>
+                                {% if b['status'] == 'Confirmed' %}
+                                <form action="{{ url_for('cancel_booking', booking_id=b['id']) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                    <button type="submit" class="btn-text-danger">Cancel</button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="dashboard-empty">
+                <h3>No Bookings Yet</h3>
+                <p>You haven't booked any travel packages yet. Explore our featured Tamil Nadu destinations!</p>
+                <a href="{{ url_for('packages') }}" class="btn btn-primary-inline mt-15">Explore Packages Now</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Destinations & Packages - Roamly{% endblock %}
+
+{% block content %}
+<div class="packages-container">
+    <div class="page-header">
+        <h2>Explore Destinations & Travel Packages 🌴</h2>
+        <p>Discover handpicked holiday experiences across Tamil Nadu - from misty hills of Ooty & Kodaikanal to ancient temples of Madurai & Tanjore.</p>
+    </div>
+
+    <!-- Search & Filter Controls -->
+    <form action="{{ url_for('packages') }}" method="GET" class="filter-card">
+        <div class="filter-row">
+            <div class="filter-group flex-2">
+                <label for="q">Search Destination or Package</label>
+                <input type="text" id="q" name="q" value="{{ query or '' }}" placeholder="Search Ooty, Kodaikanal, Tanjore, temple...">
+            </div>
+
+            <div class="filter-group flex-1">
+                <label for="category">Category</label>
+                <select id="category" name="category">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group flex-1">
+                <label for="min_price">Min Price (₹)</label>
+                <input type="number" id="min_price" name="min_price" value="{{ min_price or '' }}" placeholder="e.g. 5000">
+            </div>
+
+            <div class="filter-group flex-1">
+                <label for="max_price">Max Price (₹)</label>
+                <input type="number" id="max_price" name="max_price" value="{{ max_price or '' }}" placeholder="e.g. 15000">
+            </div>
+
+            <div class="filter-group flex-1">
+                <label for="sort_by">Sort By</label>
+                <select id="sort_by" name="sort_by">
+                    <option value="popular" {% if sort_by == 'popular' %}selected{% endif %}>Top Rated</option>
+                    <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="duration_asc" {% if sort_by == 'duration_asc' %}selected{% endif %}>Duration: Shortest</option>
+                </select>
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-search">🔍 Search & Filter</button>
+                <a href="{{ url_for('packages') }}" class="btn-reset">Reset</a>
+            </div>
+        </div>
+    </form>
+
+    <!-- Compare Bar Notification if items selected -->
+    {% if compare_list %}
+    <div class="compare-bar-alert">
+        <span> You have <strong>{{ compare_list|length }}</strong> package(s) selected for comparison.</span>
+        <div class="compare-bar-buttons">
+            <a href="{{ url_for('compare') }}" class="btn-compare-now">View Comparison Table</a>
+            <a href="{{ url_for('compare_clear') }}" class="btn-compare-clear">Clear Selection</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Packages Grid -->
+    <div class="packages-grid mt-25">
+        {% if packages %}
+            {% for pkg in packages %}
+            <div class="package-card">
+                <div class="package-card-header">
+                    <span class="category-badge">{{ pkg['category'] }}</span>
+                    <span class="rating-badge">★ {{ pkg['rating'] }}</span>
+                </div>
+                <div class="package-card-body">
+                    <h3 class="package-title">{{ pkg['title'] }}</h3>
+                    <p class="package-destination">📍 {{ pkg['destination'] }}</p>
+                    <p class="package-duration">⏱️ {{ pkg['duration_days'] }} Days / {{ pkg['duration_nights'] }} Nights</p>
+                    <p class="package-snippet">{{ pkg['description'][:110] }}...</p>
+
+                    <div class="package-highlights-tags">
+                        {% for hl in pkg['highlights'].split(',')[:3] %}
+                            <span class="hl-tag">• {{ hl.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="package-card-footer">
+                    <div class="package-price">
+                        <span class="price-label">Starting from</span>
+                        <span class="price-amount">₹{{ "{:,.0f}".format(pkg['price']) }}</span>
+                        <span class="price-unit">/ person</span>
+                    </div>
+
+                    <div class="package-card-actions">
+                        <a href="{{ url_for('package_detail', package_id=pkg['id']) }}" class="btn btn-view-pkg">View Package</a>
+                        
+                        <form action="{{ url_for('compare_toggle', package_id=pkg['id']) }}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn-icon-compare {% if pkg['id'] in compare_list %}active{% endif %}" title="Add to Compare">
+                                {% if pkg['id'] in compare_list %}✓ Compared{% else %}+ Compare{% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-results-card">
+                <h3>No Packages Found 😔</h3>
+                <p>We couldn't find any holiday packages matching your search criteria. Try clearing filters or searching for places like <strong>Ooty</strong>, <strong>Kodaikanal</strong>, or <strong>Madurai</strong>.</p>
+                <a href="{{ url_for('packages') }}" class="btn btn-primary-inline mt-15">Show All Packages</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

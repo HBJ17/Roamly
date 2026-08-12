@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Compare Packages - Roamly{% endblock %}
+
+{% block content %}
+<div class="compare-container">
+    <div class="page-header">
+        <h2>Compare Travel Packages ⚖️</h2>
+        <p>Compare selected holiday packages side-by-side to choose the best destination and value for your trip.</p>
+    </div>
+
+    {% if packages %}
+    <div class="compare-header-actions">
+        <a href="{{ url_for('packages') }}" class="btn-link">← Add More Packages</a>
+        <a href="{{ url_for('compare_clear') }}" class="btn-compare-clear">Clear All Comparisons</a>
+    </div>
+
+    <div class="table-responsive mt-20">
+        <table class="compare-table">
+            <thead>
+                <tr>
+                    <th class="feature-col">Package Feature</th>
+                    {% for pkg in packages %}
+                    <th class="pkg-col">
+                        <div class="compare-pkg-header">
+                            <span class="category-badge">{{ pkg['category'] }}</span>
+                            <h4>{{ pkg['title'] }}</h4>
+                            <p class="pkg-dest">📍 {{ pkg['destination'] }}</p>
+                            <form action="{{ url_for('compare_toggle', package_id=pkg['id']) }}" method="POST">
+                                <button type="submit" class="btn-remove-small">✕ Remove</button>
+                            </form>
+                        </div>
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="feature-title">Price / Person</td>
+                    {% for pkg in packages %}
+                    <td class="highlight-price">₹{{ "{:,.0f}".format(pkg['price']) }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="feature-title">Duration</td>
+                    {% for pkg in packages %}
+                    <td>⏱️ {{ pkg['duration_days'] }} Days / {{ pkg['duration_nights'] }} Nights</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="feature-title">Rating</td>
+                    {% for pkg in packages %}
+                    <td><span class="rating-badge">★ {{ pkg['rating'] }}</span></td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="feature-title">Category</td>
+                    {% for pkg in packages %}
+                    <td>{{ pkg['category'] }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="feature-title">Highlights</td>
+                    {% for pkg in packages %}
+                    <td>
+                        <ul class="compare-list-bullet">
+                            {% for hl in pkg['highlights'].split(',') %}
+                                <li>• {{ hl.strip() }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="feature-title">Included Amenities</td>
+                    {% for pkg in packages %}
+                    <td>
+                        <ul class="compare-list-bullet">
+                            {% for item in pkg['included_amenities'].split(',') %}
+                                <li>✔️ {{ item.strip() }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td class="feature-title">Action</td>
+                    {% for pkg in packages %}
+                    <td>
+                        <a href="{{ url_for('package_detail', package_id=pkg['id']) }}" class="btn btn-view-pkg block-btn">View & Book</a>
+                    </td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="no-results-card mt-20">
+        <h3>No Packages Selected for Comparison ⚖️</h3>
+        <p>Browse our Tamil Nadu packages and click <strong>"+ Compare"</strong> on up to 3 packages to view them side-by-side.</p>
+        <a href="{{ url_for('packages') }}" class="btn btn-primary-inline mt-15">Explore Packages</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
