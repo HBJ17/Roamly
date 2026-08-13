@@ -5,7 +5,7 @@
 {% block content %}
 <div class="packages-container">
     <div class="page-header">
-        <h2>Explore Destinations & Travel Packages 🌴</h2>
+        <h2>Explore Destinations & Travel Packages </h2>
         <p>Discover handpicked holiday experiences across Tamil Nadu - from misty hills of Ooty & Kodaikanal to ancient temples of Madurai & Tanjore.</p>
     </div>
 
@@ -48,7 +48,7 @@
             </div>
 
             <div class="filter-actions">
-                <button type="submit" class="btn btn-search">🔍 Search & Filter</button>
+                <button type="submit" class="btn btn-search"> Search & Filter</button>
                 <a href="{{ url_for('packages') }}" class="btn-reset">Reset</a>
             </div>
         </div>
@@ -76,8 +76,8 @@
                 </div>
                 <div class="package-card-body">
                     <h3 class="package-title">{{ pkg['title'] }}</h3>
-                    <p class="package-destination">📍 {{ pkg['destination'] }}</p>
-                    <p class="package-duration">⏱️ {{ pkg['duration_days'] }} Days / {{ pkg['duration_nights'] }} Nights</p>
+                    <p class="package-destination"> {{ pkg['destination'] }}</p>
+                    <p class="package-duration"> {{ pkg['duration_days'] }} Days / {{ pkg['duration_nights'] }} Nights</p>
                     <p class="package-snippet">{{ pkg['description'][:110] }}...</p>
 
                     <div class="package-highlights-tags">
@@ -108,7 +108,7 @@
             {% endfor %}
         {% else %}
             <div class="no-results-card">
-                <h3>No Packages Found 😔</h3>
+                <h3>No Packages Found </h3>
                 <p>We couldn't find any holiday packages matching your search criteria. Try clearing filters or searching for places like <strong>Ooty</strong>, <strong>Kodaikanal</strong>, or <strong>Madurai</strong>.</p>
                 <a href="{{ url_for('packages') }}" class="btn btn-primary-inline mt-15">Show All Packages</a>
             </div>
