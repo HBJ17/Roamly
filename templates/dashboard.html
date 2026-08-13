@@ -113,7 +113,7 @@
     <div class="tab-content">
         <div class="card">
             <h3>Travel Preferences</h3>
-            <p class="section-desc">Customize your travel style so we can tailor the best Tamil Nadu packages for you.</p>
+            <p class="section-desc">Customize your travel style so we can tailor the best packages for you.</p>
             
             <form action="{{ url_for('preferences') }}" method="POST" class="form">
                 <div class="form-group">
@@ -172,16 +172,16 @@
                     <div class="checkbox-group">
                         {% set prefs_cat = preferences['preferred_categories'] if preferences else 'Hill Station' %}
                         <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Hill Station" {% if 'Hill Station' in prefs_cat %}checked{% endif %}>  Hill Stations (Ooty, Kodaikanal, Yercaud)
+                            <input type="checkbox" name="preferred_categories" value="Hill Station" {% if 'Hill Station' in prefs_cat %}checked{% endif %}>  Hill Stations 
                         </label>
                         <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Heritage & Culture" {% if 'Heritage & Culture' in prefs_cat %}checked{% endif %}>  Heritage & Temples (Madurai, Tanjore)
+                            <input type="checkbox" name="preferred_categories" value="Heritage & Culture" {% if 'Heritage & Culture' in prefs_cat %}checked{% endif %}>  Heritage & Temples 
                         </label>
                         <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Coastal & Urban" {% if 'Coastal & Urban' in prefs_cat %}checked{% endif %}>  Coastal & Beaches (Chennai, Mahabalipuram)
+                            <input type="checkbox" name="preferred_categories" value="Coastal & Urban" {% if 'Coastal & Urban' in prefs_cat %}checked{% endif %}>  Coastal & Beaches 
                         </label>
                         <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Pilgrimage & Coastal" {% if 'Pilgrimage & Coastal' in prefs_cat %}checked{% endif %}>  Pilgrimage Coast (Rameswaram, Kanyakumari)
+                            <input type="checkbox" name="preferred_categories" value="Pilgrimage & Coastal" {% if 'Pilgrimage & Coastal' in prefs_cat %}checked{% endif %}>  Pilgrimage Coast 
                         </label>
                     </div>
                 </div>
