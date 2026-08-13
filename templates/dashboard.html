@@ -12,16 +12,16 @@
     <!-- Dashboard Navigation Tabs -->
     <div class="dashboard-tabs">
         <a href="{{ url_for('dashboard', tab='overview') }}" class="tab-btn {% if active_tab == 'overview' %}active{% endif %}">
-            📊 Overview
+            Overview
         </a>
         <a href="{{ url_for('dashboard', tab='profile') }}" class="tab-btn {% if active_tab == 'profile' %}active{% endif %}">
-            👤 Profile
+            Profile
         </a>
         <a href="{{ url_for('dashboard', tab='preferences') }}" class="tab-btn {% if active_tab == 'preferences' %}active{% endif %}">
-            ⚙️ Preferences
+            Preferences
         </a>
         <a href="{{ url_for('dashboard', tab='bookings') }}" class="tab-btn {% if active_tab == 'bookings' %}active{% endif %}">
-            🧳 Booking History ({% if bookings %}{{ bookings|length }}{% else %}0{% endif %})
+            Booking History ({% if bookings %}{{ bookings|length }}{% else %}0{% endif %})
         </a>
     </div>
 
@@ -30,21 +30,18 @@
     <div class="tab-content">
         <div class="overview-grid">
             <div class="stat-card">
-                <div class="stat-icon">🧳</div>
                 <div class="stat-info">
                     <h3>{% if bookings %}{{ bookings|length }}{% else %}0{% endif %}</h3>
                     <p>Total Bookings</p>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">🚆</div>
                 <div class="stat-info">
                     <h3>{{ preferences['preferred_travel_mode'] if preferences else 'Train' }}</h3>
                     <p>Preferred Mode</p>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">🏷️</div>
                 <div class="stat-info">
                     <h3>{{ preferences['budget_range'] if preferences else 'Moderate' }}</h3>
                     <p>Budget Tier</p>
@@ -56,9 +53,9 @@
             <h3>Quick Actions</h3>
             <p>Explore handpicked Tamil Nadu holiday destinations or manage your profile and trip preferences.</p>
             <div class="action-buttons mt-15">
-                <a href="{{ url_for('packages') }}" class="btn btn-primary-inline">🌴 Browse Destinations & Packages</a>
-                <a href="{{ url_for('dashboard', tab='profile') }}" class="btn btn-secondary-inline">✏️ Edit Profile</a>
-                <a href="{{ url_for('dashboard', tab='preferences') }}" class="btn btn-secondary-inline">⚙️ Travel Preferences</a>
+                <a href="{{ url_for('packages') }}" class="btn btn-primary-inline">Browse Destinations & Packages</a>
+                <a href="{{ url_for('dashboard', tab='profile') }}" class="btn btn-secondary-inline">Edit Profile</a>
+                <a href="{{ url_for('dashboard', tab='preferences') }}" class="btn btn-secondary-inline">Travel Preferences</a>
             </div>
         </div>
     </div>
@@ -124,16 +121,16 @@
                     <div class="radio-group">
                         {% set current_mode = preferences['preferred_travel_mode'] if preferences else 'Train' %}
                         <label class="radio-label">
-                            <input type="radio" name="preferred_travel_mode" value="Train" {% if current_mode == 'Train' %}checked{% endif %}> 🚆 Train
+                            <input type="radio" name="preferred_travel_mode" value="Train" {% if current_mode == 'Train' %}checked{% endif %}> Train
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="preferred_travel_mode" value="Flight" {% if current_mode == 'Flight' %}checked{% endif %}> ✈️ Flight
+                            <input type="radio" name="preferred_travel_mode" value="Flight" {% if current_mode == 'Flight' %}checked{% endif %}> Flight
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="preferred_travel_mode" value="Bus" {% if current_mode == 'Bus' %}checked{% endif %}> 🚌 Bus / Volvo
+                            <input type="radio" name="preferred_travel_mode" value="Bus" {% if current_mode == 'Bus' %}checked{% endif %}> Bus / Volvo
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="preferred_travel_mode" value="Private Car" {% if current_mode == 'Private Car' %}checked{% endif %}> 🚗 Private Cab
+                            <input type="radio" name="preferred_travel_mode" value="Private Car" {% if current_mode == 'Private Car' %}checked{% endif %}> Private Cab
                         </label>
                     </div>
                 </div>
@@ -143,13 +140,13 @@
                     <div class="radio-group">
                         {% set current_diet = preferences['dietary_preference'] if preferences else 'Vegetarian' %}
                         <label class="radio-label">
-                            <input type="radio" name="dietary_preference" value="Vegetarian" {% if current_diet == 'Vegetarian' %}checked{% endif %}> 🥗 Pure Vegetarian
+                            <input type="radio" name="dietary_preference" value="Vegetarian" {% if current_diet == 'Vegetarian' %}checked{% endif %}>  Pure Vegetarian
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="dietary_preference" value="Non-Vegetarian" {% if current_diet == 'Non-Vegetarian' %}checked{% endif %}> 🍗 Non-Vegetarian
+                            <input type="radio" name="dietary_preference" value="Non-Vegetarian" {% if current_diet == 'Non-Vegetarian' %}checked{% endif %}>  Non-Vegetarian
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="dietary_preference" value="Vegan" {% if current_diet == 'Vegan' %}checked{% endif %}> 🌱 Vegan
+                            <input type="radio" name="dietary_preference" value="Vegan" {% if current_diet == 'Vegan' %}checked{% endif %}>  Vegan
                         </label>
                     </div>
                 </div>
@@ -159,13 +156,13 @@
                     <div class="radio-group">
                         {% set current_budget = preferences['budget_range'] if preferences else 'Moderate' %}
                         <label class="radio-label">
-                            <input type="radio" name="budget_range" value="Budget" {% if current_budget == 'Budget' %}checked{% endif %}> 💰 Budget (Economical)
+                            <input type="radio" name="budget_range" value="Budget" {% if current_budget == 'Budget' %}checked{% endif %}>  Budget (Economical)
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="budget_range" value="Moderate" {% if current_budget == 'Moderate' %}checked{% endif %}> 💳 Moderate (Comfort)
+                            <input type="radio" name="budget_range" value="Moderate" {% if current_budget == 'Moderate' %}checked{% endif %}>  Moderate (Comfort)
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="budget_range" value="Luxury" {% if current_budget == 'Luxury' %}checked{% endif %}> 💎 Luxury (Premium)
+                            <input type="radio" name="budget_range" value="Luxury" {% if current_budget == 'Luxury' %}checked{% endif %}>  Luxury (Premium)
                         </label>
                     </div>
                 </div>
@@ -175,16 +172,16 @@
                     <div class="checkbox-group">
                         {% set prefs_cat = preferences['preferred_categories'] if preferences else 'Hill Station' %}
                         <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Hill Station" {% if 'Hill Station' in prefs_cat %}checked{% endif %}> ⛰️ Hill Stations (Ooty, Kodaikanal, Yercaud)
+                            <input type="checkbox" name="preferred_categories" value="Hill Station" {% if 'Hill Station' in prefs_cat %}checked{% endif %}>  Hill Stations (Ooty, Kodaikanal, Yercaud)
                         </label>
                         <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Heritage & Culture" {% if 'Heritage & Culture' in prefs_cat %}checked{% endif %}> 🏛️ Heritage & Temples (Madurai, Tanjore)
+                            <input type="checkbox" name="preferred_categories" value="Heritage & Culture" {% if 'Heritage & Culture' in prefs_cat %}checked{% endif %}>  Heritage & Temples (Madurai, Tanjore)
                         </label>
                         <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Coastal & Urban" {% if 'Coastal & Urban' in prefs_cat %}checked{% endif %}> 🏖️ Coastal & Beaches (Chennai, Mahabalipuram)
+                            <input type="checkbox" name="preferred_categories" value="Coastal & Urban" {% if 'Coastal & Urban' in prefs_cat %}checked{% endif %}>  Coastal & Beaches (Chennai, Mahabalipuram)
                         </label>
                         <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Pilgrimage & Coastal" {% if 'Pilgrimage & Coastal' in prefs_cat %}checked{% endif %}> 🕉️ Pilgrimage Coast (Rameswaram, Kanyakumari)
+                            <input type="checkbox" name="preferred_categories" value="Pilgrimage & Coastal" {% if 'Pilgrimage & Coastal' in prefs_cat %}checked{% endif %}>  Pilgrimage Coast (Rameswaram, Kanyakumari)
                         </label>
                     </div>
                 </div>
@@ -223,11 +220,11 @@
                             <td>#ROAM-{{ b['id'] }}</td>
                             <td>
                                 <strong>{{ b['package_title'] }}</strong><br>
-                                <small class="text-muted">📍 {{ b['destination'] }}</small>
+                                <small class="text-muted">{{ b['destination'] }}</small>
                             </td>
                             <td><span class="category-tag">{{ b['category'] }}</span></td>
-                            <td>📅 {{ b['travel_date'] }}</td>
-                            <td>👥 {{ b['num_travelers'] }}</td>
+                            <td>{{ b['travel_date'] }}</td>
+                            <td>{{ b['num_travelers'] }}</td>
                             <td><strong>₹{{ "{:,.2f}".format(b['total_price']) }}</strong></td>
                             <td>
                                 {% if b['status'] == 'Confirmed' %}
