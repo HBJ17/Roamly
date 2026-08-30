@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ transport['title'] }} - Roamly{% endblock %}
+
+{% block content %}
+<div class="package-detail-container">
+    <div class="breadcrumb">
+        <a href="{{ url_for('transports.transports') }}">← Back to Transport Options</a>
+    </div>
+
+    <div class="package-detail-layout">
+        <!-- Main Details Column -->
+        <div class="detail-main">
+            <div class="detail-header-card">
+                <div class="detail-header-top">
+                    <span class="category-badge">{{ transport['transport_type'] }}</span>
+                    <span class="rating-badge">Approx. {{ transport['duration_hours'] }} Hours</span>
+                </div>
+                <h2>{{ transport['title'] }}</h2>
+                <div class="transport-route-box mt-15">
+                    <div class="route-point">
+                        <span class="point-label">From Origin:</span>
+                        <h4>{{ transport['source_city'] }}</h4>
+                    </div>
+                    <div class="route-arrow">➔</div>
+                    <div class="route-point">
+                        <span class="point-label">To Destination:</span>
+                        <h4>{{ transport['destination_city'] }}</h4>
+                    </div>
+                </div>
+                <p class="mt-15"><strong>Scheduled Departure:</strong> {{ transport['departure_time'] }}</p>
+                {% if transport['agency_name'] %}
+                    <p class="agency-badge-pill">Operated by: <strong>{{ transport['agency_name'] }}</strong> ({{ transport['agency_type'] }})</p>
+                {% endif %}
+            </div>
+
+            <div class="card mt-20">
+                <h3>Included Service Features & Comfort</h3>
+                <ul class="amenities-list">
+                    {% for feat in transport['features'].split(',') %}
+                        <li>{{ feat.strip() }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="card mt-20">
+                <h3>Travel Guidelines & Policies</h3>
+                <ul class="highlights-list">
+                    <li>Valid Government Photo ID required at time of boarding.</li>
+                    <li>Luggage allowance: Up to 2 standard bags per passenger or private cab trunk capacity.</li>
+                    <li>Doorstep pickup available for private cabs in city center radius.</li>
+                    <li>Free cancellation up to 24 hours prior to scheduled departure.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Booking Sidebar Column -->
+        <div class="detail-sidebar">
+            <div class="booking-card">
+                <div class="price-box">
+                    <span class="price-tag">₹{{ "{:,.0f}".format(transport['price']) }}</span>
+                    <span class="price-sub">/ {% if transport['transport_type'] == 'Cab' %}vehicle{% else %}seat{% endif %}</span>
+                </div>
+
+                {% if session.get('user_id') %}
+                <form action="{{ url_for('bookings.book_transport', transport_id=transport['id']) }}" method="POST" class="booking-form">
+                    <div class="form-group">
+                        <label for="travel_date">Travel Date *</label>
+                        <input type="date" id="travel_date" name="travel_date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="num_travelers">
+                            {% if transport['transport_type'] == 'Cab' %}Passengers Traveling *{% else %}Seats to Book *{% endif %}
+                        </label>
+                        <select id="num_travelers" name="num_travelers" required onchange="calculateTransportPrice(this.value, {{ transport['price'] }}, '{{ transport['transport_type'] }}')">
+                            <option value="1">1 Person / Seat</option>
+                            <option value="2">2 Persons / Seats</option>
+                            <option value="3">3 Persons / Seats</option>
+                            <option value="4">4 Persons / Seats</option>
+                            {% if transport['transport_type'] != 'Cab' %}
+                            <option value="5">5 Seats</option>
+                            <option value="6">6 Seats</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pickup_location">Exact Pickup Address / Terminal *</label>
+                        <input type="text" id="pickup_location" name="pickup_location" placeholder="e.g. Chennai Central / Airport / Home Address" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="drop_location">Exact Drop Address / Hotel *</label>
+                        <input type="text" id="drop_location" name="drop_location" placeholder="e.g. Ooty Charing Cross / Hotel Name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact_phone">Contact Phone Number *</label>
+                        <input type="tel" id="contact_phone" name="contact_phone" placeholder="e.g. +91 9876543210" required>
+                    </div>
+
+                    <div class="total-calc-box">
+                        <span>Total Fare:</span>
+                        <strong id="transport_total_display">₹{{ "{:,.0f}".format(transport['price']) }}</strong>
+                    </div>
+
+                    <button type="submit" class="btn btn-book-now">Confirm & Book Transport</button>
+                </form>
+                {% else %}
+                <div class="login-prompt-box">
+                    <p>Please log in to book transport services and track your route vouchers.</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-primary-inline mt-10">Log In to Book</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('travel_date');
+    if (dateInput) {
+        dateInput.min = today;
+        dateInput.value = today;
+    }
+});
+
+function calculateTransportPrice(count, basePrice, type) {
+    let total = basePrice;
+    if (type !== 'Cab') {
+        total = parseInt(count) * parseFloat(basePrice);
+    }
+    document.getElementById('transport_total_display').innerText = '₹' + total.toLocaleString('en-IN');
+}
+</script>
+{% endblock %}

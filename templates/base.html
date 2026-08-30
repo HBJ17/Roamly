@@ -9,19 +9,28 @@
 <body>
     <header>
         <div class="header-brand">
-            <a href="{{ url_for('packages') if session.get('user_id') else url_for('home') }}" class="logo-link">
-                <h1>Roamly </h1>
+            <a href="{{ url_for('packages.packages') if session.get('user_id') else url_for('auth.home') }}" class="logo-link">
+                <h1>Roamly</h1>
             </a>
         </div>
         <nav class="nav-menu">
-            <a href="{{ url_for('packages') }}">Explore Packages</a>
-            <a href="{{ url_for('compare') }}">Compare {% if compare_count > 0 %}<span class="badge">{{ compare_count }}</span>{% endif %}</a>
+            <a href="{{ url_for('packages.packages') }}">Packages</a>
+            <a href="{{ url_for('hotels.hotels') }}">Hotels</a>
+            <a href="{{ url_for('transports.transports') }}">Transports</a>
+            <a href="{{ url_for('packages.compare') }}">Compare {% if compare_count > 0 %}<span class="badge">{{ compare_count }}</span>{% endif %}</a>
+            
             {% if session.get('user_id') %}
-                <a href="{{ url_for('dashboard') }}">Dashboard</a>
-                <a href="{{ url_for('logout') }}" class="nav-logout">Logout ({{ session.get('username') }})</a>
+                <a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}" class="nav-logout">Logout ({{ session.get('username') }})</a>
+            {% elif session.get('agency_id') %}
+                <a href="/agency/dashboard" class="nav-portal-badge">Agency ({{ session.get('agency_name') }})</a>
+                <a href="/agency/logout" class="nav-logout">Logout</a>
+            {% elif session.get('admin_id') %}
+                <a href="/admin/dashboard" class="nav-portal-badge">Admin ({{ session.get('admin_username') }})</a>
+                <a href="/admin/logout" class="nav-logout">Logout</a>
             {% else %}
-                <a href="{{ url_for('login') }}">Login</a>
-                <a href="{{ url_for('signup') }}" class="nav-signup">Sign Up</a>
+                <a href="{{ url_for('auth.login') }}">Login</a>
+                <a href="{{ url_for('auth.signup') }}" class="nav-signup">Sign Up</a>
             {% endif %}
         </nav>
     </header>
@@ -41,8 +50,14 @@
     </main>
 
     <footer>
-        <p>&copy; 2026 Roamly Travel & Destinations.</p>
+        <div class="footer-content">
+            <p>&copy; 2026 Roamly Travel & Destinations. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="/agency/login">Travel Agency Portal</a>
+                <span>•</span>
+                <a href="/admin/login">Admin Management</a>
+            </div>
+        </div>
     </footer>
 </body>
 </html>
-

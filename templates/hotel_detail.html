@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ hotel['name'] }} - Roamly{% endblock %}
+
+{% block content %}
+<div class="package-detail-container">
+    <div class="breadcrumb">
+        <a href="{{ url_for('hotels.hotels') }}">← Back to Hotels</a>
+    </div>
+
+    <div class="package-detail-layout">
+        <!-- Main Details Column -->
+        <div class="detail-main">
+            <div class="detail-header-card">
+                <div class="detail-header-top">
+                    <span class="category-badge">{{ hotel['city'] }}</span>
+                    <span class="rating-badge">★ {{ hotel['star_rating'] }} / 5.0</span>
+                </div>
+                <h2>{{ hotel['name'] }}</h2>
+                <p class="detail-location"><strong>Address:</strong> {{ hotel['address'] }}</p>
+                {% if hotel['agency_name'] %}
+                    <p class="agency-badge-pill">Managed by: <strong>{{ hotel['agency_name'] }}</strong> ({{ hotel['agency_type'] }})</p>
+                {% endif %}
+            </div>
+
+            <div class="card mt-20">
+                <h3>About the Property</h3>
+                <p class="detail-description">{{ hotel['description'] }}</p>
+            </div>
+
+            <div class="card mt-20">
+                <h3>Room Categories Available</h3>
+                <div class="room-types-grid">
+                    {% for room in hotel['room_types'].split(',') %}
+                        <div class="room-type-card">
+                            <h4>{{ room.strip() }}</h4>
+                            <p class="room-features-text">Max 2-3 Guests • AC • En-Suite Bath • Scenic Balcony</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card mt-20">
+                <h3>Hotel Amenities & Privileges</h3>
+                <ul class="amenities-list">
+                    {% for item in hotel['amenities'].split(',') %}
+                        <li>{{ item.strip() }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Booking Sidebar Column -->
+        <div class="detail-sidebar">
+            <div class="booking-card">
+                <div class="price-box">
+                    <span class="price-tag">₹{{ "{:,.0f}".format(hotel['price_per_night']) }}</span>
+                    <span class="price-sub">/ night</span>
+                </div>
+
+                {% if session.get('user_id') %}
+                <form action="{{ url_for('bookings.book_hotel', hotel_id=hotel['id']) }}" method="POST" class="booking-form">
+                    <div class="form-group">
+                        <label for="check_in_date">Check-in Date *</label>
+                        <input type="date" id="check_in_date" name="check_in_date" required onchange="calculateHotelPrice({{ hotel['price_per_night'] }})">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="check_out_date">Check-out Date *</label>
+                        <input type="date" id="check_out_date" name="check_out_date" required onchange="calculateHotelPrice({{ hotel['price_per_night'] }})">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="room_type">Select Room Type *</label>
+                        <select id="room_type" name="room_type" required>
+                            {% for room in hotel['room_types'].split(',') %}
+                                <option value="{{ room.strip() }}">{{ room.strip() }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="num_travelers">Number of Guests *</label>
+                        <select id="num_travelers" name="num_travelers" required>
+                            <option value="1">1 Guest</option>
+                            <option value="2" selected>2 Guests</option>
+                            <option value="3">3 Guests</option>
+                            <option value="4">4 Guests</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact_phone">Contact Phone</label>
+                        <input type="tel" id="contact_phone" name="contact_phone" placeholder="e.g. +91 9876543210">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="special_requests">Special Requests</label>
+                        <textarea id="special_requests" name="special_requests" rows="2" placeholder="Early check-in, high floor, quiet room..."></textarea>
+                    </div>
+
+                    <div class="total-calc-box">
+                        <span>Estimated Total (<span id="nights_count_display">1</span> Night):</span>
+                        <strong id="hotel_total_display">₹{{ "{:,.0f}".format(hotel['price_per_night']) }}</strong>
+                    </div>
+
+                    <button type="submit" class="btn btn-book-now">Reserve Hotel Room</button>
+                </form>
+                {% else %}
+                <div class="login-prompt-box">
+                    <p>Please log in to reserve your stay and manage your bookings.</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-primary-inline mt-10">Log In to Reserve</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    const inInput = document.getElementById('check_in_date');
+    const outInput = document.getElementById('check_out_date');
+    if (inInput && outInput) {
+        inInput.min = today;
+        inInput.value = today;
+        outInput.min = tomorrow;
+        outInput.value = tomorrow;
+    }
+});
+
+function calculateHotelPrice(ratePerNight) {
+    const inDateVal = document.getElementById('check_in_date').value;
+    const outDateVal = document.getElementById('check_out_date').value;
+    if (inDateVal && outDateVal) {
+        const d1 = new Date(inDateVal);
+        const d2 = new Date(outDateVal);
+        const diffTime = d2 - d1;
+        const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+        document.getElementById('nights_count_display').innerText = diffDays;
+        const total = diffDays * ratePerNight;
+        document.getElementById('hotel_total_display').innerText = '₹' + total.toLocaleString('en-IN');
+    }
+}
+</script>
+{% endblock %}
