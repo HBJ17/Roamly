@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block title %}Executive Analytics & Response Dashboard - Roamly Admin{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard-wrapper">
+    <!-- Admin Top Navigation Bar -->
+    <div class="admin-portal-header">
+        <div>
+            <span class="admin-shield-badge">Superadmin Control Panel</span>
+            <h2>Platform Response & Analytics</h2>
+            <p class="admin-welcome-text">Live metrics, financial performance, and multi-service response overview.</p>
+        </div>
+        <div class="admin-nav-actions">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary-inline active">Analytics Overview</a>
+            <a href="/admin/agencies" class="btn btn-secondary-inline">Agency Management</a>
+            <a href="/admin/bookings" class="btn btn-secondary-inline">All Bookings Audit</a>
+            <a href="{{ url_for('admin.logout') }}" class="btn btn-danger-inline">Logout Admin</a>
+        </div>
+    </div>
+
+    <!-- KPI Statistics Metric Cards -->
+    <div class="overview-grid mt-25">
+        <div class="stat-card admin-kpi-card">
+            <div class="stat-info">
+                <span class="kpi-label">Gross Platform Revenue</span>
+                <h3 class="kpi-val text-accent">₹{{ "{:,.2f}".format(total_revenue) }}</h3>
+                <p class="kpi-sub">Across all confirmed & modified orders</p>
+            </div>
+        </div>
+
+        <div class="stat-card admin-kpi-card">
+            <div class="stat-info">
+                <span class="kpi-label">Total Bookings Executed</span>
+                <h3 class="kpi-val">{{ total_bookings }}</h3>
+                <p class="kpi-sub">Packages, Hotels & Transports</p>
+            </div>
+        </div>
+
+        <div class="stat-card admin-kpi-card">
+            <div class="stat-info">
+                <span class="kpi-label">Registered Customers</span>
+                <h3 class="kpi-val">{{ total_users }}</h3>
+                <p class="kpi-sub">Active platform user profiles</p>
+            </div>
+        </div>
+
+        <div class="stat-card admin-kpi-card">
+            <div class="stat-info">
+                <span class="kpi-label">Travel Agencies</span>
+                <h3 class="kpi-val">{{ total_agencies }}</h3>
+                <p class="kpi-sub">Brands, Cabs & Hotel Owners</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Breakdown Grid -->
+    <div class="admin-analytics-grid mt-25">
+        <!-- Revenue Breakdown Card -->
+        <div class="card flex-1">
+            <h3>Revenue by Booking Category</h3>
+            <p class="section-desc">Financial distribution across services.</p>
+
+            <div class="category-breakdown-list">
+                <!-- Package -->
+                <div class="breakdown-item">
+                    <div class="breakdown-header">
+                        <span class="breakdown-name">Holiday Tour Packages</span>
+                        <strong class="breakdown-val">₹{{ "{:,.2f}".format(category_metrics['Package']['revenue']) }} ({{ category_metrics['Package']['pct_rev'] }}%)</strong>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill fill-blue" style="width: {{ category_metrics['Package']['pct_rev'] }}%;"></div>
+                    </div>
+                    <small class="text-muted">{{ category_metrics['Package']['count'] }} Bookings ({{ category_metrics['Package']['pct_cnt'] }}% of volume)</small>
+                </div>
+
+                <!-- Hotel -->
+                <div class="breakdown-item mt-15">
+                    <div class="breakdown-header">
+                        <span class="breakdown-name">Hotels & Stays</span>
+                        <strong class="breakdown-val">₹{{ "{:,.2f}".format(category_metrics['Hotel']['revenue']) }} ({{ category_metrics['Hotel']['pct_rev'] }}%)</strong>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill fill-green" style="width: {{ category_metrics['Hotel']['pct_rev'] }}%;"></div>
+                    </div>
+                    <small class="text-muted">{{ category_metrics['Hotel']['count'] }} Bookings ({{ category_metrics['Hotel']['pct_cnt'] }}% of volume)</small>
+                </div>
+
+                <!-- Transport -->
+                <div class="breakdown-item mt-15">
+                    <div class="breakdown-header">
+                        <span class="breakdown-name">Cabs & Transports</span>
+                        <strong class="breakdown-val">₹{{ "{:,.2f}".format(category_metrics['Transport']['revenue']) }} ({{ category_metrics['Transport']['pct_rev'] }}%)</strong>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill fill-purple" style="width: {{ category_metrics['Transport']['pct_rev'] }}%;"></div>
+                    </div>
+                    <small class="text-muted">{{ category_metrics['Transport']['count'] }} Bookings ({{ category_metrics['Transport']['pct_cnt'] }}% of volume)</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Status & Inventory Distribution Card -->
+        <div class="card flex-1">
+            <h3>Booking Response Status & Inventory</h3>
+            <p class="section-desc">Operational fulfilment metrics and active catalog size.</p>
+
+            <div class="status-summary-grid">
+                <div class="status-metric-box confirmed-box">
+                    <h4>{{ status_counts['Confirmed'] }}</h4>
+                    <span>Confirmed</span>
+                </div>
+                <div class="status-metric-box modified-box">
+                    <h4>{{ status_counts['Modified'] }}</h4>
+                    <span>Modified</span>
+                </div>
+                <div class="status-metric-box cancelled-box">
+                    <h4>{{ status_counts['Cancelled'] }}</h4>
+                    <span>Cancelled</span>
+                </div>
+            </div>
+
+            <hr class="voucher-divider">
+
+            <div class="catalog-summary-list mt-15">
+                <div class="catalog-item">
+                    <span>Tour Packages:</span>
+                    <strong>{{ total_packages }} active</strong>
+                </div>
+                <div class="catalog-item">
+                    <span>Hotels & Resorts:</span>
+                    <strong>{{ total_hotels }} active</strong>
+                </div>
+                <div class="catalog-item">
+                    <span>Transport Routes:</span>
+                    <strong>{{ total_transports }} active</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Performing Destinations Leaderboard -->
+    <div class="card mt-25">
+        <h3>Top Performing Tamil Nadu Destinations</h3>
+        <p class="section-desc">Highest volume and revenue contributing destinations across packages and hotels.</p>
+
+        {% if top_destinations %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Destination</th>
+                        <th>Total Bookings Received</th>
+                        <th>Gross Revenue Generated</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in top_destinations %}
+                    <tr>
+                        <td><strong>{{ d['destination_name'] }}</strong></td>
+                        <td>{{ d['booking_count'] }} Booking(s)</td>
+                        <td><strong class="text-accent">₹{{ "{:,.2f}".format(d['destination_revenue']) }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No destination booking data recorded yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Recent Platform Activity Table -->
+    <div class="card mt-25">
+        <div class="card-header-flex">
+            <div>
+                <h3>Recent Platform Transactions Stream</h3>
+                <p class="section-desc">Real-time incoming orders across all users.</p>
+            </div>
+            <a href="/admin/bookings" class="btn btn-link font-bold">View Full Bookings Log →</a>
+        </div>
+
+        {% if recent_bookings %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Ref Code</th>
+                        <th>Customer</th>
+                        <th>Booked Service</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Audit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in recent_bookings %}
+                    <tr>
+                        <td><strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong></td>
+                        <td>{{ b['username'] }}<br><small class="text-muted">{{ b['user_email'] }}</small></td>
+                        <td>{{ b['item_title'] }}</td>
+                        <td><span class="category-tag">{{ b['booking_type'] }}</span></td>
+                        <td>{{ b['travel_date'] }}</td>
+                        <td><strong>₹{{ "{:,.2f}".format(b['total_price']) }}</strong></td>
+                        <td><span class="status-pill status-{{ b['status']|lower }}">{{ b['status'] }}</span></td>
+                        <td><a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}" class="btn-link">Voucher</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No recent platform transactions.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
