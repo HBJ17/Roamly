@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Packages & Dynamic Pricing - Agency Portal{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard-wrapper">
+    <div class="admin-portal-header">
+        <div>
+            <span class="category-tag">{{ session.get('agency_type') }} Catalog</span>
+            <h2>Package & Plan Inventory</h2>
+            <p class="admin-welcome-text">Add new travel itineraries, adjust pricing tiers, and delete outdated packages.</p>
+        </div>
+        <div class="admin-nav-actions">
+            <a href="{{ url_for('agency.dashboard') }}" class="btn btn-secondary-inline">Agency Overview</a>
+            <a href="{{ url_for('agency.manage_packages') }}" class="btn btn-primary-inline active">Manage Packages & Pricing</a>
+            <a href="{{ url_for('agency.add_package') }}" class="btn btn-submit">+ Add Package Plan</a>
+            <a href="{{ url_for('agency.logout') }}" class="btn btn-danger-inline">Logout</a>
+        </div>
+    </div>
+
+    <div class="card mt-25">
+        <div class="card-header-flex">
+            <div>
+                <h3>All Listed Packages ({{ packages|length }})</h3>
+                <p class="section-desc">Active packages listed under your agency name on the public catalog.</p>
+            </div>
+            <a href="{{ url_for('agency.add_package') }}" class="btn btn-submit">+ Create New Package</a>
+        </div>
+
+        {% if packages %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Package Title & Destination</th>
+                        <th>Category</th>
+                        <th>Duration</th>
+                        <th>Rating</th>
+                        <th>Price / Person</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in packages %}
+                    <tr>
+                        <td><strong>#PKG-{{ p['id'] }}</strong></td>
+                        <td>
+                            <strong>{{ p['title'] }}</strong><br>
+                            <small class="text-muted">{{ p['destination'] }}</small>
+                        </td>
+                        <td><span class="category-tag">{{ p['category'] }}</span></td>
+                        <td>{{ p['duration_days'] }} Days / {{ p['duration_nights'] }} Nights</td>
+                        <td>★ {{ p['rating'] }}</td>
+                        <td><strong class="text-accent">₹{{ "{:,.2f}".format(p['price']) }}</strong></td>
+                        <td>
+                            <a href="{{ url_for('agency.edit_package', package_id=p['id']) }}" class="btn-link">Edit / Set Price</a>
+                            <span class="text-muted">•</span>
+                            <form action="{{ url_for('agency.delete_package', package_id=p['id']) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to permanently delete this package?');">
+                                <button type="submit" class="btn-text-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="dashboard-empty">
+            <h3>No Packages Listed</h3>
+            <p>You haven't added any travel packages yet. Add a package to start receiving customer bookings.</p>
+            <a href="{{ url_for('agency.add_package') }}" class="btn btn-primary-inline mt-15">+ Add Package Now</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

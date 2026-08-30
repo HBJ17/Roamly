@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_edit %}Edit Package & Pricing - {{ package['title'] }}{% else %}Add New Travel Package - Agency Portal{% endif %}{% endblock %}
+
+{% block content %}
+<div class="voucher-wrapper">
+    <div class="breadcrumb mb-20">
+        <a href="{{ url_for('agency.manage_packages') }}">← Back to Package Inventory</a>
+    </div>
+
+    <div class="card">
+        <div class="card-header-flex">
+            <div>
+                <h2>{% if is_edit %}Edit Package Plan & Set Pricing{% else %}Create New Travel Package Plan{% endif %}</h2>
+                <p class="section-desc">Provide package details, destinations, included amenities, and customer pricing.</p>
+            </div>
+            <span class="category-tag">{{ session.get('agency_type') }}</span>
+        </div>
+
+        <form action="{% if is_edit %}{{ url_for('agency.edit_package', package_id=package['id']) }}{% else %}{{ url_for('agency.add_package') }}{% endif %}" method="POST" class="form">
+            <div class="form-group">
+                <label for="title">Package Title *</label>
+                <input type="text" id="title" name="title" value="{{ package['title'] if package else '' }}" placeholder="e.g. Ooty Misty Peaks & Tea Garden Getaway" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group flex-1">
+                    <label for="destination">Destination / Location *</label>
+                    <input type="text" id="destination" name="destination" value="{{ package['destination'] if package else '' }}" placeholder="e.g. Ooty, Nilgiris" required>
+                </div>
+                <div class="form-group flex-1">
+                    <label for="category">Tour Category *</label>
+                    <select id="category" name="category" required>
+                        <option value="Hill Station" {% if package and package['category'] == 'Hill Station' %}selected{% endif %}>Hill Station</option>
+                        <option value="Heritage & Culture" {% if package and package['category'] == 'Heritage & Culture' %}selected{% endif %}>Heritage & Culture</option>
+                        <option value="Coastal & Urban" {% if package and package['category'] == 'Coastal & Urban' %}selected{% endif %}>Coastal & Urban</option>
+                        <option value="Pilgrimage & Coastal" {% if package and package['category'] == 'Pilgrimage & Coastal' %}selected{% endif %}>Pilgrimage & Coastal</option>
+                        <option value="Wildlife & Nature" {% if package and package['category'] == 'Wildlife & Nature' %}selected{% endif %}>Wildlife & Nature</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group flex-1">
+                    <label for="price">Price per Person (INR ₹) *</label>
+                    <input type="number" id="price" name="price" value="{{ package['price'] if package else '9500' }}" step="100" min="500" required>
+                    <small class="text-muted">Set competitive base price per traveler</small>
+                </div>
+                <div class="form-group flex-1">
+                    <label for="duration_days">Duration Days *</label>
+                    <input type="number" id="duration_days" name="duration_days" value="{{ package['duration_days'] if package else '3' }}" min="1" max="30" required>
+                </div>
+                <div class="form-group flex-1">
+                    <label for="duration_nights">Duration Nights *</label>
+                    <input type="number" id="duration_nights" name="duration_nights" value="{{ package['duration_nights'] if package else '2' }}" min="0" max="30" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Detailed Description *</label>
+                <textarea id="description" name="description" rows="4" placeholder="Comprehensive itinerary description, experience highlights, and unique travel offerings..." required>{{ package['description'] if package else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="highlights">Key Sightseeing Highlights (Comma-separated)</label>
+                <textarea id="highlights" name="highlights" rows="2" placeholder="e.g. Toy Train Ride, Ooty Lake Boating, Doddabetta Peak Sunset">{{ package['highlights'] if package else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="included_amenities">Included Amenities & Services (Comma-separated)</label>
+                <textarea id="included_amenities" name="included_amenities" rows="2" placeholder="e.g. 3-Star Resort Stay, Daily Breakfast, Private AC Sightseeing Cab, Entry Tickets">{{ package['included_amenities'] if package else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="image_url">Banner / Card Image URL</label>
+                <input type="url" id="image_url" name="image_url" value="{{ package['image_url'] if package else '' }}" placeholder="https://images.unsplash.com/photo-...">
+            </div>
+
+            <div class="form-actions-flex mt-20">
+                <button type="submit" class="btn btn-submit">{% if is_edit %}Save Package & Pricing Changes{% else %}+ Publish New Package Plan{% endif %}</button>
+                <a href="{{ url_for('agency.manage_packages') }}" class="btn btn-secondary-inline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
