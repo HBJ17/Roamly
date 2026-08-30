@@ -6,6 +6,7 @@ from packages import packages_bp
 from hotels import hotels_bp
 from transports import transports_bp
 from bookings import bookings_bp
+from admin import admin_bp
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_for_session'
@@ -20,6 +21,7 @@ app.register_blueprint(packages_bp)
 app.register_blueprint(hotels_bp)
 app.register_blueprint(transports_bp)
 app.register_blueprint(bookings_bp)
+app.register_blueprint(admin_bp)
 
 # Build error handler for legacy endpoint names in templates
 def url_build_error_handler(error, endpoint, values):
