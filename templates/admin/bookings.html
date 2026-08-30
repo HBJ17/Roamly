@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}All Platform Bookings Audit - Roamly Admin{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard-wrapper">
+    <!-- Admin Top Navigation Bar -->
+    <div class="admin-portal-header">
+        <div>
+            <span class="admin-shield-badge">Superadmin Control Panel</span>
+            <h2>Platform Bookings Audit & Logs</h2>
+            <p class="admin-welcome-text">Comprehensive transaction ledger across all registered users and travel services.</p>
+        </div>
+        <div class="admin-nav-actions">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary-inline">Analytics Overview</a>
+            <a href="{{ url_for('admin.agencies') }}" class="btn btn-secondary-inline">Agency Management</a>
+            <a href="{{ url_for('admin.global_bookings') }}" class="btn btn-primary-inline active">All Bookings Audit</a>
+            <a href="{{ url_for('admin.logout') }}" class="btn btn-danger-inline">Logout Admin</a>
+        </div>
+    </div>
+
+    <!-- Search & Filter Section -->
+    <div class="search-filter-section mt-25">
+        <form method="GET" action="{{ url_for('admin.global_bookings') }}" class="search-filter-form">
+            <div class="search-inputs-grid">
+                <div class="input-group">
+                    <label for="q">Search Transactions</label>
+                    <input type="text" id="q" name="q" value="{{ query }}" placeholder="Username, email, service title, phone...">
+                </div>
+
+                <div class="input-group">
+                    <label for="type">Booking Service Category</label>
+                    <select id="type" name="type">
+                        <option value="">All Services (Package, Hotel, Transport)</option>
+                        <option value="Package" {% if selected_type == 'Package' %}selected{% endif %}>Package Tours</option>
+                        <option value="Hotel" {% if selected_type == 'Hotel' %}selected{% endif %}>Hotel Stays</option>
+                        <option value="Transport" {% if selected_type == 'Transport' %}selected{% endif %}>Transports & Cabs</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="status">Booking Status</label>
+                    <select id="status" name="status">
+                        <option value="">All Statuses</option>
+                        <option value="Confirmed" {% if selected_status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+                        <option value="Modified" {% if selected_status == 'Modified' %}selected{% endif %}>Modified</option>
+                        <option value="Cancelled" {% if selected_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-search">Search Audit Log</button>
+                {% if query or selected_type or selected_status %}
+                    <a href="{{ url_for('admin.global_bookings') }}" class="btn btn-reset">Clear Filters</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Bookings Table Card -->
+    <div class="card mt-25">
+        <div class="card-header-flex">
+            <div>
+                <h3>Master Transaction Ledger ({{ bookings|length }})</h3>
+                <p class="section-desc">Auditable record of all booking orders placed on Roamly.</p>
+            </div>
+        </div>
+
+        {% if bookings %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Booking Ref</th>
+                        <th>Customer Details</th>
+                        <th>Service / Package</th>
+                        <th>Category</th>
+                        <th>Travel Date</th>
+                        <th>Travelers</th>
+                        <th>Total Paid</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings %}
+                    <tr>
+                        <td>
+                            <strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong><br>
+                            <small class="text-muted">{{ b['created_at'][:10] }}</small>
+                        </td>
+                        <td>
+                            <strong>{{ b['user_full_name'] or b['username'] }}</strong><br>
+                            <small class="text-muted">{{ b['user_email'] }}</small><br>
+                            <small class="text-muted">{{ b['contact_phone'] or 'No phone' }}</small>
+                        </td>
+                        <td>
+                            <strong>{{ b['item_title'] }}</strong><br>
+                            <small class="text-muted">{{ b['item_location'] }}</small>
+                        </td>
+                        <td><span class="category-tag">{{ b['booking_type'] }}</span></td>
+                        <td>
+                            <strong>{{ b['travel_date'] }}</strong>
+                            {% if b['check_out_date'] %}<br><small class="text-muted">to {{ b['check_out_date'] }}</small>{% endif %}
+                        </td>
+                        <td>{{ b['num_travelers'] }}</td>
+                        <td><strong class="text-accent">₹{{ "{:,.2f}".format(b['total_price']) }}</strong></td>
+                        <td><span class="status-pill status-{{ b['status']|lower }}">{{ b['status'] }}</span></td>
+                        <td>
+                            <a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}" class="btn-link font-bold">Voucher</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="dashboard-empty">
+            <h3>No Bookings Found</h3>
+            <p>No transactions match the selected filters or search parameters.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

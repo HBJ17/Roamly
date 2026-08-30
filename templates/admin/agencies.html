@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}Travel Agency Credential Management - Roamly Admin{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard-wrapper">
+    <!-- Admin Top Navigation Bar -->
+    <div class="admin-portal-header">
+        <div>
+            <span class="admin-shield-badge">Superadmin Control Panel</span>
+            <h2>Travel Agency Partner Management</h2>
+            <p class="admin-welcome-text">Provision partner credentials, manage travel brands, cab fleets, hotel owners, and tour operators.</p>
+        </div>
+        <div class="admin-nav-actions">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary-inline">Analytics Overview</a>
+            <a href="{{ url_for('admin.agencies') }}" class="btn btn-primary-inline active">Agency Management</a>
+            <a href="{{ url_for('admin.global_bookings') }}" class="btn btn-secondary-inline">All Bookings Audit</a>
+            <a href="{{ url_for('admin.logout') }}" class="btn btn-danger-inline">Logout Admin</a>
+        </div>
+    </div>
+
+    <!-- Agency Provisioning Form Card -->
+    <div class="card mt-25">
+        <h3>Provision New Travel Agency Credentials</h3>
+        <p class="section-desc">Create login credentials for travel brands, cab fleet operators, hotel owners, and tour operators.</p>
+
+        <form action="{{ url_for('admin.add_agency') }}" method="POST" class="form">
+            <div class="form-row">
+                <div class="form-group flex-1">
+                    <label for="name">Agency / Business Legal Name *</label>
+                    <input type="text" id="name" name="name" placeholder="e.g. Nilgiri Mountain Express Cabs" required>
+                </div>
+                <div class="form-group flex-1">
+                    <label for="agency_type">Agency Service Type *</label>
+                    <select id="agency_type" name="agency_type" required>
+                        <option value="Travel Brand">Travel Brand (Full Holiday Packages)</option>
+                        <option value="Hotel Owner">Hotel Owner (Resorts, Stays & Villas)</option>
+                        <option value="Cab Service">Cab Service (Private Fleet & Chauffeurs)</option>
+                        <option value="Tour Operator">Tour Operator (Bus, Volvo & Group Excursions)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group flex-1">
+                    <label for="username">Agency Login Username *</label>
+                    <input type="text" id="username" name="username" placeholder="e.g. nilgiri_cabs" required>
+                </div>
+                <div class="form-group flex-1">
+                    <label for="password">Account Password *</label>
+                    <input type="password" id="password" name="password" placeholder="Create secure access password" required>
+                </div>
+                <div class="form-group flex-1">
+                    <label for="email">Official Business Email *</label>
+                    <input type="email" id="email" name="email" placeholder="contact@agency.com" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group flex-1">
+                    <label for="phone">Support Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+91 9876543210">
+                </div>
+                <div class="form-group flex-2">
+                    <label for="address">Operational Address / HQ Location</label>
+                    <input type="text" id="address" name="address" placeholder="Commercial Road, Ooty / Anna Salai, Chennai">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-submit mt-10">+ Provision & Register Agency Credentials</button>
+        </form>
+    </div>
+
+    <!-- Filter Bar for Agencies -->
+    <div class="search-filter-section mt-25">
+        <form method="GET" action="{{ url_for('admin.agencies') }}" class="search-filter-form">
+            <div class="search-inputs-grid">
+                <div class="input-group">
+                    <label for="q">Search Agency</label>
+                    <input type="text" id="q" name="q" value="{{ query }}" placeholder="Name, username, email...">
+                </div>
+
+                <div class="input-group">
+                    <label for="type">Filter by Agency Type</label>
+                    <select id="type" name="type">
+                        <option value="">All Agency Types</option>
+                        <option value="Travel Brand" {% if selected_type == 'Travel Brand' %}selected{% endif %}>Travel Brand</option>
+                        <option value="Hotel Owner" {% if selected_type == 'Hotel Owner' %}selected{% endif %}>Hotel Owner</option>
+                        <option value="Cab Service" {% if selected_type == 'Cab Service' %}selected{% endif %}>Cab Service</option>
+                        <option value="Tour Operator" {% if selected_type == 'Tour Operator' %}selected{% endif %}>Tour Operator</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="status">Filter by Status</label>
+                    <select id="status" name="status">
+                        <option value="">All Statuses</option>
+                        <option value="Active" {% if selected_status == 'Active' %}selected{% endif %}>Active</option>
+                        <option value="Inactive" {% if selected_status == 'Inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-search">Apply Filter</button>
+                {% if query or selected_type or selected_status %}
+                    <a href="{{ url_for('admin.agencies') }}" class="btn btn-reset">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Agencies List Table -->
+    <div class="card mt-25">
+        <div class="card-header-flex">
+            <div>
+                <h3>Registered Travel Agencies ({{ agencies|length }})</h3>
+                <p class="section-desc">Active business partners holding portal access rights.</p>
+            </div>
+        </div>
+
+        {% if agencies %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Agency ID</th>
+                        <th>Business Entity & Type</th>
+                        <th>Login Username</th>
+                        <th>Contact Email & Phone</th>
+                        <th>Catalog Listings</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in agencies %}
+                    <tr>
+                        <td><strong>#AGY-{{ "%03d"|format(a['id']) }}</strong></td>
+                        <td>
+                            <strong>{{ a['name'] }}</strong><br>
+                            <span class="category-tag">{{ a['agency_type'] }}</span><br>
+                            <small class="text-muted">{{ a['address'] or 'Address not specified' }}</small>
+                        </td>
+                        <td><code>{{ a['username'] }}</code></td>
+                        <td>
+                            <strong>{{ a['email'] }}</strong><br>
+                            <small class="text-muted">{{ a['phone'] or 'No phone' }}</small>
+                        </td>
+                        <td>
+                            <small>
+                                Packages: <strong>{{ a['package_count'] }}</strong> • 
+                                Hotels: <strong>{{ a['hotel_count'] }}</strong> • 
+                                Transports: <strong>{{ a['transport_count'] }}</strong>
+                            </small>
+                        </td>
+                        <td>
+                            <span class="status-pill status-{{ 'confirmed' if a['status'] == 'Active' else 'cancelled' }}">{{ a['status'] }}</span>
+                        </td>
+                        <td>
+                            <form action="{{ url_for('admin.toggle_agency', agency_id=a['id']) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn-link">
+                                    {{ 'Deactivate' if a['status'] == 'Active' else 'Activate' }}
+                                </button>
+                            </form>
+                            <span class="text-muted">•</span>
+                            <form action="{{ url_for('admin.delete_agency', agency_id=a['id']) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete agency \'{{ a['name'] }}\'?');">
+                                <button type="submit" class="btn-text-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="dashboard-empty">
+            <h3>No Travel Agencies Registered</h3>
+            <p>No agencies match your search query. Use the form above to provision new agency partner credentials.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
