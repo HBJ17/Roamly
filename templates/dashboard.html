@@ -192,55 +192,72 @@
     </div>
     {% endif %}
 
-    <!-- Tab 4: Booking History -->
+    <!-- Tab 4: Booking History & Management -->
     {% if active_tab == 'bookings' %}
     <div class="tab-content">
         <div class="card">
-            <h3>Your Booking History</h3>
-            <p class="section-desc">View all your active and past holiday bookings.</p>
+            <div class="card-header-flex">
+                <div>
+                    <h3>Your Booking Management</h3>
+                    <p class="section-desc">Manage your trip itineraries, modify travel dates/travelers, cancel reservations, or download printable vouchers.</p>
+                </div>
+            </div>
             
             {% if bookings %}
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Booking #</th>
-                            <th>Package & Destination</th>
-                            <th>Category</th>
-                            <th>Travel Date</th>
-                            <th>Travelers</th>
-                            <th>Total Price</th>
+                            <th>Ref #</th>
+                            <th>Service Details</th>
+                            <th>Type</th>
+                            <th>Schedule Date</th>
+                            <th>Travelers / Units</th>
+                            <th>Total Amount</th>
                             <th>Status</th>
-                            <th>Action</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for b in bookings %}
                         <tr>
-                            <td>#ROAM-{{ b['id'] }}</td>
                             <td>
-                                <strong>{{ b['package_title'] }}</strong><br>
-                                <small class="text-muted">{{ b['destination'] }}</small>
+                                <strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong><br>
+                                <small class="text-muted">{{ b['created_at'][:10] }}</small>
                             </td>
-                            <td><span class="category-tag">{{ b['category'] }}</span></td>
-                            <td>{{ b['travel_date'] }}</td>
-                            <td>{{ b['num_travelers'] }}</td>
-                            <td><strong>₹{{ "{:,.2f}".format(b['total_price']) }}</strong></td>
                             <td>
-                                {% if b['status'] == 'Confirmed' %}
-                                    <span class="badge badge-success">Confirmed</span>
-                                {% elif b['status'] == 'Cancelled' %}
-                                    <span class="badge badge-danger">Cancelled</span>
-                                {% else %}
-                                    <span class="badge badge-warning">{{ b['status'] }}</span>
+                                <strong>{{ b['item_title'] }}</strong><br>
+                                <small class="text-muted">{{ b['item_destination'] }}</small>
+                                {% if b['booking_type'] == 'Hotel' and b['room_type'] %}
+                                    <br><small class="text-muted">Room: {{ b['room_type'] }}</small>
+                                {% elif b['booking_type'] == 'Transport' and b['pickup_location'] %}
+                                    <br><small class="text-muted">Pickup: {{ b['pickup_location'] }}</small>
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{{ url_for('package_detail', package_id=b['package_id']) }}" class="btn-link">View Package</a>
-                                {% if b['status'] == 'Confirmed' %}
-                                <form action="{{ url_for('cancel_booking', booking_id=b['id']) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
-                                    <button type="submit" class="btn-text-danger">Cancel</button>
-                                </form>
+                                <span class="category-tag">{{ b['booking_type'] }}</span>
+                            </td>
+                            <td>
+                                <strong>{{ b['travel_date'] }}</strong>
+                                {% if b['booking_type'] == 'Hotel' and b['check_out_date'] %}
+                                    <br><small class="text-muted">to {{ b['check_out_date'] }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ b['num_travelers'] }} {% if b['booking_type'] == 'Hotel' %}Guest(s){% elif b['booking_type'] == 'Transport' %}Seat(s){% else %}Traveler(s){% endif %}</td>
+                            <td><strong>₹{{ "{:,.2f}".format(b['total_price']) }}</strong></td>
+                            <td>
+                                <span class="status-pill status-{{ b['status']|lower }}">{{ b['status'] }}</span>
+                            </td>
+                            <td class="action-links-cell">
+                                <a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}" class="btn-link font-bold">Voucher</a>
+                                
+                                {% if b['status'] != 'Cancelled' %}
+                                    <span class="text-muted">•</span>
+                                    <a href="{{ url_for('bookings.modify_booking', booking_id=b['id']) }}" class="btn-link">Modify</a>
+                                    <span class="text-muted">•</span>
+                                    <form action="{{ url_for('bookings.cancel_booking', booking_id=b['id']) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this booking? Cancellation policies may apply.');">
+                                        <button type="submit" class="btn-text-danger">Cancel</button>
+                                    </form>
                                 {% endif %}
                             </td>
                         </tr>
@@ -251,8 +268,12 @@
             {% else %}
             <div class="dashboard-empty">
                 <h3>No Bookings Yet</h3>
-                <p>You haven't booked any travel packages yet. Explore our featured Tamil Nadu destinations!</p>
-                <a href="{{ url_for('packages') }}" class="btn btn-primary-inline mt-15">Explore Packages Now</a>
+                <p>You haven't booked any travel packages, hotel stays, or transport services yet. Explore Tamil Nadu destinations today!</p>
+                <div class="empty-action-links mt-15">
+                    <a href="{{ url_for('packages.packages') }}" class="btn btn-primary-inline">Explore Packages</a>
+                    <a href="{{ url_for('hotels.hotels') }}" class="btn btn-secondary-inline">Explore Hotels</a>
+                    <a href="{{ url_for('transports.transports') }}" class="btn btn-secondary-inline">Explore Transports</a>
+                </div>
             </div>
             {% endif %}
         </div>

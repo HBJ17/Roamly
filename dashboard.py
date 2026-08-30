@@ -19,11 +19,18 @@ def dashboard():
     cursor.execute('SELECT * FROM user_preferences WHERE user_id = ?', (user_id,))
     preferences = cursor.fetchone()
 
-    # Fetch Bookings
+    # Fetch Bookings across all categories
     cursor.execute('''
-        SELECT b.*, p.title as package_title, p.destination, p.category, p.image_url
+        SELECT 
+            b.*,
+            COALESCE(p.title, h.name, t.title) as item_title,
+            COALESCE(p.destination, h.city, t.source_city || ' to ' || t.destination_city) as item_destination,
+            COALESCE(p.category, 'Stay', t.transport_type) as item_category,
+            COALESCE(p.image_url, h.image_url, t.image_url) as item_image_url
         FROM bookings b
-        JOIN packages p ON b.package_id = p.id
+        LEFT JOIN packages p ON b.package_id = p.id
+        LEFT JOIN hotels h ON b.hotel_id = h.id
+        LEFT JOIN transports t ON b.transport_id = t.id
         WHERE b.user_id = ?
         ORDER BY b.created_at DESC
     ''', (user_id,))
@@ -31,6 +38,7 @@ def dashboard():
     conn.close()
 
     active_tab = request.args.get('tab', 'overview')
+    booking_filter = request.args.get('filter', 'all')
 
     return render_template(
         'dashboard.html',
@@ -38,6 +46,7 @@ def dashboard():
         preferences=preferences,
         bookings=bookings,
         active_tab=active_tab,
+        booking_filter=booking_filter,
         username=session.get('username')
     )
 
