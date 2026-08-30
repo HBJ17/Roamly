@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking Confirmation Voucher #ROAM-{{ booking['id'] }} - Roamly{% endblock %}
+
+{% block content %}
+<div class="voucher-wrapper">
+    <div class="voucher-header-actions no-print">
+        <a href="{{ url_for('dashboard.dashboard', tab='bookings') }}" class="btn btn-secondary-inline">← Back to My Bookings</a>
+        <div class="right-actions">
+            {% if booking['status'] != 'Cancelled' %}
+                <a href="{{ url_for('bookings.modify_booking', booking_id=booking['id']) }}" class="btn btn-primary-inline">Modify Booking</a>
+            {% endif %}
+            <button onclick="window.print()" class="btn btn-print">Print / Save PDF Voucher</button>
+        </div>
+    </div>
+
+    <div class="voucher-card">
+        <!-- Voucher Top Brand Bar -->
+        <div class="voucher-brand-header">
+            <div class="voucher-brand">
+                <h2>Roamly Travels</h2>
+                <p>Official Trip Confirmation Voucher & Tax Invoice</p>
+            </div>
+            <div class="voucher-ref-badge">
+                <span class="ref-label">Booking Reference</span>
+                <span class="ref-code">#ROAM-{{ booking['booking_type'][:3]|upper }}-{{ "%04d"|format(booking['id']) }}</span>
+                <span class="status-pill status-{{ booking['status']|lower }}">{{ booking['status'] }}</span>
+            </div>
+        </div>
+
+        <!-- Meta Information Row -->
+        <div class="voucher-meta-grid">
+            <div class="meta-item">
+                <span class="meta-title">Booking Date & Time</span>
+                <strong class="meta-value">{{ booking['created_at'] }}</strong>
+            </div>
+            <div class="meta-item">
+                <span class="meta-title">Primary Traveler</span>
+                <strong class="meta-value">{{ booking['user_full_name'] or booking['username'] }}</strong>
+            </div>
+            <div class="meta-item">
+                <span class="meta-title">Contact Phone</span>
+                <strong class="meta-value">{{ booking['contact_phone'] or booking['user_phone'] or 'Not provided' }}</strong>
+            </div>
+            <div class="meta-item">
+                <span class="meta-title">Booking Category</span>
+                <strong class="meta-value">{{ booking['booking_type'] }} Service</strong>
+            </div>
+        </div>
+
+        <hr class="voucher-divider">
+
+        <!-- Main Service Details -->
+        <div class="voucher-service-section">
+            <h3>Service & Itinerary Specifications</h3>
+
+            {% if booking['booking_type'] == 'Package' and item %}
+                <div class="service-details-box">
+                    <div class="service-title-row">
+                        <h4>{{ item['title'] }}</h4>
+                        <span class="category-tag">{{ item['category'] }}</span>
+                    </div>
+                    <p class="service-meta-text"><strong>Destination:</strong> {{ item['destination'] }} | <strong>Duration:</strong> {{ item['duration_days'] }} Days / {{ item['duration_nights'] }} Nights</p>
+                    <div class="itinerary-grid mt-10">
+                        <div><strong>Travel Date:</strong> {{ booking['travel_date'] }}</div>
+                        <div><strong>Number of Travelers:</strong> {{ booking['num_travelers'] }} Person(s)</div>
+                    </div>
+                    {% if item['highlights'] %}
+                    <div class="service-highlights mt-10">
+                        <strong>Included Highlights:</strong> {{ item['highlights'] }}
+                    </div>
+                    {% endif %}
+                </div>
+
+            {% elif booking['booking_type'] == 'Hotel' and item %}
+                <div class="service-details-box">
+                    <div class="service-title-row">
+                        <h4>{{ item['name'] }}</h4>
+                        <span class="category-tag">{{ item['city'] }}</span>
+                    </div>
+                    <p class="service-meta-text"><strong>Property Address:</strong> {{ item['address'] }}</p>
+                    <div class="itinerary-grid mt-10">
+                        <div><strong>Check-in:</strong> {{ booking['travel_date'] }} (12:00 PM)</div>
+                        <div><strong>Check-out:</strong> {{ booking['check_out_date'] }} (11:00 AM)</div>
+                        <div><strong>Room Category:</strong> {{ booking['room_type'] or 'Standard' }}</div>
+                        <div><strong>Total Nights / Guests:</strong> {{ nights }} Night(s) / {{ booking['num_travelers'] }} Guest(s)</div>
+                    </div>
+                </div>
+
+            {% elif booking['booking_type'] == 'Transport' and item %}
+                <div class="service-details-box">
+                    <div class="service-title-row">
+                        <h4>{{ item['title'] }}</h4>
+                        <span class="category-tag">{{ item['transport_type'] }} Transit</span>
+                    </div>
+                    <div class="transport-voucher-route mt-10">
+                        <span><strong>From:</strong> {{ item['source_city'] }}</span>
+                        <span>➔</span>
+                        <span><strong>To:</strong> {{ item['destination_city'] }}</span>
+                    </div>
+                    <div class="itinerary-grid mt-10">
+                        <div><strong>Travel Date:</strong> {{ booking['travel_date'] }}</div>
+                        <div><strong>Departure Time:</strong> {{ item['departure_time'] }}</div>
+                        <div><strong>Pickup Point:</strong> {{ booking['pickup_location'] or item['source_city'] }}</div>
+                        <div><strong>Drop Point:</strong> {{ booking['drop_location'] or item['destination_city'] }}</div>
+                        <div><strong>Passengers / Seats:</strong> {{ booking['num_travelers'] }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if booking['special_requests'] %}
+                <div class="special-instructions-box mt-15">
+                    <strong>Special Requests / Instructions:</strong>
+                    <p>{{ booking['special_requests'] }}</p>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if item and item['agency_name'] %}
+        <div class="voucher-agency-info mt-20">
+            <span class="agency-title">Service Provider:</span>
+            <strong>{{ item['agency_name'] }}</strong> ({{ item['agency_type'] }})
+            {% if item['agency_phone'] %} • Helpline: {{ item['agency_phone'] }}{% endif %}
+            {% if item['agency_email'] %} • Email: {{ item['agency_email'] }}{% endif %}
+        </div>
+        {% endif %}
+
+        <hr class="voucher-divider">
+
+        <!-- Financial Summary Table -->
+        <div class="voucher-billing-section">
+            <h3>Payment & Invoice Summary</h3>
+            <table class="voucher-table">
+                <thead>
+                    <tr>
+                        <th>Item Description</th>
+                        <th>Rate / Unit</th>
+                        <th>Qty / Units</th>
+                        <th class="text-right">Amount (INR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            {% if booking['booking_type'] == 'Package' %}
+                                {{ item['title'] if item else 'Travel Package' }} (Full Package Tour)
+                            {% elif booking['booking_type'] == 'Hotel' %}
+                                {{ item['name'] if item else 'Hotel Accommodation' }} - {{ booking['room_type'] or 'Standard Room' }}
+                            {% else %}
+                                {{ item['title'] if item else 'Transport Transit' }} ({{ item['source_city'] if item else '' }} to {{ item['destination_city'] if item else '' }})
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if booking['booking_type'] == 'Package' %}
+                                ₹{{ "{:,.2f}".format(item['price']) if item else '0.00' }} / person
+                            {% elif booking['booking_type'] == 'Hotel' %}
+                                ₹{{ "{:,.2f}".format(item['price_per_night']) if item else '0.00' }} / night
+                            {% else %}
+                                ₹{{ "{:,.2f}".format(item['price']) if item else '0.00' }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if booking['booking_type'] == 'Package' %}
+                                {{ booking['num_travelers'] }} Traveler(s)
+                            {% elif booking['booking_type'] == 'Hotel' %}
+                                {{ nights }} Night(s)
+                            {% else %}
+                                {{ booking['num_travelers'] }} Seat(s) / Vehicle
+                            {% endif %}
+                        </td>
+                        <td class="text-right font-bold">
+                            ₹{{ "{:,.2f}".format(booking['total_price']) }}
+                        </td>
+                    </tr>
+                    <tr class="subtotal-row">
+                        <td colspan="3" class="text-right">Taxes & GST (Inclusive):</td>
+                        <td class="text-right font-bold">₹0.00 (Included)</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="3" class="text-right"><strong>Grand Total Paid:</strong></td>
+                        <td class="text-right font-bold text-accent">
+                            <strong>₹{{ "{:,.2f}".format(booking['total_price']) }}</strong>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="voucher-footer-terms mt-20">
+            <p><strong>Important Travel Notice:</strong> Please present this digital voucher or printed copy alongside government identification upon hotel check-in or transport boarding. For assistance, contact Roamly Support or your assigned provider.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

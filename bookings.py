@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, url_for, session, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from datetime import datetime
 from database.connection import get_db_connection
 from utils.decorators import login_required
@@ -174,7 +174,73 @@ def book_package_legacy(package_id):
 @bookings_bp.route('/bookings/summary/<int:booking_id>')
 @login_required
 def booking_summary(booking_id):
-    # Will be expanded in Commit 4 with full template
+    user_id = session['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT b.*, u.username, u.email as user_email, u.full_name as user_full_name, u.phone as user_phone
+        FROM bookings b
+        JOIN users u ON b.user_id = u.id
+        WHERE b.id = ? AND (b.user_id = ? OR ? = 1)
+    ''', (booking_id, user_id, 1 if session.get('admin_id') else 0))
+    booking = cursor.fetchone()
+
+    if not booking:
+        conn.close()
+        flash('Booking voucher record not found.', 'danger')
+        return redirect(url_for('dashboard.dashboard'))
+
+    item_details = None
+    agency = None
+
+    if booking['booking_type'] == 'Hotel' and booking['hotel_id']:
+        cursor.execute('''
+            SELECT h.*, a.name as agency_name, a.agency_type, a.phone as agency_phone, a.email as agency_email
+            FROM hotels h
+            LEFT JOIN agencies a ON h.agency_id = a.id
+            WHERE h.id = ?
+        ''', (booking['hotel_id'],))
+        item_details = cursor.fetchone()
+    elif booking['booking_type'] == 'Transport' and booking['transport_id']:
+        cursor.execute('''
+            SELECT t.*, a.name as agency_name, a.agency_type, a.phone as agency_phone, a.email as agency_email
+            FROM transports t
+            LEFT JOIN agencies a ON t.agency_id = a.id
+            WHERE t.id = ?
+        ''', (booking['transport_id'],))
+        item_details = cursor.fetchone()
+    else:
+        cursor.execute('''
+            SELECT p.*, a.name as agency_name, a.agency_type, a.phone as agency_phone, a.email as agency_email
+            FROM packages p
+            LEFT JOIN agencies a ON p.agency_id = a.id
+            WHERE p.id = ?
+        ''', (booking['package_id'],))
+        item_details = cursor.fetchone()
+
+    conn.close()
+
+    # Calculate nights if hotel
+    nights = 1
+    if booking['booking_type'] == 'Hotel' and booking['check_out_date']:
+        try:
+            d1 = datetime.strptime(booking['travel_date'], '%Y-%m-%d')
+            d2 = datetime.strptime(booking['check_out_date'], '%Y-%m-%d')
+            nights = max(1, (d2 - d1).days)
+        except ValueError:
+            nights = 1
+
+    return render_template(
+        'booking_summary.html',
+        booking=booking,
+        item=item_details,
+        nights=nights
+    )
+
+@bookings_bp.route('/bookings/modify/<int:booking_id>', methods=['GET', 'POST'])
+@login_required
+def modify_booking(booking_id):
     user_id = session['user_id']
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -182,6 +248,7 @@ def booking_summary(booking_id):
     booking = cursor.fetchone()
     conn.close()
     if not booking:
-        flash('Booking record not found.', 'danger')
-        return redirect(url_for('dashboard.dashboard'))
+        flash('Booking not found.', 'danger')
+        return redirect(url_for('dashboard.dashboard', tab='bookings'))
     return redirect(url_for('dashboard.dashboard', tab='bookings'))
+
