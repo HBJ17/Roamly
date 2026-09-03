@@ -5,15 +5,17 @@ from payments import create_notification
 
 reviews_bp = Blueprint('reviews', __name__)
 
+# reviews summary
 def get_item_reviews_summary(item_type, item_id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    # fetch reviews
     cursor.execute('''
         SELECT r.*, u.username, u.full_name
         FROM reviews r
         JOIN users u ON r.user_id = u.id
-        WHERE r.item_type = ? AND r.item_id = ?
+        WHERE r.item_type = %s AND r.item_id = %s
         ORDER BY r.created_at DESC
     ''', (item_type.lower(), item_id))
     reviews_list = cursor.fetchall()
@@ -50,22 +52,24 @@ def get_item_reviews_summary(item_type, item_id):
         'breakdown_pct': breakdown_pct
     }
 
+# recalculate ratings
 def update_item_rating(item_type, item_id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute('SELECT AVG(rating) as avg_score FROM reviews WHERE item_type = ? AND item_id = ?', (item_type.lower(), item_id))
+    cursor.execute('SELECT AVG(rating) as avg_score FROM reviews WHERE item_type = %s AND item_id = %s', (item_type.lower(), item_id))
     row = cursor.fetchone()
     if row and row['avg_score']:
         avg_score = round(float(row['avg_score']), 1)
         if item_type.lower() == 'package':
-            cursor.execute('UPDATE packages SET rating = ? WHERE id = ?', (avg_score, item_id))
+            cursor.execute('UPDATE packages SET rating = %s WHERE id = %s', (avg_score, item_id))
         elif item_type.lower() == 'hotel':
-            cursor.execute('UPDATE hotels SET star_rating = ? WHERE id = ?', (avg_score, item_id))
+            cursor.execute('UPDATE hotels SET star_rating = %s WHERE id = %s', (avg_score, item_id))
         conn.commit()
 
     conn.close()
 
+# submit review
 @reviews_bp.route('/reviews/add', methods=['POST'])
 @login_required
 def add_review():
@@ -86,26 +90,27 @@ def add_review():
         flash('Please provide both a review headline and detailed comments.', 'danger')
         return redirect(request.referrer or url_for('packages.packages'))
 
+    # insert review
     conn = get_db_connection()
     cursor = conn.cursor()
-
     cursor.execute('''
         INSERT INTO reviews (user_id, item_type, item_id, rating, title, comment, travel_type, verified_booking)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, 1)
     ''', (user_id, item_type, item_id, rating, title, comment, travel_type))
     conn.commit()
     conn.close()
 
-    # Recompute average score
+    # update aggregate
     update_item_rating(item_type, item_id)
 
-    # Trigger notification
+    # create notification
     create_notification(
         user_id=user_id,
         title="Review Published",
-        message=f"Thank you for sharing your {rating}-star review '{title}'! Your feedback helps fellow travelers explore Tamil Nadu.",
-        notification_type='review'
+        message=f"Thank you for reviewing! Your feedback '{title}' is now live.",
+        notification_type='review',
+        link_url=request.referrer or url_for('packages.packages')
     )
 
-    flash('Your verified traveler review has been published successfully!', 'success')
+    flash('Thank you! Your verified traveler review has been published.', 'success')
     return redirect(request.referrer or url_for('packages.packages'))

@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import session, flash, redirect, url_for
 
+# user auth decorator
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -10,6 +11,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# admin auth decorator
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -19,6 +21,7 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# agency auth decorator
 def agency_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):

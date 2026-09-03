@@ -4,6 +4,7 @@ from utils.decorators import admin_required
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
+# admin login
 @admin_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if 'admin_id' in session:
@@ -19,7 +20,7 @@ def login():
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM admins WHERE username = ? AND password = ?', (username, password))
+        cursor.execute('SELECT * FROM admins WHERE username = %s AND password = %s', (username, password))
         admin = cursor.fetchone()
         conn.close()
 
@@ -36,6 +37,7 @@ def login():
 
     return render_template('admin/login.html')
 
+# admin logout
 @admin_bp.route('/logout')
 def logout():
     session.pop('admin_id', None)
@@ -45,29 +47,30 @@ def logout():
     flash('Administrator session terminated successfully.', 'info')
     return redirect(url_for('admin.login'))
 
+# admin dashboard
 @admin_bp.route('/dashboard')
 @admin_required
 def dashboard():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # 1. Total Platform Revenue (Active bookings only)
+    # revenue metrics
     cursor.execute("SELECT COALESCE(SUM(total_price), 0) as total_rev FROM bookings WHERE status != 'Cancelled'")
-    total_revenue = cursor.fetchone()['total_rev']
+    total_revenue = float(cursor.fetchone()['total_rev'])
 
-    # 2. Total Bookings Count
+    # booking counts
     cursor.execute("SELECT COUNT(*) as total_bk FROM bookings")
     total_bookings = cursor.fetchone()['total_bk']
 
-    # 3. Active Users Count
+    # user counts
     cursor.execute("SELECT COUNT(*) as total_users FROM users")
     total_users = cursor.fetchone()['total_users']
 
-    # 4. Registered Agencies Count
+    # agency counts
     cursor.execute("SELECT COUNT(*) as total_agencies FROM agencies")
     total_agencies = cursor.fetchone()['total_agencies']
 
-    # 5. Inventory Counts
+    # inventory counts
     cursor.execute("SELECT COUNT(*) as total_pkgs FROM packages")
     total_packages = cursor.fetchone()['total_pkgs']
 
@@ -77,7 +80,7 @@ def dashboard():
     cursor.execute("SELECT COUNT(*) as total_trns FROM transports")
     total_transports = cursor.fetchone()['total_trns']
 
-    # 6. Breakdown by Booking Category (Revenue & Count)
+    # category breakdown
     cursor.execute('''
         SELECT 
             booking_type,
@@ -108,7 +111,7 @@ def dashboard():
         for k in category_metrics:
             category_metrics[k]['pct_cnt'] = round((category_metrics[k]['count'] / total_bookings) * 100, 1)
 
-    # 7. Booking Status Breakdown
+    # status breakdown
     cursor.execute('''
         SELECT status, COUNT(*) as count
         FROM bookings
@@ -121,7 +124,7 @@ def dashboard():
         if st in status_counts:
             status_counts[st] = row['count']
 
-    # 8. Top Destinations Analytics
+    # top destinations
     cursor.execute('''
         SELECT 
             COALESCE(p.destination, h.city, t.destination_city) as destination_name,
@@ -131,14 +134,14 @@ def dashboard():
         LEFT JOIN packages p ON b.package_id = p.id
         LEFT JOIN hotels h ON b.hotel_id = h.id
         LEFT JOIN transports t ON b.transport_id = t.id
-        WHERE destination_name IS NOT NULL
+        WHERE COALESCE(p.destination, h.city, t.destination_city) IS NOT NULL
         GROUP BY destination_name
         ORDER BY destination_revenue DESC, booking_count DESC
         LIMIT 6
     ''')
     top_destinations = cursor.fetchall()
 
-    # 9. Recent Platform Activity Stream (Last 8 bookings)
+    # recent bookings
     cursor.execute('''
         SELECT 
             b.*,
@@ -173,6 +176,7 @@ def dashboard():
         admin_name=session.get('admin_name', 'Super Administrator')
     )
 
+# manage agencies
 @admin_bp.route('/agencies')
 @admin_required
 def agencies():
@@ -191,17 +195,20 @@ def agencies():
     '''
     params = []
 
+    # search query
     if query:
-        sql += ' AND (a.name LIKE ? OR a.username LIKE ? OR a.email LIKE ? OR a.address LIKE ?)'
+        sql += ' AND (a.name LIKE %s OR a.username LIKE %s OR a.email LIKE %s OR a.address LIKE %s)'
         wildcard_q = f'%{query}%'
         params.extend([wildcard_q, wildcard_q, wildcard_q, wildcard_q])
 
+    # type filter
     if agency_type:
-        sql += ' AND a.agency_type = ?'
+        sql += ' AND a.agency_type = %s'
         params.append(agency_type)
 
+    # status filter
     if status:
-        sql += ' AND a.status = ?'
+        sql += ' AND a.status = %s'
         params.append(status)
 
     sql += ' ORDER BY a.created_at DESC'
@@ -220,6 +227,7 @@ def agencies():
         selected_status=status
     )
 
+# add agency
 @admin_bp.route('/agencies/add', methods=['POST'])
 @admin_required
 def add_agency():
@@ -238,16 +246,17 @@ def add_agency():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Check for existing username or email
-    cursor.execute('SELECT id FROM agencies WHERE username = ? OR email = ?', (username, email))
+    # check duplicate
+    cursor.execute('SELECT id FROM agencies WHERE username = %s OR email = %s', (username, email))
     if cursor.fetchone():
         conn.close()
         flash('An agency with this username or email already exists.', 'danger')
         return redirect(url_for('admin.agencies'))
 
+    # insert agency
     cursor.execute('''
         INSERT INTO agencies (name, agency_type, username, password, email, phone, address, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'Active')
+        VALUES (%s, %s, %s, %s, %s, %s, %s, 'Active')
     ''', (name, agency_type, username, password, email, phone, address))
     conn.commit()
     conn.close()
@@ -255,17 +264,18 @@ def add_agency():
     flash(f'Successfully provisioned credentials for agency partner "{name}" ({agency_type})!', 'success')
     return redirect(url_for('admin.agencies'))
 
+# toggle agency status
 @admin_bp.route('/agencies/toggle/<int:agency_id>', methods=['POST'])
 @admin_required
 def toggle_agency(agency_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT status FROM agencies WHERE id = ?', (agency_id,))
+    cursor.execute('SELECT status FROM agencies WHERE id = %s', (agency_id,))
     agency = cursor.fetchone()
 
     if agency:
         new_status = 'Inactive' if agency['status'] == 'Active' else 'Active'
-        cursor.execute('UPDATE agencies SET status = ? WHERE id = ?', (new_status, agency_id))
+        cursor.execute('UPDATE agencies SET status = %s WHERE id = %s', (new_status, agency_id))
         conn.commit()
         flash(f'Agency status updated to {new_status}.', 'success')
     else:
@@ -274,22 +284,23 @@ def toggle_agency(agency_id):
     conn.close()
     return redirect(url_for('admin.agencies'))
 
+# delete agency
 @admin_bp.route('/agencies/delete/<int:agency_id>', methods=['POST'])
 @admin_required
 def delete_agency(agency_id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute('SELECT name FROM agencies WHERE id = ?', (agency_id,))
+    cursor.execute('SELECT name FROM agencies WHERE id = %s', (agency_id,))
     agency = cursor.fetchone()
 
     if agency:
         agency_name = agency['name']
-        cursor.execute('DELETE FROM agencies WHERE id = ?', (agency_id,))
-        # Disassociate items
-        cursor.execute('UPDATE packages SET agency_id = NULL WHERE agency_id = ?', (agency_id,))
-        cursor.execute('UPDATE hotels SET agency_id = NULL WHERE agency_id = ?', (agency_id,))
-        cursor.execute('UPDATE transports SET agency_id = NULL WHERE agency_id = ?', (agency_id,))
+        cursor.execute('DELETE FROM agencies WHERE id = %s', (agency_id,))
+        # disassociate items
+        cursor.execute('UPDATE packages SET agency_id = NULL WHERE agency_id = %s', (agency_id,))
+        cursor.execute('UPDATE hotels SET agency_id = NULL WHERE agency_id = %s', (agency_id,))
+        cursor.execute('UPDATE transports SET agency_id = NULL WHERE agency_id = %s', (agency_id,))
         conn.commit()
         flash(f'Agency partner "{agency_name}" deleted successfully.', 'success')
     else:
@@ -298,6 +309,7 @@ def delete_agency(agency_id):
     conn.close()
     return redirect(url_for('admin.agencies'))
 
+# global bookings list
 @admin_bp.route('/bookings')
 @admin_required
 def global_bookings():
@@ -312,7 +324,7 @@ def global_bookings():
             u.email as user_email,
             u.full_name as user_full_name,
             COALESCE(p.title, h.name, t.title) as item_title,
-            COALESCE(p.destination, h.city, t.source_city || ' -> ' || t.destination_city) as item_location
+            COALESCE(p.destination, h.city, CONCAT(t.source_city, ' to ', t.destination_city)) as item_location
         FROM bookings b
         JOIN users u ON b.user_id = u.id
         LEFT JOIN packages p ON b.package_id = p.id
@@ -322,17 +334,20 @@ def global_bookings():
     '''
     params = []
 
+    # search filter
     if query:
-        sql += ' AND (u.username LIKE ? OR u.email LIKE ? OR item_title LIKE ? OR b.contact_phone LIKE ?)'
+        sql += ' AND (u.username LIKE %s OR u.email LIKE %s OR p.title LIKE %s OR h.name LIKE %s OR t.title LIKE %s)'
         wildcard_q = f'%{query}%'
-        params.extend([wildcard_q, wildcard_q, wildcard_q, wildcard_q])
+        params.extend([wildcard_q, wildcard_q, wildcard_q, wildcard_q, wildcard_q])
 
+    # type filter
     if booking_type:
-        sql += ' AND b.booking_type = ?'
+        sql += ' AND b.booking_type = %s'
         params.append(booking_type)
 
+    # status filter
     if status:
-        sql += ' AND b.status = ?'
+        sql += ' AND b.status = %s'
         params.append(status)
 
     sql += ' ORDER BY b.created_at DESC'

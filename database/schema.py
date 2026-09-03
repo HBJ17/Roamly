@@ -11,326 +11,255 @@ from database.seed import (
     seed_saved_items
 )
 
+# initialize database schema
 def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # 1. Users Table
+    # users table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            full_name TEXT DEFAULT '',
-            phone TEXT DEFAULT '',
-            address TEXT DEFAULT '',
-            bio TEXT DEFAULT '',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(100) UNIQUE NOT NULL,
+            email VARCHAR(191) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            full_name VARCHAR(150) DEFAULT '',
+            phone VARCHAR(50) DEFAULT '',
+            address VARCHAR(255) DEFAULT '',
+            bio TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
-    # Schema migration check for users table columns
-    cursor.execute("PRAGMA table_info(users)")
-    existing_cols_users = [row['name'] for row in cursor.fetchall()]
-    for col, col_type in [
-        ('full_name', "TEXT DEFAULT ''"),
-        ('phone', "TEXT DEFAULT ''"),
-        ('address', "TEXT DEFAULT ''"),
-        ('bio', "TEXT DEFAULT ''"),
-        ('created_at', "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    ]:
-        if col not in existing_cols_users:
-            cursor.execute(f"ALTER TABLE users ADD COLUMN {col} {col_type}")
-
-    # 2. User Preferences Table
+    # user preferences table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS user_preferences (
-            user_id INTEGER PRIMARY KEY,
-            preferred_travel_mode TEXT DEFAULT 'Train',
-            dietary_preference TEXT DEFAULT 'Vegetarian',
-            budget_range TEXT DEFAULT 'Moderate',
-            preferred_categories TEXT DEFAULT 'Hill Station',
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT UNIQUE NOT NULL,
+            preferred_travel_mode VARCHAR(50) DEFAULT 'Train',
+            dietary_preference VARCHAR(50) DEFAULT 'Vegetarian',
+            budget_range VARCHAR(50) DEFAULT 'Moderate',
+            preferred_categories VARCHAR(255) DEFAULT 'Hill Station',
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
-    # 3. Admins Table
+    # admins table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS admins (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            full_name TEXT DEFAULT 'Super Administrator',
-            role TEXT DEFAULT 'superadmin',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(100) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            email VARCHAR(191) UNIQUE NOT NULL,
+            full_name VARCHAR(150) DEFAULT 'Administrator',
+            role VARCHAR(50) DEFAULT 'admin',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
-    # 4. Agencies Table
+    # agencies table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS agencies (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            name TEXT NOT NULL,
-            agency_type TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            phone TEXT DEFAULT '',
-            address TEXT DEFAULT '',
-            status TEXT DEFAULT 'Active',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(100) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            name VARCHAR(200) NOT NULL,
+            agency_type VARCHAR(100) NOT NULL,
+            email VARCHAR(191) UNIQUE NOT NULL,
+            phone VARCHAR(50) DEFAULT '',
+            address VARCHAR(255) DEFAULT '',
+            status VARCHAR(50) DEFAULT 'Active',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
-    # 5. Hotels Table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS hotels (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            agency_id INTEGER,
-            name TEXT NOT NULL,
-            city TEXT NOT NULL,
-            address TEXT NOT NULL,
-            star_rating REAL DEFAULT 4.0,
-            price_per_night REAL NOT NULL,
-            room_types TEXT NOT NULL,
-            amenities TEXT NOT NULL,
-            description TEXT NOT NULL,
-            image_url TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (agency_id) REFERENCES agencies(id) ON DELETE SET NULL
-        )
-    ''')
-
-    # 6. Transports Table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS transports (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            agency_id INTEGER,
-            title TEXT NOT NULL,
-            transport_type TEXT NOT NULL,
-            source_city TEXT NOT NULL,
-            destination_city TEXT NOT NULL,
-            price REAL NOT NULL,
-            duration_hours REAL NOT NULL,
-            features TEXT NOT NULL,
-            departure_time TEXT DEFAULT '06:00 AM',
-            image_url TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (agency_id) REFERENCES agencies(id) ON DELETE SET NULL
-        )
-    ''')
-
-    # 7. Packages Table
+    # packages table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS packages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            destination TEXT NOT NULL,
-            category TEXT NOT NULL,
-            price REAL NOT NULL,
-            duration_days INTEGER NOT NULL,
-            duration_nights INTEGER NOT NULL,
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            destination VARCHAR(150) NOT NULL,
+            category VARCHAR(100) NOT NULL,
+            price DECIMAL(10,2) NOT NULL,
+            duration_days INT NOT NULL,
+            duration_nights INT NOT NULL,
             description TEXT NOT NULL,
             highlights TEXT NOT NULL,
             included_amenities TEXT NOT NULL,
-            rating REAL DEFAULT 4.5,
+            food_highlights TEXT,
+            rating DOUBLE DEFAULT 4.5,
             image_url TEXT,
-            agency_id INTEGER,
+            agency_id INT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (agency_id) REFERENCES agencies(id) ON DELETE SET NULL
-        )
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
-    # Migration for packages table
-    cursor.execute("PRAGMA table_info(packages)")
-    existing_cols_pkg = [row['name'] for row in cursor.fetchall()]
-    if 'agency_id' not in existing_cols_pkg:
-        cursor.execute("ALTER TABLE packages ADD COLUMN agency_id INTEGER")
+    # hotels table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS hotels (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            agency_id INT,
+            name VARCHAR(200) NOT NULL,
+            city VARCHAR(100) NOT NULL,
+            address VARCHAR(255) NOT NULL,
+            star_rating DOUBLE DEFAULT 4.0,
+            price_per_night DECIMAL(10,2) NOT NULL,
+            room_types TEXT NOT NULL,
+            amenities TEXT NOT NULL,
+            description TEXT NOT NULL,
+            dining_options TEXT,
+            image_url TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (agency_id) REFERENCES agencies(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ''')
 
-    # 8. Bookings Table
+    # transports table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS transports (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            agency_id INT,
+            title VARCHAR(200) NOT NULL,
+            transport_type VARCHAR(50) NOT NULL,
+            source_city VARCHAR(100) NOT NULL,
+            destination_city VARCHAR(100) NOT NULL,
+            price DECIMAL(10,2) NOT NULL,
+            duration_hours DOUBLE NOT NULL,
+            features TEXT NOT NULL,
+            departure_time VARCHAR(50) NOT NULL,
+            meal_service TEXT,
+            image_url TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (agency_id) REFERENCES agencies(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ''')
+
+    # bookings table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS bookings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            package_id INTEGER,
-            hotel_id INTEGER,
-            transport_id INTEGER,
-            booking_type TEXT DEFAULT 'Package',
-            travel_date TEXT NOT NULL,
-            check_out_date TEXT DEFAULT '',
-            num_travelers INTEGER NOT NULL DEFAULT 1,
-            room_type TEXT DEFAULT '',
-            pickup_location TEXT DEFAULT '',
-            drop_location TEXT DEFAULT '',
-            special_requests TEXT DEFAULT '',
-            contact_phone TEXT DEFAULT '',
-            contact_email TEXT DEFAULT '',
-            passengers_names TEXT DEFAULT '',
-            total_price REAL NOT NULL,
-            status TEXT DEFAULT 'Confirmed',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            booking_type VARCHAR(50) NOT NULL,
+            package_id INT,
+            hotel_id INT,
+            transport_id INT,
+            travel_date VARCHAR(50) NOT NULL,
+            check_out_date VARCHAR(50),
+            num_travelers INT DEFAULT 1,
+            room_type VARCHAR(100),
+            pickup_location VARCHAR(200),
+            special_requests TEXT,
+            subtotal_amount DECIMAL(10,2) DEFAULT 0.0,
+            tax_amount DECIMAL(10,2) DEFAULT 0.0,
+            discount_amount DECIMAL(10,2) DEFAULT 0.0,
+            discount_code VARCHAR(50) DEFAULT '',
+            total_price DECIMAL(10,2) NOT NULL,
+            status VARCHAR(50) DEFAULT 'Confirmed',
+            payment_status VARCHAR(50) DEFAULT 'Paid',
+            trip_status VARCHAR(50) DEFAULT 'Upcoming',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
             FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE SET NULL,
             FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE SET NULL,
             FOREIGN KEY (transport_id) REFERENCES transports(id) ON DELETE SET NULL
-        )
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
-    # Migration for bookings table
-    cursor.execute("PRAGMA table_info(bookings)")
-    existing_cols_bk = [row['name'] for row in cursor.fetchall()]
-    for col, col_type in [
-        ('hotel_id', "INTEGER"),
-        ('transport_id', "INTEGER"),
-        ('booking_type', "TEXT DEFAULT 'Package'"),
-        ('check_out_date', "TEXT DEFAULT ''"),
-        ('room_type', "TEXT DEFAULT ''"),
-        ('pickup_location', "TEXT DEFAULT ''"),
-        ('drop_location', "TEXT DEFAULT ''"),
-        ('special_requests', "TEXT DEFAULT ''"),
-        ('contact_phone', "TEXT DEFAULT ''"),
-        ('contact_email', "TEXT DEFAULT ''"),
-        ('passengers_names', "TEXT DEFAULT ''"),
-        ('payment_status', "TEXT DEFAULT 'Paid'"),
-        ('trip_status', "TEXT DEFAULT 'Upcoming'"),
-        ('subtotal_amount', "REAL DEFAULT 0.0"),
-        ('tax_amount', "REAL DEFAULT 0.0"),
-        ('discount_amount', "REAL DEFAULT 0.0"),
-        ('discount_code', "TEXT DEFAULT ''")
-    ]:
-        if col not in existing_cols_bk:
-            cursor.execute(f"ALTER TABLE bookings ADD COLUMN {col} {col_type}")
-
-    # Additional migrations for packages, hotels, transports (food & dining highlights)
-    cursor.execute("PRAGMA table_info(packages)")
-    existing_cols_pkg = [row['name'] for row in cursor.fetchall()]
-    for col, col_type in [
-        ('food_highlights', "TEXT DEFAULT ''"),
-        ('agency_id', "INTEGER")
-    ]:
-        if col not in existing_cols_pkg:
-            cursor.execute(f"ALTER TABLE packages ADD COLUMN {col} {col_type}")
-
-    cursor.execute("PRAGMA table_info(hotels)")
-    existing_cols_htl = [row['name'] for row in cursor.fetchall()]
-    for col, col_type in [
-        ('dining_options', "TEXT DEFAULT 'In-House Multi-Cuisine Restaurant & Room Service'"),
-        ('agency_id', "INTEGER")
-    ]:
-        if col not in existing_cols_htl:
-            cursor.execute(f"ALTER TABLE hotels ADD COLUMN {col} {col_type}")
-
-    cursor.execute("PRAGMA table_info(transports)")
-    existing_cols_trn = [row['name'] for row in cursor.fetchall()]
-    for col, col_type in [
-        ('meal_service', "TEXT DEFAULT 'Complimentary Bottled Water & Snack Kit'"),
-        ('agency_id', "INTEGER")
-    ]:
-        if col not in existing_cols_trn:
-            cursor.execute(f"ALTER TABLE transports ADD COLUMN {col} {col_type}")
-
-    # 9. Payments Table
+    # payments table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS payments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            booking_id INTEGER NOT NULL,
-            user_id INTEGER NOT NULL,
-            transaction_id TEXT UNIQUE NOT NULL,
-            payment_method TEXT NOT NULL,
-            payment_gateway TEXT DEFAULT 'Roamly Secure Pay',
-            amount REAL NOT NULL,
-            currency TEXT DEFAULT 'INR',
-            status TEXT DEFAULT 'Success',
-            card_last4 TEXT DEFAULT '',
-            payer_name TEXT DEFAULT '',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            booking_id INT NOT NULL,
+            user_id INT NOT NULL,
+            transaction_id VARCHAR(100) UNIQUE NOT NULL,
+            payment_method VARCHAR(50) NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            currency VARCHAR(10) DEFAULT 'INR',
+            status VARCHAR(50) DEFAULT 'Success',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
-    # 10. Invoices Table
+    # invoices table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS invoices (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            invoice_number TEXT UNIQUE NOT NULL,
-            booking_id INTEGER UNIQUE NOT NULL,
-            payment_id INTEGER,
-            user_id INTEGER NOT NULL,
-            agency_id INTEGER,
-            subtotal REAL NOT NULL,
-            tax_amount REAL NOT NULL,
-            discount_amount REAL DEFAULT 0.0,
-            total_amount REAL NOT NULL,
-            status TEXT DEFAULT 'Paid',
-            issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            invoice_number VARCHAR(100) UNIQUE NOT NULL,
+            booking_id INT NOT NULL,
+            user_id INT NOT NULL,
+            subtotal DECIMAL(10,2) NOT NULL,
+            tax_amount DECIMAL(10,2) NOT NULL,
+            discount DECIMAL(10,2) DEFAULT 0.0,
+            total_amount DECIMAL(10,2) NOT NULL,
+            status VARCHAR(50) DEFAULT 'Paid',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
-    # 11. Notifications Table
+    # notifications table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS notifications (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            title TEXT NOT NULL,
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            title VARCHAR(200) NOT NULL,
             message TEXT NOT NULL,
-            notification_type TEXT DEFAULT 'booking',
-            link_url TEXT DEFAULT '',
-            is_read INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            notification_type VARCHAR(50) DEFAULT 'system',
+            link_url VARCHAR(255) DEFAULT '',
+            is_read INT DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
-    # 12. Email Logs Table
+    # email logs table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS email_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            recipient_email TEXT NOT NULL,
-            subject TEXT NOT NULL,
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            booking_id INT NOT NULL,
+            recipient_email VARCHAR(191) NOT NULL,
+            subject VARCHAR(255) NOT NULL,
             body_html TEXT NOT NULL,
-            email_type TEXT DEFAULT 'Booking Confirmation',
-            status TEXT DEFAULT 'Sent',
-            sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )
+            sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
-    # 13. Reviews Table
+    # reviews table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS reviews (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            item_type TEXT NOT NULL,
-            item_id INTEGER NOT NULL,
-            rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
-            title TEXT NOT NULL,
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            item_type VARCHAR(50) NOT NULL,
+            item_id INT NOT NULL,
+            rating INT NOT NULL,
+            title VARCHAR(200) NOT NULL,
             comment TEXT NOT NULL,
-            travel_type TEXT DEFAULT 'Family',
-            verified_booking INTEGER DEFAULT 1,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            travel_type VARCHAR(50) DEFAULT 'Solo',
+            verified_booking INT DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
-    # 14. Saved / Favorite Items Table
+    # saved items table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS saved_items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            item_type TEXT NOT NULL,
-            item_id INTEGER NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(user_id, item_type, item_id),
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            item_type VARCHAR(50) NOT NULL,
+            item_id INT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_user_item (user_id, item_type, item_id),
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
-    # Seed data
+    # seed data
     seed_admin(cursor)
     seed_users(cursor)
     seed_agencies(cursor)

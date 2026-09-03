@@ -1,12 +1,14 @@
+# seed admin user
 def seed_admin(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM admins')
     count = cursor.fetchone()['count']
     if count == 0:
         cursor.execute('''
             INSERT INTO admins (username, password, email, full_name, role)
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s)
         ''', ('admin', 'admin123', 'admin@roamly.com', 'Super Administrator', 'superadmin'))
 
+# seed sample users
 def seed_users(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM users')
     count = cursor.fetchone()['count']
@@ -33,19 +35,30 @@ def seed_users(cursor):
         ]
         cursor.executemany('''
             INSERT INTO users (username, password, email, full_name, phone, address, bio)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         ''', users_data)
 
-        # Seed initial preferences
+        # seed user preferences
         cursor.execute('''
             INSERT INTO user_preferences (user_id, preferred_travel_mode, dietary_preference, budget_range, preferred_categories)
             VALUES (1, 'Train', 'Vegetarian', 'Moderate', 'Hill Station, Heritage & Culture')
+            ON DUPLICATE KEY UPDATE
+                preferred_travel_mode = VALUES(preferred_travel_mode),
+                dietary_preference = VALUES(dietary_preference),
+                budget_range = VALUES(budget_range),
+                preferred_categories = VALUES(preferred_categories)
         ''')
         cursor.execute('''
             INSERT INTO user_preferences (user_id, preferred_travel_mode, dietary_preference, budget_range, preferred_categories)
             VALUES (2, 'Private Car', 'Non-Vegetarian', 'Luxury', 'Heritage & Culture, Coastal & Urban')
+            ON DUPLICATE KEY UPDATE
+                preferred_travel_mode = VALUES(preferred_travel_mode),
+                dietary_preference = VALUES(dietary_preference),
+                budget_range = VALUES(budget_range),
+                preferred_categories = VALUES(preferred_categories)
         ''')
 
+# seed agencies
 def seed_agencies(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM agencies')
     count = cursor.fetchone()['count']
@@ -114,9 +127,10 @@ def seed_agencies(cursor):
         ]
         cursor.executemany('''
             INSERT INTO agencies (username, password, name, agency_type, email, phone, address, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         ''', seed_agencies_data)
 
+# seed packages
 def seed_packages(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM packages')
     count = cursor.fetchone()['count']
@@ -305,9 +319,10 @@ def seed_packages(cursor):
         ]
         cursor.executemany('''
             INSERT INTO packages (title, destination, category, price, duration_days, duration_nights, description, highlights, included_amenities, food_highlights, rating, image_url, agency_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', seed_packages_data)
 
+# seed hotels
 def seed_hotels(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM hotels')
     count = cursor.fetchone()['count']
@@ -446,9 +461,10 @@ def seed_hotels(cursor):
         ]
         cursor.executemany('''
             INSERT INTO hotels (agency_id, name, city, address, star_rating, price_per_night, room_types, amenities, description, dining_options, image_url)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', hotels_data)
 
+# seed transports
 def seed_transports(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM transports')
     count = cursor.fetchone()['count']
@@ -587,9 +603,10 @@ def seed_transports(cursor):
         ]
         cursor.executemany('''
             INSERT INTO transports (agency_id, title, transport_type, source_city, destination_city, price, duration_hours, features, departure_time, meal_service, image_url)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', transports_data)
 
+# seed reviews
 def seed_reviews(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM reviews')
     count = cursor.fetchone()['count']
@@ -688,9 +705,10 @@ def seed_reviews(cursor):
         ]
         cursor.executemany('''
             INSERT INTO reviews (user_id, item_type, item_id, rating, title, comment, travel_type, verified_booking)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         ''', reviews_data)
 
+# seed notifications
 def seed_notifications(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM notifications')
     count = cursor.fetchone()['count']
@@ -715,9 +733,10 @@ def seed_notifications(cursor):
         ]
         cursor.executemany('''
             INSERT INTO notifications (user_id, title, message, notification_type, link_url, is_read)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s)
         ''', notifs_data)
 
+# seed wishlist items
 def seed_saved_items(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM saved_items')
     count = cursor.fetchone()['count']
@@ -729,5 +748,5 @@ def seed_saved_items(cursor):
         ]
         cursor.executemany('''
             INSERT INTO saved_items (user_id, item_type, item_id)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
         ''', saved_data)

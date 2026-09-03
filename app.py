@@ -1,3 +1,4 @@
+import os
 from flask import Flask, session, url_for
 from database.schema import init_db
 from auth import auth_bp
@@ -8,18 +9,14 @@ from transports import transports_bp
 from bookings import bookings_bp
 from admin import admin_bp
 from agency import agency_bp
-
-app = Flask(__name__)
-app.secret_key = 'super_secret_key_for_session'
-
-# Initialize Database
-init_db()
-
 from payments import payments_bp
 from reviews import reviews_bp
 from database.connection import get_db_connection
 
-# Register Blueprints
+app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'super_secret_key_for_session')
+
+# register blueprints
 app.register_blueprint(auth_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(packages_bp)
@@ -31,7 +28,7 @@ app.register_blueprint(agency_bp)
 app.register_blueprint(payments_bp)
 app.register_blueprint(reviews_bp)
 
-# Build error handler for legacy endpoint names in templates
+# legacy route handler
 def url_build_error_handler(error, endpoint, values):
     for ep in app.view_functions:
         if ep.endswith('.' + endpoint):
@@ -40,7 +37,7 @@ def url_build_error_handler(error, endpoint, values):
 
 app.url_build_error_handlers.append(url_build_error_handler)
 
-# Context Processor to share global counters & status across templates
+# global template context
 @app.context_processor
 def inject_global_data():
     compare_list = session.get('compare_packages', [])
@@ -52,10 +49,10 @@ def inject_global_data():
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute('SELECT COUNT(*) as cnt FROM notifications WHERE user_id = ? AND is_read = 0', (user_id,))
+            cursor.execute('SELECT COUNT(*) as cnt FROM notifications WHERE user_id = %s AND is_read = 0', (user_id,))
             unread_notifs = cursor.fetchone()['cnt']
             
-            cursor.execute('SELECT COUNT(*) as cnt FROM saved_items WHERE user_id = ?', (user_id,))
+            cursor.execute('SELECT COUNT(*) as cnt FROM saved_items WHERE user_id = %s', (user_id,))
             saved_count = cursor.fetchone()['cnt']
             conn.close()
         except Exception:
@@ -72,5 +69,12 @@ def inject_global_data():
         agency_type=session.get('agency_type')
     )
 
+# initialize app schema
+try:
+    init_db()
+except Exception as e:
+    print(f"Database init notice: {e}")
+
+# run server
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

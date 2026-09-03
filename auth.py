@@ -3,6 +3,7 @@ from database.connection import get_db_connection
 
 auth_bp = Blueprint('auth', __name__)
 
+# home route
 @auth_bp.route('/')
 def home():
     if 'user_id' in session:
@@ -13,6 +14,7 @@ def home():
         return redirect(url_for('agency.dashboard'))
     return redirect(url_for('auth.login'))
 
+# user registration
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
     if 'user_id' in session:
@@ -30,7 +32,8 @@ def signup():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute('SELECT * FROM users WHERE username = ? OR email = ?', (username, email))
+        # check existing
+        cursor.execute('SELECT * FROM users WHERE username = %s OR email = %s', (username, email))
         existing_user = cursor.fetchone()
 
         if existing_user:
@@ -38,15 +41,16 @@ def signup():
             flash('Username or email already registered. Please login.', 'danger')
             return render_template('signup.html')
 
+        # insert user
         cursor.execute(
-            'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+            'INSERT INTO users (username, email, password) VALUES (%s, %s, %s)',
             (username, email, password)
         )
         new_user_id = cursor.lastrowid
         
-        # Initialize default user preferences
+        # default preferences
         cursor.execute(
-            'INSERT OR IGNORE INTO user_preferences (user_id) VALUES (?)',
+            'INSERT IGNORE INTO user_preferences (user_id) VALUES (%s)',
             (new_user_id,)
         )
         conn.commit()
@@ -57,6 +61,7 @@ def signup():
 
     return render_template('signup.html')
 
+# user login
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if 'user_id' in session:
@@ -77,8 +82,8 @@ def login():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # 1. Check Standard Customer Users
-        cursor.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password))
+        # check users
+        cursor.execute('SELECT * FROM users WHERE username = %s AND password = %s', (username, password))
         user = cursor.fetchone()
 
         if user:
@@ -88,8 +93,8 @@ def login():
             flash('Logged in successfully!', 'success')
             return redirect(url_for('dashboard.dashboard'))
 
-        # 2. Check Administrator Accounts
-        cursor.execute('SELECT * FROM admins WHERE username = ? AND password = ?', (username, password))
+        # check admins
+        cursor.execute('SELECT * FROM admins WHERE username = %s AND password = %s', (username, password))
         admin = cursor.fetchone()
 
         if admin:
@@ -101,8 +106,8 @@ def login():
             flash(f'Welcome back, {admin["full_name"]}!', 'success')
             return redirect(url_for('admin.dashboard'))
 
-        # 3. Check Travel Agency Partner Accounts
-        cursor.execute('SELECT * FROM agencies WHERE username = ? AND password = ?', (username, password))
+        # check agencies
+        cursor.execute('SELECT * FROM agencies WHERE username = %s AND password = %s', (username, password))
         agency = cursor.fetchone()
         conn.close()
 
@@ -122,6 +127,7 @@ def login():
 
     return render_template('login.html')
 
+# user logout
 @auth_bp.route('/logout')
 def logout():
     session.clear()
