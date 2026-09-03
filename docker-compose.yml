@@ -1,0 +1,43 @@
+services:
+  # web application service
+  web:
+    build: .
+    container_name: roamly_web
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+      - MYSQL_USER=roamly_user
+      - MYSQL_PASSWORD=roamly_password
+      - MYSQL_DB=roamly_db
+      - SECRET_KEY=roamly_secure_production_secret_2026
+      - FLASK_ENV=production
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # mysql database service
+  db:
+    image: mysql:8.0
+    container_name: roamly_db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=roamly_db
+      - MYSQL_USER=roamly_user
+      - MYSQL_PASSWORD=roamly_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+# persistent volumes
+volumes:
+  mysql_data:
