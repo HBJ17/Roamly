@@ -2,9 +2,13 @@ from database.connection import get_db_connection
 from database.seed import (
     seed_packages,
     seed_admin,
+    seed_users,
     seed_agencies,
     seed_hotels,
-    seed_transports
+    seed_transports,
+    seed_reviews,
+    seed_notifications,
+    seed_saved_items
 )
 
 def init_db():
@@ -328,10 +332,14 @@ def init_db():
 
     # Seed data
     seed_admin(cursor)
+    seed_users(cursor)
     seed_agencies(cursor)
     seed_packages(cursor)
     seed_hotels(cursor)
     seed_transports(cursor)
+    seed_reviews(cursor)
+    seed_notifications(cursor)
+    seed_saved_items(cursor)
 
     conn.commit()
     conn.close()
