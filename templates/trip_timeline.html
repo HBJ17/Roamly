@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}Trip Timeline #ROAM-{{ "%04d"|format(booking['id']) }} - Roamly{% endblock %}
+
+{% block content %}
+<div class="timeline-container">
+    <div class="timeline-header-bar">
+        <a href="{{ url_for('dashboard.dashboard', tab='bookings') }}" class="btn-breadcrumb">Back to Dashboard</a>
+        <div class="right-actions">
+            <a href="{{ url_for('payments.view_invoice', booking_id=booking['id']) }}" class="btn btn-secondary-inline">Official Tax Invoice</a>
+            <a href="{{ url_for('bookings.booking_summary', booking_id=booking['id']) }}" class="btn btn-secondary-inline">Trip Voucher</a>
+            {% if booking['status'] != 'Cancelled' and booking['trip_status'] != 'Completed' %}
+            <form action="{{ url_for('dashboard.complete_trip', booking_id=booking['id']) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-primary-inline" onclick="return confirm('Mark this journey as completed?');">
+                    Mark Trip as Completed
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Trip Hero Overview Card -->
+    <div class="card timeline-hero-card mt-15">
+        <div class="hero-top-row">
+            <div>
+                <span class="category-tag">{{ booking['booking_type'] }} Journey</span>
+                <span class="status-pill status-{{ booking['trip_status']|lower }}">{{ booking['trip_status'] }}</span>
+            </div>
+            <div class="ref-tag">
+                #ROAM-{{ booking['booking_type'][:3]|upper }}-{{ "%04d"|format(booking['id']) }}
+            </div>
+        </div>
+
+        <h2 class="mt-10">{{ item['title'] if item and item['title'] else (item['name'] if item else 'Travel Service') }}</h2>
+
+        <div class="hero-meta-grid mt-15">
+            <div class="meta-cell">
+                <span class="m-label">Scheduled Date</span>
+                <strong>{{ booking['travel_date'] }}{% if booking['check_out_date'] %} to {{ booking['check_out_date'] }}{% endif %}</strong>
+            </div>
+            <div class="meta-cell">
+                <span class="m-label">Travelers / Units</span>
+                <strong>{{ booking['num_travelers'] }} Person(s)</strong>
+            </div>
+            <div class="meta-cell">
+                <span class="m-label">Settlement Mode</span>
+                <strong>{{ payment['payment_method'] if payment else 'FastPay Gateway' }}</strong>
+            </div>
+            <div class="meta-cell">
+                <span class="m-label">Total Amount Paid</span>
+                <strong class="text-accent">₹{{ "{:,.2f}".format(booking['total_price']) }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Milestone Timeline -->
+    <div class="card timeline-flow-card mt-20">
+        <h3>Trip Progress & Journey Timeline</h3>
+        <p class="section-desc">Track real-time milestones from booking confirmation through to post-trip review.</p>
+
+        <div class="timeline-tree mt-25">
+            <!-- Step 1 -->
+            <div class="timeline-node {% if current_step >= 1 %}node-done{% endif %}">
+                <div class="node-marker"><span class="marker-dot">1</span></div>
+                <div class="node-content">
+                    <div class="node-header">
+                        <h4>Reservation Placed & Confirmed</h4>
+                        <span class="node-date">{{ booking['created_at'][:10] }}</span>
+                    </div>
+                    <p>Your reservation was verified and registered in the central system.</p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="timeline-node {% if current_step >= 2 %}node-done{% elif current_step == 1 %}node-active{% endif %}">
+                <div class="node-marker"><span class="marker-dot">2</span></div>
+                <div class="node-content">
+                    <div class="node-header">
+                        <h4>Payment Cleared & Tax Invoice Generated</h4>
+                        <span class="node-date">{{ payment['created_at'][:10] if payment else booking['created_at'][:10] }}</span>
+                    </div>
+                    <p>
+                        Full settlement of ₹{{ "{:,.2f}".format(booking['total_price']) }} received. Ref: {{ payment['transaction_id'] if payment else 'TXN-ROAM-883921' }}. 
+                        <a href="{{ url_for('payments.view_invoice', booking_id=booking['id']) }}" class="link-inline">View Tax Invoice</a>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="timeline-node {% if current_step >= 3 %}node-done{% elif current_step == 2 %}node-active{% endif %}">
+                <div class="node-marker"><span class="marker-dot">3</span></div>
+                <div class="node-content">
+                    <div class="node-header">
+                        <h4>Pre-Departure Preparation & Advisory</h4>
+                        <span class="node-date">Prior to {{ booking['travel_date'] }}</span>
+                    </div>
+                    <p>Keep original Government ID proofs ready. Download and keep your digital PDF voucher accessible.</p>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="timeline-node {% if current_step >= 4 %}node-done{% elif current_step == 3 %}node-active{% endif %}">
+                <div class="node-marker"><span class="marker-dot">4</span></div>
+                <div class="node-content">
+                    <div class="node-header">
+                        <h4>Departure, Check-in & Boarding</h4>
+                        <span class="node-date">{{ booking['travel_date'] }}</span>
+                    </div>
+                    <p>
+                        {% if booking['booking_type'] == 'Hotel' %}
+                            Standard hotel check-in opens at 12:00 PM at {{ item['name'] if item else 'Property' }}.
+                        {% elif booking['booking_type'] == 'Transport' %}
+                            Departure scheduled at {{ item['departure_time'] if item else '06:00 AM' }} from {{ booking['pickup_location'] or (item['source_city'] if item else 'Origin') }}.
+                        {% else %}
+                            Package tour begins. Meet your tour coordinator at the designated pickup terminal.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="timeline-node {% if current_step >= 5 %}node-done{% elif current_step == 4 %}node-active{% endif %}">
+                <div class="node-marker"><span class="marker-dot">5</span></div>
+                <div class="node-content">
+                    <div class="node-header">
+                        <h4>Sightseeing, Stay & Dining Experience</h4>
+                        <span class="node-date">In Progress</span>
+                    </div>
+                    <p>Enjoy local Tamil Nadu heritage, tea estates, coastal breezes, and culinary delicacies.</p>
+                </div>
+            </div>
+
+            <!-- Step 6 -->
+            <div class="timeline-node {% if current_step >= 6 %}node-done{% elif current_step == 5 %}node-active{% endif %}">
+                <div class="node-marker"><span class="marker-dot">6</span></div>
+                <div class="node-content">
+                    <div class="node-header">
+                        <h4>Return Journey & Trip Completion</h4>
+                        <span class="node-date">
+                            {% if booking['trip_status'] == 'Completed' %}Completed{% else %}Pending{% endif %}
+                        </span>
+                    </div>
+                    <p>Journey concluded safely. Official invoices and vouchers remain archived in your account.</p>
+                </div>
+            </div>
+
+            <!-- Step 7 -->
+            <div class="timeline-node {% if current_step >= 7 %}node-done{% elif current_step == 6 %}node-active{% endif %}">
+                <div class="node-marker"><span class="marker-dot">7</span></div>
+                <div class="node-content">
+                    <div class="node-header">
+                        <h4>Traveler Feedback & Rating</h4>
+                        <span class="node-date">
+                            {% if existing_review %}Review Submitted ({{ existing_review['rating'] }}/5){% else %}Open for Feedback{% endif %}
+                        </span>
+                    </div>
+                    {% if existing_review %}
+                        <p class="text-success"><strong>Your Review:</strong> "{{ existing_review['title'] }}" (Rating: {{ existing_review['rating'] }}/5 Stars).</p>
+                    {% else %}
+                        <p>
+                            Share your verified experience to help the Tamil Nadu traveler community!
+                            {% if booking['booking_type'] == 'Package' and booking['package_id'] %}
+                                <a href="{{ url_for('packages.package_detail', package_id=booking['package_id']) }}" class="btn btn-secondary-inline mt-5">Write Review on Package</a>
+                            {% elif booking['booking_type'] == 'Hotel' and booking['hotel_id'] %}
+                                <a href="{{ url_for('hotels.hotel_detail', hotel_id=booking['hotel_id']) }}" class="btn btn-secondary-inline mt-5">Write Review on Hotel</a>
+                            {% elif booking['booking_type'] == 'Transport' and booking['transport_id'] %}
+                                <a href="{{ url_for('transports.transport_detail', transport_id=booking['transport_id']) }}" class="btn btn-secondary-inline mt-5">Write Review on Transport</a>
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

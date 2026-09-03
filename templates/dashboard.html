@@ -5,23 +5,32 @@
 {% block content %}
 <div class="dashboard-wrapper">
     <div class="dashboard-header">
-        <h2>User Dashboard</h2>
-        <p class="welcome-text">Welcome back, <strong>{{ user['username'] }}</strong>!</p>
+        <h2>Traveler Dashboard</h2>
+        <p class="welcome-text">Welcome back, <strong>{{ user['full_name'] or user['username'] }}</strong>!</p>
     </div>
 
     <!-- Dashboard Navigation Tabs -->
     <div class="dashboard-tabs">
-        <a href="{{ url_for('dashboard', tab='overview') }}" class="tab-btn {% if active_tab == 'overview' %}active{% endif %}">
+        <a href="{{ url_for('dashboard.dashboard', tab='overview') }}" class="tab-btn {% if active_tab == 'overview' %}active{% endif %}">
             Overview
         </a>
-        <a href="{{ url_for('dashboard', tab='profile') }}" class="tab-btn {% if active_tab == 'profile' %}active{% endif %}">
+        <a href="{{ url_for('dashboard.dashboard', tab='upcoming') }}" class="tab-btn {% if active_tab == 'upcoming' %}active{% endif %}">
+            Upcoming Trips ({% if upcoming_bookings %}{{ upcoming_bookings|length }}{% else %}0{% endif %})
+        </a>
+        <a href="{{ url_for('dashboard.dashboard', tab='completed') }}" class="tab-btn {% if active_tab == 'completed' %}active{% endif %}">
+            Completed Trips ({% if completed_bookings %}{{ completed_bookings|length }}{% else %}0{% endif %})
+        </a>
+        <a href="{{ url_for('dashboard.dashboard', tab='bookings') }}" class="tab-btn {% if active_tab == 'bookings' %}active{% endif %}">
+            All Bookings ({% if bookings %}{{ bookings|length }}{% else %}0{% endif %})
+        </a>
+        <a href="{{ url_for('dashboard.dashboard', tab='saved') }}" class="tab-btn {% if active_tab == 'saved' %}active{% endif %}">
+            Saved Wishlist ({% if saved_items %}{{ saved_items|length }}{% else %}0{% endif %})
+        </a>
+        <a href="{{ url_for('dashboard.dashboard', tab='profile') }}" class="tab-btn {% if active_tab == 'profile' %}active{% endif %}">
             Profile
         </a>
-        <a href="{{ url_for('dashboard', tab='preferences') }}" class="tab-btn {% if active_tab == 'preferences' %}active{% endif %}">
+        <a href="{{ url_for('dashboard.dashboard', tab='preferences') }}" class="tab-btn {% if active_tab == 'preferences' %}active{% endif %}">
             Preferences
-        </a>
-        <a href="{{ url_for('dashboard', tab='bookings') }}" class="tab-btn {% if active_tab == 'bookings' %}active{% endif %}">
-            Booking History ({% if bookings %}{{ bookings|length }}{% else %}0{% endif %})
         </a>
     </div>
 
@@ -31,8 +40,20 @@
         <div class="overview-grid">
             <div class="stat-card">
                 <div class="stat-info">
-                    <h3>{% if bookings %}{{ bookings|length }}{% else %}0{% endif %}</h3>
-                    <p>Total Bookings</p>
+                    <h3>{% if upcoming_bookings %}{{ upcoming_bookings|length }}{% else %}0{% endif %}</h3>
+                    <p>Upcoming Trips</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>{% if completed_bookings %}{{ completed_bookings|length }}{% else %}0{% endif %}</h3>
+                    <p>Completed Trips</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>{% if saved_items %}{{ saved_items|length }}{% else %}0{% endif %}</h3>
+                    <p>Saved Destinations</p>
                 </div>
             </div>
             <div class="stat-card">
@@ -41,34 +62,282 @@
                     <p>Preferred Mode</p>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-info">
-                    <h3>{{ preferences['budget_range'] if preferences else 'Moderate' }}</h3>
-                    <p>Budget Tier</p>
-                </div>
-            </div>
         </div>
 
         <div class="card mt-20">
-            <h3>Quick Actions</h3>
-            <p>Explore handpicked Tamil Nadu holiday destinations or manage your profile and trip preferences.</p>
+            <h3>Quick Travel Management</h3>
+            <p>Access your itinerary timelines, printable tax invoices, and explore curated South India holiday packages.</p>
             <div class="action-buttons mt-15">
-                <a href="{{ url_for('packages') }}" class="btn btn-primary-inline">Browse Destinations & Packages</a>
-                <a href="{{ url_for('dashboard', tab='profile') }}" class="btn btn-secondary-inline">Edit Profile</a>
-                <a href="{{ url_for('dashboard', tab='preferences') }}" class="btn btn-secondary-inline">Travel Preferences</a>
+                <a href="{{ url_for('packages.packages') }}" class="btn btn-primary-inline">Browse Packages</a>
+                <a href="{{ url_for('dashboard.dashboard', tab='upcoming') }}" class="btn btn-secondary-inline">View Upcoming Trips</a>
+                <a href="{{ url_for('dashboard.dashboard', tab='saved') }}" class="btn btn-secondary-inline">Open Wishlist</a>
+                <a href="{{ url_for('payments.notifications') }}" class="btn btn-secondary-inline">Check Notifications</a>
             </div>
         </div>
     </div>
     {% endif %}
 
-    <!-- Tab 2: Profile -->
+    <!-- Tab 2: Upcoming Trips -->
+    {% if active_tab == 'upcoming' %}
+    <div class="tab-content">
+        <div class="card">
+            <div class="card-header-flex">
+                <div>
+                    <h3>Upcoming Travel Itineraries</h3>
+                    <p class="section-desc">Confirmed bookings and active schedules waiting for departure.</p>
+                </div>
+            </div>
+
+            {% if upcoming_bookings %}
+            <div class="table-responsive mt-15">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Ref #</th>
+                            <th>Service Details</th>
+                            <th>Schedule Date</th>
+                            <th>Travelers / Units</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in upcoming_bookings %}
+                        <tr>
+                            <td>
+                                <strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong><br>
+                                <small class="text-muted">{{ b['created_at'][:10] }}</small>
+                            </td>
+                            <td>
+                                <strong>{{ b['item_title'] }}</strong><br>
+                                <small class="text-muted">{{ b['item_destination'] }}</small>
+                            </td>
+                            <td>
+                                <strong>{{ b['travel_date'] }}</strong>
+                                {% if b['check_out_date'] %}<br><small class="text-muted">to {{ b['check_out_date'] }}</small>{% endif %}
+                            </td>
+                            <td>{{ b['num_travelers'] }}</td>
+                            <td><strong>₹{{ "{:,.2f}".format(b['total_price']) }}</strong></td>
+                            <td>
+                                <span class="status-pill status-confirmed">Confirmed</span>
+                            </td>
+                            <td class="action-links-cell">
+                                <a href="{{ url_for('dashboard.trip_timeline', booking_id=b['id']) }}" class="btn-link font-bold">Timeline</a>
+                                <span class="text-muted">•</span>
+                                <a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}" class="btn-link">Voucher</a>
+                                <span class="text-muted">•</span>
+                                <a href="{{ url_for('payments.view_invoice', booking_id=b['id']) }}" class="btn-link">Invoice</a>
+                                <span class="text-muted">•</span>
+                                <a href="{{ url_for('bookings.modify_booking', booking_id=b['id']) }}" class="btn-link">Modify</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="dashboard-empty">
+                <h3>No Upcoming Trips Scheduled</h3>
+                <p>You have no active travel bookings coming up. Plan your next getaway to Ooty, Kodaikanal, Madurai, or Thanjavur today!</p>
+                <div class="mt-15">
+                    <a href="{{ url_for('packages.packages') }}" class="btn btn-primary-inline">Discover Packages</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Tab 3: Completed Trips -->
+    {% if active_tab == 'completed' %}
+    <div class="tab-content">
+        <div class="card">
+            <div class="card-header-flex">
+                <div>
+                    <h3>Completed Journeys & Past Trips</h3>
+                    <p class="section-desc">Review your past vacations, download official tax receipts, and share feedback.</p>
+                </div>
+            </div>
+
+            {% if completed_bookings %}
+            <div class="table-responsive mt-15">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Ref #</th>
+                            <th>Service Title</th>
+                            <th>Completed Date</th>
+                            <th>Travelers</th>
+                            <th>Total Cost</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in completed_bookings %}
+                        <tr>
+                            <td>
+                                <strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong>
+                            </td>
+                            <td>
+                                <strong>{{ b['item_title'] }}</strong><br>
+                                <small class="text-muted">{{ b['item_destination'] }}</small>
+                            </td>
+                            <td>{{ b['travel_date'] }}</td>
+                            <td>{{ b['num_travelers'] }}</td>
+                            <td>₹{{ "{:,.2f}".format(b['total_price']) }}</td>
+                            <td class="action-links-cell">
+                                <a href="{{ url_for('dashboard.trip_timeline', booking_id=b['id']) }}" class="btn-link font-bold">Review & Timeline</a>
+                                <span class="text-muted">•</span>
+                                <a href="{{ url_for('payments.view_invoice', booking_id=b['id']) }}" class="btn-link">Tax Invoice</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="dashboard-empty">
+                <h3>No Completed Trips Yet</h3>
+                <p>Once you finish a scheduled trip or mark it completed in your trip timeline, it will be listed here.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Tab 4: All Bookings History -->
+    {% if active_tab == 'bookings' %}
+    <div class="tab-content">
+        <div class="card">
+            <div class="card-header-flex">
+                <div>
+                    <h3>Complete Booking History</h3>
+                    <p class="section-desc">Full archive of all past and active package tours, hotel stays, and transport bookings.</p>
+                </div>
+            </div>
+
+            {% if bookings %}
+            <div class="table-responsive mt-15">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Ref #</th>
+                            <th>Service Details</th>
+                            <th>Type</th>
+                            <th>Schedule Date</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in bookings %}
+                        <tr>
+                            <td>
+                                <strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong><br>
+                                <small class="text-muted">{{ b['created_at'][:10] }}</small>
+                            </td>
+                            <td>
+                                <strong>{{ b['item_title'] }}</strong><br>
+                                <small class="text-muted">{{ b['item_destination'] }}</small>
+                            </td>
+                            <td><span class="category-tag">{{ b['booking_type'] }}</span></td>
+                            <td>{{ b['travel_date'] }}</td>
+                            <td><strong>₹{{ "{:,.2f}".format(b['total_price']) }}</strong></td>
+                            <td>
+                                <span class="status-pill status-{{ b['status']|lower }}">{{ b['status'] }}</span>
+                            </td>
+                            <td class="action-links-cell">
+                                <a href="{{ url_for('dashboard.trip_timeline', booking_id=b['id']) }}" class="btn-link font-bold">Timeline</a>
+                                <span class="text-muted">•</span>
+                                <a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}" class="btn-link">Voucher</a>
+                                <span class="text-muted">•</span>
+                                <a href="{{ url_for('payments.view_invoice', booking_id=b['id']) }}" class="btn-link">Invoice</a>
+                                
+                                {% if b['status'] != 'Cancelled' and b['trip_status'] != 'Completed' %}
+                                    <span class="text-muted">•</span>
+                                    <form action="{{ url_for('dashboard.cancel_booking', booking_id=b['id']) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                        <button type="submit" class="btn-text-danger">Cancel</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="dashboard-empty">
+                <h3>No Bookings Recorded</h3>
+                <p>Explore Tamil Nadu holiday packages and start booking your dream vacation.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Tab 5: Saved Wishlist -->
+    {% if active_tab == 'saved' %}
+    <div class="tab-content">
+        <div class="card">
+            <div class="card-header-flex">
+                <div>
+                    <h3>Saved Destinations & Wishlist</h3>
+                    <p class="section-desc">Your curated list of holiday destinations, resorts, and travel routes.</p>
+                </div>
+            </div>
+
+            {% if saved_items %}
+            <div class="saved-grid mt-20">
+                {% for s in saved_items %}
+                <div class="saved-card">
+                    {% if s['item_image_url'] %}
+                    <div class="saved-card-img-wrap">
+                        <img src="{{ s['item_image_url'] }}" alt="{{ s['item_title'] }}" class="saved-card-img">
+                        <span class="saved-type-pill">{{ s['item_type']|upper }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="saved-card-body">
+                        <span class="location-tag">{{ s['item_location'] }}</span>
+                        <h4 class="saved-title mt-5">{{ s['item_title'] }}</h4>
+                        <p class="price-val mt-10">₹{{ "{:,.0f}".format(s['item_price']) }}</p>
+                        
+                        <div class="saved-card-actions mt-15">
+                            {% if s['item_type'] == 'package' %}
+                                <a href="{{ url_for('packages.package_detail', package_id=s['item_id']) }}" class="btn btn-primary-inline">View Details</a>
+                            {% elif s['item_type'] == 'hotel' %}
+                                <a href="{{ url_for('hotels.hotel_detail', hotel_id=s['item_id']) }}" class="btn btn-primary-inline">View Details</a>
+                            {% else %}
+                                <a href="{{ url_for('transports.transport_detail', transport_id=s['item_id']) }}" class="btn btn-primary-inline">View Details</a>
+                            {% endif %}
+                            
+                            <form action="{{ url_for('dashboard.toggle_favorite', item_type=s['item_type'], item_id=s['item_id']) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-remove-saved">Remove</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="dashboard-empty">
+                <h3>Wishlist is Empty</h3>
+                <p>You can click 'Save Destination' on any package, hotel, or transport route to view it here anytime.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Tab 6: Profile -->
     {% if active_tab == 'profile' %}
     <div class="tab-content">
         <div class="card">
             <h3>User Profile Details</h3>
             <p class="section-desc">Manage your personal information and contact details.</p>
             
-            <form action="{{ url_for('profile') }}" method="POST" class="form">
+            <form action="{{ url_for('dashboard.profile') }}" method="POST" class="form">
                 <div class="form-row">
                     <div class="form-group flex-1">
                         <label for="username">Username</label>
@@ -108,14 +377,14 @@
     </div>
     {% endif %}
 
-    <!-- Tab 3: Preferences -->
+    <!-- Tab 7: Preferences -->
     {% if active_tab == 'preferences' %}
     <div class="tab-content">
         <div class="card">
             <h3>Travel Preferences</h3>
             <p class="section-desc">Customize your travel style so we can tailor the best packages for you.</p>
             
-            <form action="{{ url_for('preferences') }}" method="POST" class="form">
+            <form action="{{ url_for('dashboard.preferences') }}" method="POST" class="form">
                 <div class="form-group">
                     <label>Preferred Mode of Transport</label>
                     <div class="radio-group">
@@ -140,13 +409,13 @@
                     <div class="radio-group">
                         {% set current_diet = preferences['dietary_preference'] if preferences else 'Vegetarian' %}
                         <label class="radio-label">
-                            <input type="radio" name="dietary_preference" value="Vegetarian" {% if current_diet == 'Vegetarian' %}checked{% endif %}>  Pure Vegetarian
+                            <input type="radio" name="dietary_preference" value="Vegetarian" {% if current_diet == 'Vegetarian' %}checked{% endif %}> Pure Vegetarian
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="dietary_preference" value="Non-Vegetarian" {% if current_diet == 'Non-Vegetarian' %}checked{% endif %}>  Non-Vegetarian
+                            <input type="radio" name="dietary_preference" value="Non-Vegetarian" {% if current_diet == 'Non-Vegetarian' %}checked{% endif %}> Non-Vegetarian
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="dietary_preference" value="Vegan" {% if current_diet == 'Vegan' %}checked{% endif %}>  Vegan
+                            <input type="radio" name="dietary_preference" value="Vegan" {% if current_diet == 'Vegan' %}checked{% endif %}> Vegan
                         </label>
                     </div>
                 </div>
@@ -156,13 +425,13 @@
                     <div class="radio-group">
                         {% set current_budget = preferences['budget_range'] if preferences else 'Moderate' %}
                         <label class="radio-label">
-                            <input type="radio" name="budget_range" value="Budget" {% if current_budget == 'Budget' %}checked{% endif %}>  Budget (Economical)
+                            <input type="radio" name="budget_range" value="Budget" {% if current_budget == 'Budget' %}checked{% endif %}> Budget (Economical)
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="budget_range" value="Moderate" {% if current_budget == 'Moderate' %}checked{% endif %}>  Moderate (Comfort)
+                            <input type="radio" name="budget_range" value="Moderate" {% if current_budget == 'Moderate' %}checked{% endif %}> Moderate (Comfort)
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="budget_range" value="Luxury" {% if current_budget == 'Luxury' %}checked{% endif %}>  Luxury (Premium)
+                            <input type="radio" name="budget_range" value="Luxury" {% if current_budget == 'Luxury' %}checked{% endif %}> Luxury (Premium)
                         </label>
                     </div>
                 </div>
@@ -172,110 +441,22 @@
                     <div class="checkbox-group">
                         {% set prefs_cat = preferences['preferred_categories'] if preferences else 'Hill Station' %}
                         <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Hill Station" {% if 'Hill Station' in prefs_cat %}checked{% endif %}>  Hill Stations 
+                            <input type="checkbox" name="preferred_categories" value="Hill Station" {% if 'Hill Station' in prefs_cat %}checked{% endif %}> Hill Stations
                         </label>
                         <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Heritage & Culture" {% if 'Heritage & Culture' in prefs_cat %}checked{% endif %}>  Heritage & Temples 
+                            <input type="checkbox" name="preferred_categories" value="Heritage & Culture" {% if 'Heritage & Culture' in prefs_cat %}checked{% endif %}> Heritage & Temples
                         </label>
                         <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Coastal & Urban" {% if 'Coastal & Urban' in prefs_cat %}checked{% endif %}>  Coastal & Beaches 
+                            <input type="checkbox" name="preferred_categories" value="Coastal & Urban" {% if 'Coastal & Urban' in prefs_cat %}checked{% endif %}> Coastal & Beaches
                         </label>
                         <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Pilgrimage & Coastal" {% if 'Pilgrimage & Coastal' in prefs_cat %}checked{% endif %}>  Pilgrimage Coast 
+                            <input type="checkbox" name="preferred_categories" value="Pilgrimage & Coastal" {% if 'Pilgrimage & Coastal' in prefs_cat %}checked{% endif %}> Pilgrimage Coast
                         </label>
                     </div>
                 </div>
 
                 <button type="submit" class="btn btn-submit mt-20">Save Travel Preferences</button>
             </form>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Tab 4: Booking History & Management -->
-    {% if active_tab == 'bookings' %}
-    <div class="tab-content">
-        <div class="card">
-            <div class="card-header-flex">
-                <div>
-                    <h3>Your Booking Management</h3>
-                    <p class="section-desc">Manage your trip itineraries, modify travel dates/travelers, cancel reservations, or download printable vouchers.</p>
-                </div>
-            </div>
-            
-            {% if bookings %}
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Ref #</th>
-                            <th>Service Details</th>
-                            <th>Type</th>
-                            <th>Schedule Date</th>
-                            <th>Travelers / Units</th>
-                            <th>Total Amount</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for b in bookings %}
-                        <tr>
-                            <td>
-                                <strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong><br>
-                                <small class="text-muted">{{ b['created_at'][:10] }}</small>
-                            </td>
-                            <td>
-                                <strong>{{ b['item_title'] }}</strong><br>
-                                <small class="text-muted">{{ b['item_destination'] }}</small>
-                                {% if b['booking_type'] == 'Hotel' and b['room_type'] %}
-                                    <br><small class="text-muted">Room: {{ b['room_type'] }}</small>
-                                {% elif b['booking_type'] == 'Transport' and b['pickup_location'] %}
-                                    <br><small class="text-muted">Pickup: {{ b['pickup_location'] }}</small>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <span class="category-tag">{{ b['booking_type'] }}</span>
-                            </td>
-                            <td>
-                                <strong>{{ b['travel_date'] }}</strong>
-                                {% if b['booking_type'] == 'Hotel' and b['check_out_date'] %}
-                                    <br><small class="text-muted">to {{ b['check_out_date'] }}</small>
-                                {% endif %}
-                            </td>
-                            <td>{{ b['num_travelers'] }} {% if b['booking_type'] == 'Hotel' %}Guest(s){% elif b['booking_type'] == 'Transport' %}Seat(s){% else %}Traveler(s){% endif %}</td>
-                            <td><strong>₹{{ "{:,.2f}".format(b['total_price']) }}</strong></td>
-                            <td>
-                                <span class="status-pill status-{{ b['status']|lower }}">{{ b['status'] }}</span>
-                            </td>
-                            <td class="action-links-cell">
-                                <a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}" class="btn-link font-bold">Voucher</a>
-                                
-                                {% if b['status'] != 'Cancelled' %}
-                                    <span class="text-muted">•</span>
-                                    <a href="{{ url_for('bookings.modify_booking', booking_id=b['id']) }}" class="btn-link">Modify</a>
-                                    <span class="text-muted">•</span>
-                                    <form action="{{ url_for('bookings.cancel_booking', booking_id=b['id']) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this booking? Cancellation policies may apply.');">
-                                        <button type="submit" class="btn-text-danger">Cancel</button>
-                                    </form>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="dashboard-empty">
-                <h3>No Bookings Yet</h3>
-                <p>You haven't booked any travel packages, hotel stays, or transport services yet. Explore Tamil Nadu destinations today!</p>
-                <div class="empty-action-links mt-15">
-                    <a href="{{ url_for('packages.packages') }}" class="btn btn-primary-inline">Explore Packages</a>
-                    <a href="{{ url_for('hotels.hotels') }}" class="btn btn-secondary-inline">Explore Hotels</a>
-                    <a href="{{ url_for('transports.transports') }}" class="btn btn-secondary-inline">Explore Transports</a>
-                </div>
-            </div>
-            {% endif %}
         </div>
     </div>
     {% endif %}
