@@ -75,6 +75,8 @@ def transports():
         sort_by=sort_by
     )
 
+from reviews import get_item_reviews_summary
+
 @transports_bp.route('/transports/<int:transport_id>')
 def transport_detail(transport_id):
     conn = get_db_connection()
@@ -86,10 +88,23 @@ def transport_detail(transport_id):
         WHERE t.id = ?
     ''', (transport_id,))
     transport = cursor.fetchone()
+
+    is_saved = False
+    if session.get('user_id'):
+        cursor.execute('SELECT id FROM saved_items WHERE user_id = ? AND item_type = "transport" AND item_id = ?', (session['user_id'], transport_id))
+        is_saved = bool(cursor.fetchone())
+
     conn.close()
 
     if not transport:
         flash('Transport listing not found.', 'danger')
         return redirect(url_for('transports.transports'))
 
-    return render_template('transport_detail.html', transport=transport)
+    reviews_data = get_item_reviews_summary('transport', transport_id)
+
+    return render_template(
+        'transport_detail.html',
+        transport=transport,
+        reviews_data=reviews_data,
+        is_saved=is_saved
+    )

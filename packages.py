@@ -68,22 +68,42 @@ def packages():
         compare_list=compare_list
     )
 
+from reviews import get_item_reviews_summary
+
 @packages_bp.route('/packages/<int:package_id>')
 def package_detail(package_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM packages WHERE id = ?', (package_id,))
+    cursor.execute('''
+        SELECT p.*, a.name as agency_name, a.agency_type, a.phone as agency_phone, a.email as agency_email
+        FROM packages p
+        LEFT JOIN agencies a ON p.agency_id = a.id
+        WHERE p.id = ?
+    ''', (package_id,))
     pkg = cursor.fetchone()
+
+    is_saved = False
+    if session.get('user_id'):
+        cursor.execute('SELECT id FROM saved_items WHERE user_id = ? AND item_type = "package" AND item_id = ?', (session['user_id'], package_id))
+        is_saved = bool(cursor.fetchone())
+
     conn.close()
 
     if not pkg:
         flash('Package not found.', 'danger')
-        return redirect(url_for('packages'))
+        return redirect(url_for('packages.packages'))
 
     compare_list = session.get('compare_packages', [])
     is_in_compare = package_id in compare_list
+    reviews_data = get_item_reviews_summary('package', package_id)
 
-    return render_template('package_detail.html', package=pkg, is_in_compare=is_in_compare)
+    return render_template(
+        'package_detail.html',
+        package=pkg,
+        is_in_compare=is_in_compare,
+        reviews_data=reviews_data,
+        is_saved=is_saved
+    )
 
 @packages_bp.route('/book/<int:package_id>', methods=['POST'])
 @login_required

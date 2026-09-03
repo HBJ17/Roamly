@@ -66,6 +66,8 @@ def hotels():
         sort_by=sort_by
     )
 
+from reviews import get_item_reviews_summary
+
 @hotels_bp.route('/hotels/<int:hotel_id>')
 def hotel_detail(hotel_id):
     conn = get_db_connection()
@@ -77,10 +79,23 @@ def hotel_detail(hotel_id):
         WHERE h.id = ?
     ''', (hotel_id,))
     hotel = cursor.fetchone()
+
+    is_saved = False
+    if session.get('user_id'):
+        cursor.execute('SELECT id FROM saved_items WHERE user_id = ? AND item_type = "hotel" AND item_id = ?', (session['user_id'], hotel_id))
+        is_saved = bool(cursor.fetchone())
+
     conn.close()
 
     if not hotel:
         flash('Hotel listing not found.', 'danger')
         return redirect(url_for('hotels.hotels'))
 
-    return render_template('hotel_detail.html', hotel=hotel)
+    reviews_data = get_item_reviews_summary('hotel', hotel_id)
+
+    return render_template(
+        'hotel_detail.html',
+        hotel=hotel,
+        reviews_data=reviews_data,
+        is_saved=is_saved
+    )

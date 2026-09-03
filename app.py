@@ -16,6 +16,7 @@ app.secret_key = 'super_secret_key_for_session'
 init_db()
 
 from payments import payments_bp
+from reviews import reviews_bp
 from database.connection import get_db_connection
 
 # Register Blueprints
@@ -28,6 +29,7 @@ app.register_blueprint(bookings_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(agency_bp)
 app.register_blueprint(payments_bp)
+app.register_blueprint(reviews_bp)
 
 # Build error handler for legacy endpoint names in templates
 def url_build_error_handler(error, endpoint, values):

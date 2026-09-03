@@ -4,8 +4,17 @@
 
 {% block content %}
 <div class="package-detail-container">
-    <div class="breadcrumb">
-        <a href="{{ url_for('hotels.hotels') }}">← Back to Hotels</a>
+    <div class="breadcrumb-bar">
+        <a href="{{ url_for('hotels.hotels') }}" class="btn-breadcrumb">Back to Hotels</a>
+        <div class="breadcrumb-right">
+            {% if session.get('user_id') %}
+            <form action="{{ url_for('dashboard.toggle_favorite', item_type='hotel', item_id=hotel['id']) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-wishlist {% if is_saved %}saved{% endif %}">
+                    {% if is_saved %}In Saved Wishlist{% else %}Save Property{% endif %}
+                </button>
+            </form>
+            {% endif %}
+        </div>
     </div>
 
     <div class="package-detail-layout">
@@ -14,14 +23,20 @@
             <div class="detail-header-card">
                 <div class="detail-header-top">
                     <span class="category-badge">{{ hotel['city'] }}</span>
-                    <span class="rating-badge">★ {{ hotel['star_rating'] }} / 5.0</span>
+                    {% if hotel['agency_name'] %}
+                        <span class="agency-badge">Managed by {{ hotel['agency_name'] }}</span>
+                    {% endif %}
+                    <span class="rating-badge">Rating: {{ hotel['star_rating'] }} / 5.0</span>
                 </div>
                 <h2>{{ hotel['name'] }}</h2>
                 <p class="detail-location"><strong>Address:</strong> {{ hotel['address'] }}</p>
-                {% if hotel['agency_name'] %}
-                    <p class="agency-badge-pill">Managed by: <strong>{{ hotel['agency_name'] }}</strong> ({{ hotel['agency_type'] }})</p>
-                {% endif %}
             </div>
+
+            {% if hotel['image_url'] %}
+            <div class="detail-hero-image-wrap mt-20">
+                <img src="{{ hotel['image_url'] }}" alt="{{ hotel['name'] }}" class="detail-hero-image">
+            </div>
+            {% endif %}
 
             <div class="card mt-20">
                 <h3>About the Property</h3>
@@ -34,19 +49,131 @@
                     {% for room in hotel['room_types'].split(',') %}
                         <div class="room-type-card">
                             <h4>{{ room.strip() }}</h4>
-                            <p class="room-features-text">Max 2-3 Guests • AC • En-Suite Bath • Scenic Balcony</p>
+                            <p class="room-features-text">Max 2-3 Guests • Climate Control AC • En-Suite Bathroom • Scenic View</p>
                         </div>
                     {% endfor %}
                 </div>
             </div>
 
+            {% if hotel['dining_options'] %}
+            <div class="card mt-20">
+                <h3>Dining & In-House Cuisine</h3>
+                <p class="dining-desc">{{ hotel['dining_options'] }}</p>
+            </div>
+            {% endif %}
+
             <div class="card mt-20">
                 <h3>Hotel Amenities & Privileges</h3>
                 <ul class="amenities-list">
                     {% for item in hotel['amenities'].split(',') %}
-                        <li>{{ item.strip() }}</li>
+                        <li><span class="bullet">•</span> {{ item.strip() }}</li>
                     {% endfor %}
                 </ul>
+            </div>
+
+            <!-- Reviews & Ratings Section -->
+            <div class="card mt-20 reviews-card">
+                <div class="reviews-header-flex">
+                    <div>
+                        <h3>Guest Reviews & Ratings</h3>
+                        <p class="section-desc">Verified feedback from guests who stayed at this property.</p>
+                    </div>
+                    <div class="overall-rating-badge">
+                        <span class="score">{{ reviews_data['average_rating'] }}</span>
+                        <span class="out-of">/ 5.0</span>
+                        <small class="total-reviews">({{ reviews_data['total_count'] }} Reviews)</small>
+                    </div>
+                </div>
+
+                <!-- Star Breakdown Bars -->
+                <div class="rating-breakdown-grid mt-15">
+                    {% for star in [5, 4, 3, 2, 1] %}
+                    <div class="breakdown-row">
+                        <span class="star-label">{{ star }} Stars</span>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" style="width: {{ reviews_data['breakdown_pct'][star] }}%;"></div>
+                        </div>
+                        <span class="star-count">{{ reviews_data['breakdown'][star] }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <hr class="divider mt-20">
+
+                <!-- Leave a Review Form -->
+                {% if session.get('user_id') %}
+                <div class="add-review-section mt-20">
+                    <h4>Review Your Stay</h4>
+                    <form action="{{ url_for('reviews.add_review') }}" method="POST" class="review-form mt-10">
+                        <input type="hidden" name="item_type" value="hotel">
+                        <input type="hidden" name="item_id" value="{{ hotel['id'] }}">
+
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label for="rating">Star Rating *</label>
+                                <select id="rating" name="rating" required>
+                                    <option value="5" selected>5 Stars - Exceptional Hospitality</option>
+                                    <option value="4">4 Stars - Very Good</option>
+                                    <option value="3">3 Stars - Average</option>
+                                    <option value="2">2 Stars - Poor</option>
+                                    <option value="1">1 Star - Terrible</option>
+                                </select>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="travel_type">Travel Style</label>
+                                <select id="travel_type" name="travel_type">
+                                    <option value="Family" selected>Family Vacation</option>
+                                    <option value="Couple">Couple / Getaway</option>
+                                    <option value="Solo">Solo Traveler</option>
+                                    <option value="Friends">Friends Group</option>
+                                    <option value="Business">Business Trip</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="title">Review Headline *</label>
+                            <input type="text" id="title" name="title" placeholder="e.g. Pristine rooms, wonderful view, and authentic Chettinad breakfast!" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="comment">Detailed Feedback *</label>
+                            <textarea id="comment" name="comment" rows="3" placeholder="Share your experience regarding cleanliness, staff attentiveness, food quality, and amenities..." required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-submit">Submit Verified Review</button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="review-login-prompt mt-15">
+                    <p><a href="{{ url_for('auth.login') }}">Log in</a> to submit a guest review for this property.</p>
+                </div>
+                {% endif %}
+
+                <!-- Existing Reviews Feed -->
+                <div class="reviews-feed mt-25">
+                    {% if reviews_data['reviews'] %}
+                        {% for r in reviews_data['reviews'] %}
+                        <div class="review-item-card">
+                            <div class="review-item-header">
+                                <div>
+                                    <strong>{{ r['full_name'] or r['username'] }}</strong>
+                                    <span class="verified-tag">Verified Guest</span>
+                                    <span class="travel-type-tag">{{ r['travel_type'] }}</span>
+                                </div>
+                                <div class="review-stars-pill">
+                                    Rating: {{ r['rating'] }}/5
+                                </div>
+                            </div>
+                            <h5 class="review-title mt-5">{{ r['title'] }}</h5>
+                            <p class="review-body">{{ r['comment'] }}</p>
+                            <small class="review-date text-muted">Reviewed on {{ r['created_at'][:10] }}</small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted mt-10">No customer reviews yet. Be the first to leave a review for this hotel!</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
@@ -59,10 +186,10 @@
                 </div>
 
                 {% if session.get('user_id') %}
-                <form action="{{ url_for('bookings.book_hotel', hotel_id=hotel['id']) }}" method="POST" class="booking-form">
+                <form action="{{ url_for('payments.checkout', booking_type='hotel', item_id=hotel['id']) }}" method="GET" class="booking-form">
                     <div class="form-group">
                         <label for="check_in_date">Check-in Date *</label>
-                        <input type="date" id="check_in_date" name="check_in_date" required onchange="calculateHotelPrice({{ hotel['price_per_night'] }})">
+                        <input type="date" id="check_in_date" name="travel_date" required onchange="calculateHotelPrice({{ hotel['price_per_night'] }})">
                     </div>
 
                     <div class="form-group">
@@ -89,27 +216,17 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="contact_phone">Contact Phone</label>
-                        <input type="tel" id="contact_phone" name="contact_phone" placeholder="e.g. +91 9876543210">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="special_requests">Special Requests</label>
-                        <textarea id="special_requests" name="special_requests" rows="2" placeholder="Early check-in, high floor, quiet room..."></textarea>
-                    </div>
-
                     <div class="total-calc-box">
                         <span>Estimated Total (<span id="nights_count_display">1</span> Night):</span>
                         <strong id="hotel_total_display">₹{{ "{:,.0f}".format(hotel['price_per_night']) }}</strong>
                     </div>
 
-                    <button type="submit" class="btn btn-book-now">Reserve Hotel Room</button>
+                    <button type="submit" class="btn btn-book-now">Proceed to Secure Checkout</button>
                 </form>
                 {% else %}
                 <div class="login-prompt-box">
                     <p>Please log in to reserve your stay and manage your bookings.</p>
-                    <a href="{{ url_for('login') }}" class="btn btn-primary-inline mt-10">Log In to Reserve</a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary-inline mt-10">Log In to Reserve</a>
                 </div>
                 {% endif %}
             </div>

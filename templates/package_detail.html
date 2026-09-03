@@ -4,8 +4,17 @@
 
 {% block content %}
 <div class="package-detail-container">
-    <div class="breadcrumb">
-        <a href="{{ url_for('packages') }}">← Back to Packages</a>
+    <div class="breadcrumb-bar">
+        <a href="{{ url_for('packages.packages') }}" class="btn-breadcrumb">Back to Packages</a>
+        <div class="breadcrumb-right">
+            {% if session.get('user_id') %}
+            <form action="{{ url_for('dashboard.toggle_favorite', item_type='package', item_id=package['id']) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-wishlist {% if is_saved %}saved{% endif %}">
+                    {% if is_saved %}In Saved Wishlist{% else %}Save Destination{% endif %}
+                </button>
+            </form>
+            {% endif %}
+        </div>
     </div>
 
     <div class="package-detail-layout">
@@ -14,34 +23,155 @@
             <div class="detail-header-card">
                 <div class="detail-header-top">
                     <span class="category-badge">{{ package['category'] }}</span>
-                    <span class="rating-badge">★ {{ package['rating'] }} / 5.0</span>
+                    {% if package['agency_name'] %}
+                        <span class="agency-badge">Posted by {{ package['agency_name'] }}</span>
+                    {% endif %}
+                    <span class="rating-badge">Rating: {{ package['rating'] }} / 5.0</span>
                 </div>
                 <h2>{{ package['title'] }}</h2>
-                <p class="detail-location"> <strong>Destination:</strong> {{ package['destination'] }}</p>
-                <p class="detail-duration"> <strong>Duration:</strong> {{ package['duration_days'] }} Days / {{ package['duration_nights'] }} Nights</p>
+                <p class="detail-location"><strong>Destination:</strong> {{ package['destination'] }}</p>
+                <p class="detail-duration"><strong>Duration:</strong> {{ package['duration_days'] }} Days / {{ package['duration_nights'] }} Nights</p>
             </div>
 
+            {% if package['image_url'] %}
+            <div class="detail-hero-image-wrap mt-20">
+                <img src="{{ package['image_url'] }}" alt="{{ package['title'] }}" class="detail-hero-image">
+            </div>
+            {% endif %}
+
             <div class="card mt-20">
-                <h3>About This Package</h3>
+                <h3>About This Experience</h3>
                 <p class="detail-description">{{ package['description'] }}</p>
             </div>
 
             <div class="card mt-20">
-                <h3>Key Sightseeing Highlights</h3>
+                <h3>Key Sightseeing & Itinerary Highlights</h3>
                 <ul class="highlights-list">
                     {% for hl in package['highlights'].split(',') %}
-                        <li> {{ hl.strip() }}</li>
+                        <li><span class="bullet">•</span> {{ hl.strip() }}</li>
                     {% endfor %}
                 </ul>
             </div>
+
+            {% if package['food_highlights'] %}
+            <div class="card mt-20">
+                <h3>Culinary & Dining Inclusions</h3>
+                <p class="dining-desc">{{ package['food_highlights'] }}</p>
+            </div>
+            {% endif %}
 
             <div class="card mt-20">
                 <h3>Included Amenities & Services</h3>
                 <ul class="amenities-list">
                     {% for item in package['included_amenities'].split(',') %}
-                        <li> {{ item.strip() }}</li>
+                        <li><span class="bullet">•</span> {{ item.strip() }}</li>
                     {% endfor %}
                 </ul>
+            </div>
+
+            <!-- Reviews & Ratings Section -->
+            <div class="card mt-20 reviews-card">
+                <div class="reviews-header-flex">
+                    <div>
+                        <h3>Guest Reviews & Ratings</h3>
+                        <p class="section-desc">Verified feedback from travelers who booked this itinerary.</p>
+                    </div>
+                    <div class="overall-rating-badge">
+                        <span class="score">{{ reviews_data['average_rating'] }}</span>
+                        <span class="out-of">/ 5.0</span>
+                        <small class="total-reviews">({{ reviews_data['total_count'] }} Reviews)</small>
+                    </div>
+                </div>
+
+                <!-- Star Breakdown Bars -->
+                <div class="rating-breakdown-grid mt-15">
+                    {% for star in [5, 4, 3, 2, 1] %}
+                    <div class="breakdown-row">
+                        <span class="star-label">{{ star }} Stars</span>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" style="width: {{ reviews_data['breakdown_pct'][star] }}%;"></div>
+                        </div>
+                        <span class="star-count">{{ reviews_data['breakdown'][star] }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <hr class="divider mt-20">
+
+                <!-- Leave a Review Form -->
+                {% if session.get('user_id') %}
+                <div class="add-review-section mt-20">
+                    <h4>Share Your Experience</h4>
+                    <form action="{{ url_for('reviews.add_review') }}" method="POST" class="review-form mt-10">
+                        <input type="hidden" name="item_type" value="package">
+                        <input type="hidden" name="item_id" value="{{ package['id'] }}">
+
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label for="rating">Star Rating *</label>
+                                <select id="rating" name="rating" required>
+                                    <option value="5" selected>5 Stars - Exceptional</option>
+                                    <option value="4">4 Stars - Very Good</option>
+                                    <option value="3">3 Stars - Average</option>
+                                    <option value="2">2 Stars - Poor</option>
+                                    <option value="1">1 Star - Terrible</option>
+                                </select>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="travel_type">Travel Type</label>
+                                <select id="travel_type" name="travel_type">
+                                    <option value="Family" selected>Family Vacation</option>
+                                    <option value="Couple">Couple / Honeymoon</option>
+                                    <option value="Solo">Solo Traveler</option>
+                                    <option value="Friends">Group of Friends</option>
+                                    <option value="Business">Business / Leisure</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="title">Review Headline *</label>
+                            <input type="text" id="title" name="title" placeholder="e.g. Unforgettable Ooty Toy Train and Tea Estate Tour!" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="comment">Detailed Feedback *</label>
+                            <textarea id="comment" name="comment" rows="3" placeholder="Share specific details about accommodation, driver punctuality, sightseeing, and dining..." required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-submit">Submit Verified Review</button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="review-login-prompt mt-15">
+                    <p><a href="{{ url_for('auth.login') }}">Log in</a> to submit a verified traveler review for this package.</p>
+                </div>
+                {% endif %}
+
+                <!-- Existing Reviews List -->
+                <div class="reviews-feed mt-25">
+                    {% if reviews_data['reviews'] %}
+                        {% for r in reviews_data['reviews'] %}
+                        <div class="review-item-card">
+                            <div class="review-item-header">
+                                <div>
+                                    <strong>{{ r['full_name'] or r['username'] }}</strong>
+                                    <span class="verified-tag">Verified Traveler</span>
+                                    <span class="travel-type-tag">{{ r['travel_type'] }}</span>
+                                </div>
+                                <div class="review-stars-pill">
+                                    Rating: {{ r['rating'] }}/5
+                                </div>
+                            </div>
+                            <h5 class="review-title mt-5">{{ r['title'] }}</h5>
+                            <p class="review-body">{{ r['comment'] }}</p>
+                            <small class="review-date text-muted">Reviewed on {{ r['created_at'][:10] }}</small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted mt-10">No customer reviews yet. Be the first to review this holiday package!</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
@@ -54,17 +184,17 @@
                 </div>
 
                 {% if session.get('user_id') %}
-                <form action="{{ url_for('book_package', package_id=package['id']) }}" method="POST" class="booking-form">
+                <form action="{{ url_for('payments.checkout', booking_type='package', item_id=package['id']) }}" method="GET" class="booking-form">
                     <div class="form-group">
                         <label for="travel_date">Select Travel Date *</label>
-                        <input type="date" id="travel_date" name="travel_date" required min="2026-08-15">
+                        <input type="date" id="travel_date" name="travel_date" required min="2026-08-15" value="2026-09-10">
                     </div>
 
                     <div class="form-group">
                         <label for="num_travelers">Number of Travelers *</label>
                         <select id="num_travelers" name="num_travelers" required onchange="updateTotalPrice(this.value, {{ package['price'] }})">
                             <option value="1">1 Person</option>
-                            <option value="2">2 Persons</option>
+                            <option value="2" selected>2 Persons</option>
                             <option value="3">3 Persons</option>
                             <option value="4">4 Persons</option>
                             <option value="5">5+ Group</option>
@@ -73,23 +203,23 @@
 
                     <div class="total-calc-box">
                         <span>Total Estimated Cost:</span>
-                        <strong id="total_price_display">₹{{ "{:,.0f}".format(package['price']) }}</strong>
+                        <strong id="total_price_display">₹{{ "{:,.0f}".format(package['price'] * 2) }}</strong>
                     </div>
 
-                    <button type="submit" class="btn btn-book-now">Instant Book Package</button>
+                    <button type="submit" class="btn btn-book-now">Proceed to Secure Checkout</button>
                 </form>
                 {% else %}
                 <div class="login-prompt-box">
-                    <p>Log in to book this Tamil Nadu package and track your booking history in your dashboard.</p>
-                    <a href="{{ url_for('login') }}" class="btn btn-primary-inline mt-10">Log In to Book</a>
+                    <p>Log in to book this Tamil Nadu package, review travel vouchers, and track your trip timeline.</p>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary-inline mt-10">Log In to Book</a>
                 </div>
                 {% endif %}
 
                 <hr class="divider">
 
-                <form action="{{ url_for('compare_toggle', package_id=package['id']) }}" method="POST">
+                <form action="{{ url_for('packages.compare_toggle', package_id=package['id']) }}" method="POST">
                     <button type="submit" class="btn btn-secondary-inline block-btn {% if is_in_compare %}active{% endif %}">
-                        {% if is_in_compare %}✓ In Comparison List (Remove){% else %}+ Add to Compare{% endif %}
+                        {% if is_in_compare %}In Comparison List (Remove){% else %}Add to Compare{% endif %}
                     </button>
                 </form>
             </div>
