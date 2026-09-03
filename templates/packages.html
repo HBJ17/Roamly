@@ -5,16 +5,16 @@
 {% block content %}
 <div class="packages-container">
     <div class="page-header">
-        <h2>Explore Destinations & Travel Packages </h2>
-        <p>Discover handpicked holiday experiences across Tamil Nadu - from misty hills of Ooty & Kodaikanal to ancient temples of Madurai & Tanjore.</p>
+        <h2>Explore Destinations & Holiday Packages</h2>
+        <p>Discover handpicked holiday experiences across Tamil Nadu - from misty hills of Ooty and Kodaikanal to ancient temples of Madurai and Thanjavur.</p>
     </div>
 
     <!-- Search & Filter Controls -->
-    <form action="{{ url_for('packages') }}" method="GET" class="filter-card">
+    <form action="{{ url_for('packages.packages') }}" method="GET" class="filter-card">
         <div class="filter-row">
             <div class="filter-group flex-2">
                 <label for="q">Search Destination or Package</label>
-                <input type="text" id="q" name="q" value="{{ query or '' }}" placeholder="Search Ooty, Kodaikanal, Tanjore, temple...">
+                <input type="text" id="q" name="q" value="{{ query or '' }}" placeholder="Search Ooty, Kodaikanal, Thanjavur, temple...">
             </div>
 
             <div class="filter-group flex-1">
@@ -48,8 +48,8 @@
             </div>
 
             <div class="filter-actions">
-                <button type="submit" class="btn btn-search"> Search & Filter</button>
-                <a href="{{ url_for('packages') }}" class="btn-reset">Reset</a>
+                <button type="submit" class="btn btn-search">Search & Filter</button>
+                <a href="{{ url_for('packages.packages') }}" class="btn-reset">Reset</a>
             </div>
         </div>
     </form>
@@ -57,10 +57,10 @@
     <!-- Compare Bar Notification if items selected -->
     {% if compare_list %}
     <div class="compare-bar-alert">
-        <span> You have <strong>{{ compare_list|length }}</strong> package(s) selected for comparison.</span>
+        <span>You have <strong>{{ compare_list|length }}</strong> package(s) selected for comparison.</span>
         <div class="compare-bar-buttons">
-            <a href="{{ url_for('compare') }}" class="btn-compare-now">View Comparison Table</a>
-            <a href="{{ url_for('compare_clear') }}" class="btn-compare-clear">Clear Selection</a>
+            <a href="{{ url_for('packages.compare') }}" class="btn-compare-now">View Comparison Table</a>
+            <a href="{{ url_for('packages.compare_clear') }}" class="btn-compare-clear">Clear Selection</a>
         </div>
     </div>
     {% endif %}
@@ -70,18 +70,29 @@
         {% if packages %}
             {% for pkg in packages %}
             <div class="package-card">
-                <div class="package-card-header">
+                {% if pkg['image_url'] %}
+                <div class="package-card-img-wrap">
+                    <img src="{{ pkg['image_url'] }}" alt="{{ pkg['title'] }}" class="package-card-img">
                     <span class="category-badge">{{ pkg['category'] }}</span>
-                    <span class="rating-badge">★ {{ pkg['rating'] }}</span>
                 </div>
-                <div class="package-card-body">
-                    <h3 class="package-title">{{ pkg['title'] }}</h3>
-                    <p class="package-destination"> {{ pkg['destination'] }}</p>
-                    <p class="package-duration"> {{ pkg['duration_days'] }} Days / {{ pkg['duration_nights'] }} Nights</p>
-                    <p class="package-snippet">{{ pkg['description'][:110] }}...</p>
+                {% endif %}
 
-                    <div class="package-highlights-tags">
-                        {% for hl in pkg['highlights'].split(',')[:3] %}
+                <div class="package-card-body">
+                    <div class="package-meta-top">
+                        <span class="rating-badge">Rating: {{ pkg['rating'] }}</span>
+                        <span class="location-tag">{{ pkg['destination'] }}</span>
+                    </div>
+
+                    <h3 class="package-title mt-5">{{ pkg['title'] }}</h3>
+                    <p class="package-duration"><strong>Duration:</strong> {{ pkg['duration_days'] }} Days / {{ pkg['duration_nights'] }} Nights</p>
+                    <p class="package-snippet">{{ pkg['description'][:100] }}...</p>
+
+                    {% if pkg['food_highlights'] %}
+                    <p class="package-dining-snippet"><strong>Dining:</strong> {{ pkg['food_highlights'][:75] }}...</p>
+                    {% endif %}
+
+                    <div class="package-highlights-tags mt-10">
+                        {% for hl in pkg['highlights'].split(',')[:2] %}
                             <span class="hl-tag">• {{ hl.strip() }}</span>
                         {% endfor %}
                     </div>
@@ -89,17 +100,17 @@
 
                 <div class="package-card-footer">
                     <div class="package-price">
-                        <span class="price-label">Starting from</span>
+                        <span class="price-label">From</span>
                         <span class="price-amount">₹{{ "{:,.0f}".format(pkg['price']) }}</span>
                         <span class="price-unit">/ person</span>
                     </div>
 
                     <div class="package-card-actions">
-                        <a href="{{ url_for('package_detail', package_id=pkg['id']) }}" class="btn btn-view-pkg">View Package</a>
+                        <a href="{{ url_for('packages.package_detail', package_id=pkg['id']) }}" class="btn btn-view-pkg">Details</a>
                         
-                        <form action="{{ url_for('compare_toggle', package_id=pkg['id']) }}" method="POST" style="display: inline;">
-                            <button type="submit" class="btn-icon-compare {% if pkg['id'] in compare_list %}active{% endif %}" title="Add to Compare">
-                                {% if pkg['id'] in compare_list %}✓ Compared{% else %}+ Compare{% endif %}
+                        <form action="{{ url_for('packages.compare_toggle', package_id=pkg['id']) }}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn-icon-compare {% if pkg['id'] in compare_list %}active{% endif %}" title="Compare Package">
+                                {% if pkg['id'] in compare_list %}Compared{% else %}Compare{% endif %}
                             </button>
                         </form>
                     </div>
@@ -108,9 +119,9 @@
             {% endfor %}
         {% else %}
             <div class="no-results-card">
-                <h3>No Packages Found </h3>
-                <p>We couldn't find any holiday packages matching your search criteria. Try clearing filters or searching for places like <strong>Ooty</strong>, <strong>Kodaikanal</strong>, or <strong>Madurai</strong>.</p>
-                <a href="{{ url_for('packages') }}" class="btn btn-primary-inline mt-15">Show All Packages</a>
+                <h3>No Packages Found</h3>
+                <p>We could not find any holiday packages matching your search criteria. Try clearing filters or searching for places like <strong>Ooty</strong>, <strong>Kodaikanal</strong>, or <strong>Madurai</strong>.</p>
+                <a href="{{ url_for('packages.packages') }}" class="btn btn-primary-inline mt-15">Show All Packages</a>
             </div>
         {% endif %}
     </div>

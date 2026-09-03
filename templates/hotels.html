@@ -3,91 +3,105 @@
 {% block title %}Hotels & Resorts in Tamil Nadu - Roamly{% endblock %}
 
 {% block content %}
-<div class="packages-header">
-    <h2>Hotels & Heritage Resorts</h2>
-    <p class="subtitle">Handpicked luxury stays, heritage palaces, and hill station chalets across Tamil Nadu</p>
-</div>
-
-<!-- Search and Filter Bar -->
-<div class="search-filter-section">
-    <form method="GET" action="{{ url_for('hotels.hotels') }}" class="search-filter-form">
-        <div class="search-inputs-grid">
-            <div class="input-group">
-                <label for="search-input">Search Hotels</label>
-                <input type="text" id="search-input" name="q" value="{{ query }}" placeholder="Hotel name, city, amenities...">
-            </div>
-
-            <div class="input-group">
-                <label for="city-select">City / Destination</label>
-                <select id="city-select" name="city">
-                    <option value="">All Destinations</option>
-                    {% for c in cities %}
-                        <option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label for="max-price">Max Budget / Night</label>
-                <input type="number" id="max-price" name="max_price" value="{{ max_price }}" placeholder="₹ Max" min="1000" step="500">
-            </div>
-
-            <div class="input-group">
-                <label for="sort-select">Sort By</label>
-                <select id="sort-select" name="sort_by">
-                    <option value="rating_desc" {% if sort_by == 'rating_desc' %}selected{% endif %}>Highest Rated</option>
-                    <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
-                    <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="filter-actions">
-            <button type="submit" class="btn btn-search">Apply Filters</button>
-            {% if query or selected_city or max_price or sort_by != 'rating_desc' %}
-                <a href="{{ url_for('hotels.hotels') }}" class="btn btn-reset">Clear Filters</a>
-            {% endif %}
-        </div>
-    </form>
-</div>
-
-<!-- Hotel Cards Grid -->
-{% if hotels %}
-<div class="packages-grid mt-30">
-    {% for h in hotels %}
-    <div class="package-card">
-        <div class="package-card-img" style="background-image: url('{{ h['image_url'] or url_for('static', filename='images/hotel_placeholder.jpg') }}');">
-            <span class="category-badge">{{ h['city'] }}</span>
-            <span class="rating-tag">★ {{ h['star_rating'] }}</span>
-        </div>
-        <div class="package-card-body">
-            <h3 class="package-title">{{ h['name'] }}</h3>
-            <p class="hotel-address-text"><small>{{ h['address'] }}</small></p>
-            <p class="package-desc-excerpt">{{ h['description'][:110] }}...</p>
-            
-            <div class="amenities-tags mt-10">
-                {% for am in h['amenities'].split(',')[:3] %}
-                    <span class="amenity-chip">{{ am.strip() }}</span>
-                {% endfor %}
-            </div>
-
-            <div class="package-card-footer mt-15">
-                <div class="price-container">
-                    <span class="currency-symbol">₹</span>
-                    <span class="price-val">{{ "{:,.0f}".format(h['price_per_night']) }}</span>
-                    <span class="per-person">/ night</span>
-                </div>
-                <a href="{{ url_for('hotels.hotel_detail', hotel_id=h['id']) }}" class="btn btn-view-deal">View & Book</a>
-            </div>
-        </div>
+<div class="packages-container">
+    <div class="page-header">
+        <h2>Hotels & Heritage Resorts</h2>
+        <p>Handpicked luxury stays, heritage palaces, and hill station chalets across Tamil Nadu.</p>
     </div>
-    {% endfor %}
+
+    <!-- Search and Filter Bar -->
+    <div class="search-filter-section">
+        <form method="GET" action="{{ url_for('hotels.hotels') }}" class="filter-card">
+            <div class="filter-row">
+                <div class="filter-group flex-2">
+                    <label for="search-input">Search Hotels</label>
+                    <input type="text" id="search-input" name="q" value="{{ query }}" placeholder="Hotel name, city, amenities...">
+                </div>
+
+                <div class="filter-group flex-1">
+                    <label for="city-select">City / Destination</label>
+                    <select id="city-select" name="city">
+                        <option value="">All Destinations</option>
+                        {% for c in cities %}
+                            <option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group flex-1">
+                    <label for="max-price">Max Rate / Night (₹)</label>
+                    <input type="number" id="max-price" name="max_price" value="{{ max_price }}" placeholder="Max Price" min="1000" step="500">
+                </div>
+
+                <div class="filter-group flex-1">
+                    <label for="sort-select">Sort By</label>
+                    <select id="sort-select" name="sort_by">
+                        <option value="rating_desc" {% if sort_by == 'rating_desc' %}selected{% endif %}>Highest Rated</option>
+                        <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-search">Apply Filters</button>
+                    {% if query or selected_city or max_price or sort_by != 'rating_desc' %}
+                        <a href="{{ url_for('hotels.hotels') }}" class="btn-reset">Reset</a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Hotel Cards Grid -->
+    {% if hotels %}
+    <div class="packages-grid mt-25">
+        {% for h in hotels %}
+        <div class="package-card">
+            {% if h['image_url'] %}
+            <div class="package-card-img-wrap">
+                <img src="{{ h['image_url'] }}" alt="{{ h['name'] }}" class="package-card-img">
+                <span class="category-badge">{{ h['city'] }}</span>
+            </div>
+            {% endif %}
+
+            <div class="package-card-body">
+                <div class="package-meta-top">
+                    <span class="rating-badge">Rating: {{ h['star_rating'] }}</span>
+                    {% if h['agency_name'] %}
+                        <span class="agency-mini-tag">{{ h['agency_name'] }}</span>
+                    {% endif %}
+                </div>
+
+                <h3 class="package-title mt-5">{{ h['name'] }}</h3>
+                <p class="hotel-address-text"><small class="text-muted">{{ h['address'] }}</small></p>
+                <p class="package-snippet">{{ h['description'][:100] }}...</p>
+                
+                <div class="amenities-tags mt-10">
+                    {% for am in h['amenities'].split(',')[:2] %}
+                        <span class="amenity-chip">• {{ am.strip() }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="package-card-footer">
+                <div class="package-price">
+                    <span class="price-label">Tariff</span>
+                    <span class="price-amount">₹{{ "{:,.0f}".format(h['price_per_night']) }}</span>
+                    <span class="price-unit">/ night</span>
+                </div>
+                <div class="package-card-actions">
+                    <a href="{{ url_for('hotels.hotel_detail', hotel_id=h['id']) }}" class="btn btn-view-pkg">Details & Book</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-results-card">
+        <h3>No Hotels Found</h3>
+        <p>We could not find any hotels matching your search criteria. Try modifying your filters or clearing search terms.</p>
+        <a href="{{ url_for('hotels.hotels') }}" class="btn btn-primary-inline mt-15">Show All Hotels</a>
+    </div>
+    {% endif %}
 </div>
-{% else %}
-<div class="no-results-card">
-    <h3>No Hotels Found</h3>
-    <p>We could not find any hotels matching your search criteria. Try modifying your filters or clearing search terms.</p>
-    <a href="{{ url_for('hotels.hotels') }}" class="btn btn-primary-inline mt-15">Show All Hotels</a>
-</div>
-{% endif %}
 {% endblock %}

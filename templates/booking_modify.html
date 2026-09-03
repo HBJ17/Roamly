@@ -5,7 +5,7 @@
 {% block content %}
 <div class="voucher-wrapper">
     <div class="breadcrumb mb-20">
-        <a href="{{ url_for('dashboard.dashboard', tab='bookings') }}">← Back to Dashboard Bookings</a>
+        <a href="{{ url_for('dashboard.dashboard', tab='bookings') }}" class="btn-breadcrumb">Back to Dashboard Bookings</a>
     </div>
 
     <div class="card">
@@ -24,7 +24,7 @@
             {% elif booking['booking_type'] == 'Hotel' %}
                 {{ item['name'] }} ({{ item['city'] }})
             {% else %}
-                {{ item['title'] }} ({{ item['source_city'] }} ➔ {{ item['destination_city'] }})
+                {{ item['title'] }} ({{ item['source_city'] }} to {{ item['destination_city'] }})
             {% endif %}
             • Current Fare: <strong>₹{{ "{:,.2f}".format(booking['total_price']) }}</strong>
         </div>

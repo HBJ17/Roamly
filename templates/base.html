@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Roamly - Discover Tamil Nadu & Beyond{% endblock %}</title>
+    <title>{% block title %}Roamly - Discover Tamil Nadu & South India{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -20,6 +20,8 @@
             <a href="{{ url_for('packages.compare') }}">Compare {% if compare_count > 0 %}<span class="badge">{{ compare_count }}</span>{% endif %}</a>
             
             {% if session.get('user_id') %}
+                <a href="{{ url_for('dashboard.saved_destinations') }}">Saved {% if saved_count > 0 %}<span class="badge">{{ saved_count }}</span>{% endif %}</a>
+                <a href="{{ url_for('payments.notifications') }}">Alerts {% if unread_notifications_count > 0 %}<span class="badge badge-accent">{{ unread_notifications_count }}</span>{% endif %}</a>
                 <a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
                 <a href="{{ url_for('auth.logout') }}" class="nav-logout">Logout ({{ session.get('username') }})</a>
             {% elif session.get('agency_id') %}
@@ -51,7 +53,7 @@
 
     <footer>
         <div class="footer-content">
-            <p>&copy; 2026 Roamly Travel & Destinations. All rights reserved.</p>
+            <p>&copy; 2026 Roamly Travel Technologies Pvt Ltd. All rights reserved.</p>
             <div class="footer-links">
                 <a href="/agency/login">Travel Agency Portal</a>
                 <span>•</span>

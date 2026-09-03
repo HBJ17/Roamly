@@ -51,7 +51,7 @@
                         </td>
                         <td><span class="category-tag">{{ p['category'] }}</span></td>
                         <td>{{ p['duration_days'] }} Days / {{ p['duration_nights'] }} Nights</td>
-                        <td>★ {{ p['rating'] }}</td>
+                        <td>Rating: {{ p['rating'] }}</td>
                         <td><strong class="text-accent">₹{{ "{:,.2f}".format(p['price']) }}</strong></td>
                         <td>
                             <a href="{{ url_for('agency.edit_package', package_id=p['id']) }}" class="btn-link">Edit / Set Price</a>

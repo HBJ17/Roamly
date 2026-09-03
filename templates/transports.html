@@ -3,102 +3,116 @@
 {% block title %}Transport & Cab Services - Roamly{% endblock %}
 
 {% block content %}
-<div class="packages-header">
-    <h2>Transport & Travel Services</h2>
-    <p class="subtitle">Private cabs, luxury Volvo liners, UNESCO heritage toy trains, and express air flights across Tamil Nadu</p>
-</div>
-
-<!-- Search and Filter Bar -->
-<div class="search-filter-section">
-    <form method="GET" action="{{ url_for('transports.transports') }}" class="search-filter-form">
-        <div class="search-inputs-grid">
-            <div class="input-group">
-                <label for="transport-type-select">Transport Mode</label>
-                <select id="transport-type-select" name="type">
-                    <option value="">All Modes (Cab, Bus, Train, Flight)</option>
-                    <option value="Cab" {% if selected_type == 'Cab' %}selected{% endif %}>Private Cab</option>
-                    <option value="Bus" {% if selected_type == 'Bus' %}selected{% endif %}>Luxury Bus / Volvo</option>
-                    <option value="Train" {% if selected_type == 'Train' %}selected{% endif %}>Train / Toy Train</option>
-                    <option value="Flight" {% if selected_type == 'Flight' %}selected{% endif %}>Flight</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label for="source-select">From (Origin)</label>
-                <select id="source-select" name="source">
-                    <option value="">All Origins</option>
-                    {% for s in sources %}
-                        <option value="{{ s }}" {% if selected_source == s %}selected{% endif %}>{{ s }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label for="dest-select">To (Destination)</label>
-                <select id="dest-select" name="destination">
-                    <option value="">All Destinations</option>
-                    {% for d in destinations %}
-                        <option value="{{ d }}" {% if selected_dest == d %}selected{% endif %}>{{ d }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label for="sort-select">Sort By</label>
-                <select id="sort-select" name="sort_by">
-                    <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
-                    <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
-                    <option value="duration_asc" {% if sort_by == 'duration_asc' %}selected{% endif %}>Fastest Duration</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="filter-actions">
-            <button type="submit" class="btn btn-search">Find Transport</button>
-            {% if selected_type or selected_source or selected_dest or query or max_price or sort_by != 'price_asc' %}
-                <a href="{{ url_for('transports.transports') }}" class="btn btn-reset">Clear Filters</a>
-            {% endif %}
-        </div>
-    </form>
-</div>
-
-<!-- Transport Cards List -->
-{% if transports %}
-<div class="packages-grid mt-30">
-    {% for t in transports %}
-    <div class="package-card">
-        <div class="package-card-img" style="background-image: url('{{ t['image_url'] }}');">
-            <span class="category-badge">{{ t['transport_type'] }}</span>
-            <span class="rating-tag">⏳ {{ t['duration_hours'] }} hrs</span>
-        </div>
-        <div class="package-card-body">
-            <h3 class="package-title">{{ t['title'] }}</h3>
-            <p class="route-badge"><strong>Route:</strong> {{ t['source_city'] }} ➔ {{ t['destination_city'] }}</p>
-            <p class="departure-time-text"><small>Departure: {{ t['departure_time'] }}</small></p>
-
-            <div class="amenities-tags mt-10">
-                {% for feat in t['features'].split(',')[:3] %}
-                    <span class="amenity-chip">{{ feat.strip() }}</span>
-                {% endfor %}
-            </div>
-
-            <div class="package-card-footer mt-15">
-                <div class="price-container">
-                    <span class="currency-symbol">₹</span>
-                    <span class="price-val">{{ "{:,.0f}".format(t['price']) }}</span>
-                    <span class="per-person">/ ride or seat</span>
-                </div>
-                <a href="{{ url_for('transports.transport_detail', transport_id=t['id']) }}" class="btn btn-view-deal">Book Transport</a>
-            </div>
-        </div>
+<div class="packages-container">
+    <div class="page-header">
+        <h2>Transport & Transit Services</h2>
+        <p>Private cabs, luxury Volvo liners, UNESCO heritage mountain toy trains, and express direct flights across Tamil Nadu.</p>
     </div>
-    {% endfor %}
+
+    <!-- Search and Filter Bar -->
+    <div class="search-filter-section">
+        <form method="GET" action="{{ url_for('transports.transports') }}" class="filter-card">
+            <div class="filter-row">
+                <div class="filter-group flex-1">
+                    <label for="transport-type-select">Transport Mode</label>
+                    <select id="transport-type-select" name="type">
+                        <option value="">All Modes</option>
+                        <option value="Cab" {% if selected_type == 'Cab' %}selected{% endif %}>Private Cab</option>
+                        <option value="Bus" {% if selected_type == 'Bus' %}selected{% endif %}>Luxury Bus / Volvo</option>
+                        <option value="Train" {% if selected_type == 'Train' %}selected{% endif %}>Train / Toy Train</option>
+                        <option value="Flight" {% if selected_type == 'Flight' %}selected{% endif %}>Flight</option>
+                    </select>
+                </div>
+
+                <div class="filter-group flex-1">
+                    <label for="source-select">From (Origin)</label>
+                    <select id="source-select" name="source">
+                        <option value="">All Origins</option>
+                        {% for s in sources %}
+                            <option value="{{ s }}" {% if selected_source == s %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group flex-1">
+                    <label for="dest-select">To (Destination)</label>
+                    <select id="dest-select" name="destination">
+                        <option value="">All Destinations</option>
+                        {% for d in destinations %}
+                            <option value="{{ d }}" {% if selected_dest == d %}selected{% endif %}>{{ d }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group flex-1">
+                    <label for="sort-select">Sort By</label>
+                    <select id="sort-select" name="sort_by">
+                        <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="duration_asc" {% if sort_by == 'duration_asc' %}selected{% endif %}>Fastest Duration</option>
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-search">Find Transport</button>
+                    {% if selected_type or selected_source or selected_dest or query or max_price or sort_by != 'price_asc' %}
+                        <a href="{{ url_for('transports.transports') }}" class="btn-reset">Reset</a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Transport Cards List -->
+    {% if transports %}
+    <div class="packages-grid mt-25">
+        {% for t in transports %}
+        <div class="package-card">
+            {% if t['image_url'] %}
+            <div class="package-card-img-wrap">
+                <img src="{{ t['image_url'] }}" alt="{{ t['title'] }}" class="package-card-img">
+                <span class="category-badge">{{ t['transport_type'] }}</span>
+            </div>
+            {% endif %}
+
+            <div class="package-card-body">
+                <div class="package-meta-top">
+                    <span class="duration-badge">{{ t['duration_hours'] }} Hours</span>
+                    {% if t['agency_name'] %}
+                        <span class="agency-mini-tag">{{ t['agency_name'] }}</span>
+                    {% endif %}
+                </div>
+
+                <h3 class="package-title mt-5">{{ t['title'] }}</h3>
+                <p class="route-badge"><strong>Route:</strong> {{ t['source_city'] }} to {{ t['destination_city'] }}</p>
+                <p class="departure-time-text"><small class="text-muted">Departure: {{ t['departure_time'] }}</small></p>
+
+                <div class="amenities-tags mt-10">
+                    {% for feat in t['features'].split(',')[:2] %}
+                        <span class="amenity-chip">• {{ feat.strip() }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="package-card-footer">
+                <div class="package-price">
+                    <span class="price-label">Fare</span>
+                    <span class="price-amount">₹{{ "{:,.0f}".format(t['price']) }}</span>
+                    <span class="price-unit">/ {% if t['transport_type'] == 'Cab' %}vehicle{% else %}seat{% endif %}</span>
+                </div>
+                <div class="package-card-actions">
+                    <a href="{{ url_for('transports.transport_detail', transport_id=t['id']) }}" class="btn btn-view-pkg">Details & Book</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-results-card">
+        <h3>No Transport Routes Found</h3>
+        <p>No transport options matched your origin or destination filters. Try choosing different cities or clearing filters.</p>
+        <a href="{{ url_for('transports.transports') }}" class="btn btn-primary-inline mt-15">View All Transports</a>
+    </div>
+    {% endif %}
 </div>
-{% else %}
-<div class="no-results-card">
-    <h3>No Transport Routes Found</h3>
-    <p>No transport options matched your origin or destination filters. Try choosing different cities or clearing filters.</p>
-    <a href="{{ url_for('transports.transports') }}" class="btn btn-primary-inline mt-15">View All Transports</a>
-</div>
-{% endif %}
 {% endblock %}
