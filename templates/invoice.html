@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Tax Invoice #{{ invoice_number }} - Roamly{% endblock %}
+
+{% block content %}
+<div class="invoice-container">
+    <!-- Action Bar (Hidden in Print) -->
+    <div class="invoice-actions no-print">
+        <a href="{{ url_for('bookings.booking_summary', booking_id=booking['id']) }}" class="btn btn-secondary-inline">
+            Back to Booking Voucher
+        </a>
+        <div class="right-buttons">
+            <a href="{{ url_for('payments.view_email_confirmation', booking_id=booking['id']) }}" class="btn btn-secondary-inline">
+                View Email Confirmation
+            </a>
+            <button onclick="window.print()" class="btn btn-print">
+                Print / Save PDF Invoice
+            </button>
+        </div>
+    </div>
+
+    <!-- Official Tax Invoice Document -->
+    <div class="invoice-sheet">
+        <!-- Top Header -->
+        <div class="invoice-header">
+            <div class="invoice-brand">
+                <h1>Roamly Travel Technologies Pvt Ltd</h1>
+                <p class="company-sub">Discover Tamil Nadu & South India Destination Network</p>
+                <p class="company-address">45 Mount Road, Guindy, Chennai, Tamil Nadu 600032, India</p>
+                <p class="company-tax"><strong>GSTIN:</strong> 33AAECR0492P1Z5 | <strong>PAN:</strong> AAECR0492P | <strong>State:</strong> Tamil Nadu (33)</p>
+            </div>
+            <div class="invoice-meta-box">
+                <div class="invoice-type-tag">TAX INVOICE</div>
+                <div class="meta-line"><strong>Invoice No:</strong> {{ invoice_number }}</div>
+                <div class="meta-line"><strong>Date of Issue:</strong> {{ booking['created_at'][:10] }}</div>
+                <div class="meta-line"><strong>Booking Ref:</strong> #ROAM-{{ booking['booking_type'][:3]|upper }}-{{ "%04d"|format(booking['id']) }}</div>
+                <div class="meta-line"><strong>Payment Status:</strong> <span class="badge-paid">PAID IN FULL</span></div>
+            </div>
+        </div>
+
+        <hr class="invoice-hr">
+
+        <!-- Party Information Columns -->
+        <div class="invoice-parties-grid">
+            <!-- Billed To -->
+            <div class="party-card">
+                <h4>Billed To (Customer):</h4>
+                <p class="party-name"><strong>{{ booking['user_full_name'] or booking['username'] }}</strong></p>
+                <p class="party-text">Email: {{ booking['user_email'] or booking['contact_email'] or 'N/A' }}</p>
+                <p class="party-text">Phone: {{ booking['contact_phone'] or booking['user_phone'] or 'N/A' }}</p>
+                <p class="party-text">Address: {{ booking['user_address'] or 'Tamil Nadu, India' }}</p>
+                <p class="party-text">Place of Supply: Tamil Nadu (33)</p>
+            </div>
+
+            <!-- Fulfillment Agency Partner -->
+            <div class="party-card">
+                <h4>Fulfillment Partner Agency:</h4>
+                {% if item and item['agency_name'] %}
+                    <p class="party-name"><strong>{{ item['agency_name'] }}</strong></p>
+                    <p class="party-text">Partner Contact: {{ item['agency_phone'] or '+91 9444001122' }}</p>
+                    <p class="party-text">Support Email: {{ item['agency_email'] or 'support@agency.roamly.com' }}</p>
+                    <p class="party-text">Address: {{ item['agency_address'] or 'Tamil Nadu, India' }}</p>
+                {% else %}
+                    <p class="party-name"><strong>Roamly Direct Operations Network</strong></p>
+                    <p class="party-text">Support Email: operations@roamly.com</p>
+                    <p class="party-text">Helpline: +91 44 2840 9000</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Service & Itemized Charges Table -->
+        <div class="invoice-table-wrap mt-20">
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">#</th>
+                        <th style="width: 45%;">Service Description / SAC Code</th>
+                        <th style="width: 15%; text-align: right;">Unit Rate</th>
+                        <th style="width: 15%; text-align: center;">Qty / Travelers</th>
+                        <th style="width: 20%; text-align: right;">Amount (INR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>
+                            <strong>{{ item['title'] if item and item['title'] else (item['name'] if item else 'Travel Service') }}</strong><br>
+                            <span class="text-muted">Category: {{ booking['booking_type'] }} Booking | SAC Code: 998553 (Tour Operator & Travel Agency Services)</span>
+                            <br>
+                            <span class="text-muted">Scheduled Service Date: {{ booking['travel_date'] }}{% if booking['check_out_date'] %} to {{ booking['check_out_date'] }}{% endif %}</span>
+                        </td>
+                        <td style="text-align: right;">₹{{ "{:,.2f}".format(subtotal / booking['num_travelers']) if booking['num_travelers'] > 0 else "{:,.2f}".format(subtotal) }}</td>
+                        <td style="text-align: center;">{{ booking['num_travelers'] }}</td>
+                        <td style="text-align: right;">₹{{ "{:,.2f}".format(subtotal) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totals & Taxes Grid -->
+        <div class="invoice-calculation-grid">
+            <div class="payment-details-box">
+                <h4>Payment & Settlement Details</h4>
+                <div class="payment-record-line"><strong>Payment Mode:</strong> {{ payment['payment_method'] if payment else 'Credit / Debit Card' }}</div>
+                <div class="payment-record-line"><strong>Gateway Ref / TXN ID:</strong> {{ payment['transaction_id'] if payment else 'TXN-ROAM-8839210' }}</div>
+                <div class="payment-record-line"><strong>Card / Account:</strong> •••• •••• •••• {{ payment['card_last4'] if payment else '8821' }}</div>
+                <div class="payment-record-line"><strong>Payer Reference:</strong> {{ payment['payer_name'] if payment else booking['username'] }}</div>
+                <div class="payment-record-line"><strong>Transaction Timestamp:</strong> {{ payment['created_at'] if payment else booking['created_at'] }}</div>
+                <div class="tax-note mt-10">
+                    * GST is levied at 5% (2.5% CGST + 2.5% SGST) under composition scheme for tour operator services without input tax credit.
+                </div>
+            </div>
+
+            <div class="totals-table-box">
+                <table class="totals-table">
+                    <tr>
+                        <td>Subtotal (Taxable Value):</td>
+                        <td style="text-align: right;">₹{{ "{:,.2f}".format(subtotal) }}</td>
+                    </tr>
+                    {% if discount_amount > 0 %}
+                    <tr class="discount-tr">
+                        <td>Promotional Discount:</td>
+                        <td style="text-align: right;">- ₹{{ "{:,.2f}".format(discount_amount) }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <td>CGST (2.5%):</td>
+                        <td style="text-align: right;">₹{{ "{:,.2f}".format(tax_amount / 2.0) }}</td>
+                    </tr>
+                    <tr>
+                        <td>SGST (2.5%):</td>
+                        <td style="text-align: right;">₹{{ "{:,.2f}".format(tax_amount / 2.0) }}</td>
+                    </tr>
+                    <tr class="grand-total-tr">
+                        <td><strong>Total Invoice Value (INR):</strong></td>
+                        <td style="text-align: right;"><strong>₹{{ "{:,.2f}".format(total_amount) }}</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Signatory & Terms -->
+        <div class="invoice-footer-section">
+            <div class="terms-column">
+                <h5>Terms & Conditions:</h5>
+                <ol>
+                    <li>This is a computer-generated tax invoice and requires no physical signature under IT Act provisions.</li>
+                    <li>All cancellations and rescheduling are governed by Roamly and partner agency policies.</li>
+                    <li>For GST claiming or invoice queries, contact invoicing@roamly.com within 30 days of issue.</li>
+                </ol>
+            </div>
+            <div class="signatory-column">
+                <div class="digital-stamp">
+                    <div class="stamp-circle">
+                        <span class="stamp-org">ROAMLY TRAVEL</span>
+                        <span class="stamp-verified">DIGITALLY VERIFIED</span>
+                        <span class="stamp-loc">CHENNAI</span>
+                    </div>
+                </div>
+                <p class="signatory-text">Authorized Signatory<br>Roamly Travel Technologies</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

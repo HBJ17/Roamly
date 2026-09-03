@@ -5,12 +5,14 @@
 {% block content %}
 <div class="voucher-wrapper">
     <div class="voucher-header-actions no-print">
-        <a href="{{ url_for('dashboard.dashboard', tab='bookings') }}" class="btn btn-secondary-inline">← Back to My Bookings</a>
+        <a href="{{ url_for('dashboard.dashboard', tab='bookings') }}" class="btn btn-secondary-inline">Back to My Bookings</a>
         <div class="right-actions">
+            <a href="{{ url_for('payments.view_invoice', booking_id=booking['id']) }}" class="btn btn-secondary-inline">Official Tax Invoice</a>
+            <a href="{{ url_for('payments.view_email_confirmation', booking_id=booking['id']) }}" class="btn btn-secondary-inline">Email Confirmation</a>
             {% if booking['status'] != 'Cancelled' %}
                 <a href="{{ url_for('bookings.modify_booking', booking_id=booking['id']) }}" class="btn btn-primary-inline">Modify Booking</a>
             {% endif %}
-            <button onclick="window.print()" class="btn btn-print">Print / Save PDF Voucher</button>
+            <button onclick="window.print()" class="btn btn-print">Print / Save PDF</button>
         </div>
     </div>
 
@@ -95,7 +97,7 @@
                     </div>
                     <div class="transport-voucher-route mt-10">
                         <span><strong>From:</strong> {{ item['source_city'] }}</span>
-                        <span>➔</span>
+                        <span class="route-separator">to</span>
                         <span><strong>To:</strong> {{ item['destination_city'] }}</span>
                     </div>
                     <div class="itinerary-grid mt-10">

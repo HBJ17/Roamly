@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications Center - Roamly{% endblock %}
+
+{% block content %}
+<div class="notifications-container">
+    <div class="notifications-header-box">
+        <div>
+            <h2>Notifications & Updates</h2>
+            <p class="subtitle">Stay updated on your booking status, payment receipts, trip reminders, and agency alerts.</p>
+        </div>
+        <div class="header-actions">
+            {% if notifications %}
+                <form action="{{ url_for('payments.mark_all_notifications_read') }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-secondary-inline">Mark All as Read</button>
+                </form>
+                <form action="{{ url_for('payments.clear_notifications') }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-secondary-inline">Clear Read</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if notifications %}
+    <div class="notifications-list">
+        {% for n in notifications %}
+        <div class="notification-card {% if not n['is_read'] %}unread{% endif %}">
+            <div class="notif-indicator-column">
+                <span class="notif-type-pill type-{{ n['notification_type']|lower }}">{{ n['notification_type']|upper }}</span>
+                {% if not n['is_read'] %}
+                    <span class="unread-dot" title="Unread notification"></span>
+                {% endif %}
+            </div>
+
+            <div class="notif-content-column">
+                <div class="notif-title-row">
+                    <h4>{{ n['title'] }}</h4>
+                    <span class="notif-timestamp">{{ n['created_at'] }}</span>
+                </div>
+                <p class="notif-message">{{ n['message'] }}</p>
+                
+                <div class="notif-actions-row mt-10">
+                    {% if n['link_url'] %}
+                        <a href="{{ n['link_url'] }}" class="btn-notif-action">View Details</a>
+                    {% endif %}
+                    
+                    {% if not n['is_read'] %}
+                        <form action="{{ url_for('payments.mark_notification_read', notification_id=n['id']) }}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn-notif-mark">Mark as Read</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card empty-notifs-card">
+        <h3>No Notifications Yet</h3>
+        <p>You have no notifications or travel updates right now. When you make bookings, payments, or updates, they will appear here.</p>
+        <div class="mt-15">
+            <a href="{{ url_for('packages.packages') }}" class="btn btn-primary-inline">Explore Travel Packages</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

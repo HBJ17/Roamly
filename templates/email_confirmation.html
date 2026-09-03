@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Email Confirmation Simulation - Roamly{% endblock %}
+
+{% block content %}
+<div class="email-viewer-container">
+    <div class="email-viewer-actions no-print">
+        <a href="{{ url_for('bookings.booking_summary', booking_id=booking['id']) }}" class="btn btn-secondary-inline">
+            Back to Booking Voucher
+        </a>
+        <div class="right-buttons">
+            <a href="{{ url_for('payments.view_invoice', booking_id=booking['id']) }}" class="btn btn-secondary-inline">
+                View Official Tax Invoice
+            </a>
+            <button onclick="window.print()" class="btn btn-print">Print Email Copy</button>
+        </div>
+    </div>
+
+    <!-- Email Client Frame -->
+    <div class="email-client-card">
+        <!-- Email Metadata Header -->
+        <div class="email-meta-header">
+            <div class="meta-row">
+                <span class="meta-label">From:</span>
+                <span class="meta-val">Roamly Travel Confirmations &lt;confirmations@bookings.roamly.com&gt;</span>
+            </div>
+            <div class="meta-row">
+                <span class="meta-label">To:</span>
+                <span class="meta-val">{{ booking['contact_email'] or booking['user_email'] or session.get('username', 'traveler') + '@roamly.com' }}</span>
+            </div>
+            <div class="meta-row">
+                <span class="meta-label">Subject:</span>
+                <span class="meta-val"><strong>Booking Confirmed: {{ item['title'] if item and item['title'] else (item['name'] if item else 'Travel Service') }} [#ROAM-{{ "%04d"|format(booking['id']) }}]</strong></span>
+            </div>
+            <div class="meta-row">
+                <span class="meta-label">Date:</span>
+                <span class="meta-val">{{ booking['created_at'] }} (Delivered to Primary Inbox)</span>
+            </div>
+        </div>
+
+        <div class="email-body-wrapper">
+            <!-- Simulated HTML Email Template Content -->
+            <div class="rendered-email-canvas">
+                <div class="email-banner">
+                    <div class="email-brand-title">Roamly Travel Network</div>
+                    <div class="email-confirmed-badge">BOOKING & PAYMENT CONFIRMED</div>
+                </div>
+
+                <div class="email-content-block">
+                    <h3>Hello {{ booking['user_full_name'] or booking['username'] }},</h3>
+                    <p class="email-greeting">
+                        Your travel itinerary is officially locked in! We have confirmed your reservation and received full settlement via our secure payment gateway.
+                    </p>
+
+                    <div class="booking-key-box">
+                        <div class="key-col">
+                            <span class="k-title">Booking Reference</span>
+                            <span class="k-val">#ROAM-{{ booking['booking_type'][:3]|upper }}-{{ "%04d"|format(booking['id']) }}</span>
+                        </div>
+                        <div class="key-col">
+                            <span class="k-title">Transaction Ref</span>
+                            <span class="k-val">{{ payment['transaction_id'] if payment else 'TXN-ROAM-8839210' }}</span>
+                        </div>
+                        <div class="key-col">
+                            <span class="k-title">Amount Paid</span>
+                            <span class="k-val price-green">₹{{ "{:,.2f}".format(booking['total_price']) }}</span>
+                        </div>
+                    </div>
+
+                    <h4 class="mt-20">Itinerary & Service Summary</h4>
+                    <table class="email-summary-table">
+                        <tr>
+                            <td class="tbl-lbl">Service:</td>
+                            <td><strong>{{ item['title'] if item and item['title'] else (item['name'] if item else 'Travel Itinerary') }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="tbl-lbl">Category:</td>
+                            <td>{{ booking['booking_type'] }} Booking</td>
+                        </tr>
+                        <tr>
+                            <td class="tbl-lbl">Travel / Check-in:</td>
+                            <td>{{ booking['travel_date'] }}</td>
+                        </tr>
+                        {% if booking['check_out_date'] %}
+                        <tr>
+                            <td class="tbl-lbl">Check-out Date:</td>
+                            <td>{{ booking['check_out_date'] }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td class="tbl-lbl">Travelers / Units:</td>
+                            <td>{{ booking['num_travelers'] }} Person(s)</td>
+                        </tr>
+                        {% if booking['room_type'] %}
+                        <tr>
+                            <td class="tbl-lbl">Room Type:</td>
+                            <td>{{ booking['room_type'] }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if booking['pickup_location'] %}
+                        <tr>
+                            <td class="tbl-lbl">Pickup Location:</td>
+                            <td>{{ booking['pickup_location'] }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if booking['drop_location'] %}
+                        <tr>
+                            <td class="tbl-lbl">Drop Location:</td>
+                            <td>{{ booking['drop_location'] }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+
+                    <div class="email-guidelines-box mt-20">
+                        <h4>Traveler Instructions & Guidelines</h4>
+                        <ul>
+                            <li><strong>ID Proof:</strong> Please carry a government-issued photo identity card (Aadhaar, Passport, or Driving License) for all traveling guests.</li>
+                            <li><strong>Check-in Timings:</strong> Standard hotel check-in is 12:00 PM; transport departure starts promptly at the scheduled time.</li>
+                            <li><strong>Voucher Access:</strong> You can download or print your official voucher and tax invoice anytime from your Roamly dashboard.</li>
+                        </ul>
+                    </div>
+
+                    <div class="email-footer-signoff mt-20">
+                        <p>Need support or alterations? Reach out to our 24/7 Tamil Nadu customer concierge at <strong>support@roamly.com</strong> or call <strong>+91 44 2840 9000</strong>.</p>
+                        <p class="signoff-note">Warm regards,<br><strong>The Roamly Operations Team</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
