@@ -187,10 +187,144 @@ def init_db():
         ('special_requests', "TEXT DEFAULT ''"),
         ('contact_phone', "TEXT DEFAULT ''"),
         ('contact_email', "TEXT DEFAULT ''"),
-        ('passengers_names', "TEXT DEFAULT ''")
+        ('passengers_names', "TEXT DEFAULT ''"),
+        ('payment_status', "TEXT DEFAULT 'Paid'"),
+        ('trip_status', "TEXT DEFAULT 'Upcoming'"),
+        ('subtotal_amount', "REAL DEFAULT 0.0"),
+        ('tax_amount', "REAL DEFAULT 0.0"),
+        ('discount_amount', "REAL DEFAULT 0.0"),
+        ('discount_code', "TEXT DEFAULT ''")
     ]:
         if col not in existing_cols_bk:
             cursor.execute(f"ALTER TABLE bookings ADD COLUMN {col} {col_type}")
+
+    # Additional migrations for packages, hotels, transports (food & dining highlights)
+    cursor.execute("PRAGMA table_info(packages)")
+    existing_cols_pkg = [row['name'] for row in cursor.fetchall()]
+    for col, col_type in [
+        ('food_highlights', "TEXT DEFAULT ''"),
+        ('agency_id', "INTEGER")
+    ]:
+        if col not in existing_cols_pkg:
+            cursor.execute(f"ALTER TABLE packages ADD COLUMN {col} {col_type}")
+
+    cursor.execute("PRAGMA table_info(hotels)")
+    existing_cols_htl = [row['name'] for row in cursor.fetchall()]
+    for col, col_type in [
+        ('dining_options', "TEXT DEFAULT 'In-House Multi-Cuisine Restaurant & Room Service'"),
+        ('agency_id', "INTEGER")
+    ]:
+        if col not in existing_cols_htl:
+            cursor.execute(f"ALTER TABLE hotels ADD COLUMN {col} {col_type}")
+
+    cursor.execute("PRAGMA table_info(transports)")
+    existing_cols_trn = [row['name'] for row in cursor.fetchall()]
+    for col, col_type in [
+        ('meal_service', "TEXT DEFAULT 'Complimentary Bottled Water & Snack Kit'"),
+        ('agency_id', "INTEGER")
+    ]:
+        if col not in existing_cols_trn:
+            cursor.execute(f"ALTER TABLE transports ADD COLUMN {col} {col_type}")
+
+    # 9. Payments Table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS payments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            booking_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            transaction_id TEXT UNIQUE NOT NULL,
+            payment_method TEXT NOT NULL,
+            payment_gateway TEXT DEFAULT 'Roamly Secure Pay',
+            amount REAL NOT NULL,
+            currency TEXT DEFAULT 'INR',
+            status TEXT DEFAULT 'Success',
+            card_last4 TEXT DEFAULT '',
+            payer_name TEXT DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    ''')
+
+    # 10. Invoices Table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS invoices (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            invoice_number TEXT UNIQUE NOT NULL,
+            booking_id INTEGER UNIQUE NOT NULL,
+            payment_id INTEGER,
+            user_id INTEGER NOT NULL,
+            agency_id INTEGER,
+            subtotal REAL NOT NULL,
+            tax_amount REAL NOT NULL,
+            discount_amount REAL DEFAULT 0.0,
+            total_amount REAL NOT NULL,
+            status TEXT DEFAULT 'Paid',
+            issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    ''')
+
+    # 11. Notifications Table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS notifications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            message TEXT NOT NULL,
+            notification_type TEXT DEFAULT 'booking',
+            link_url TEXT DEFAULT '',
+            is_read INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    ''')
+
+    # 12. Email Logs Table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS email_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            recipient_email TEXT NOT NULL,
+            subject TEXT NOT NULL,
+            body_html TEXT NOT NULL,
+            email_type TEXT DEFAULT 'Booking Confirmation',
+            status TEXT DEFAULT 'Sent',
+            sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    ''')
+
+    # 13. Reviews Table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS reviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            item_type TEXT NOT NULL,
+            item_id INTEGER NOT NULL,
+            rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
+            title TEXT NOT NULL,
+            comment TEXT NOT NULL,
+            travel_type TEXT DEFAULT 'Family',
+            verified_booking INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    ''')
+
+    # 14. Saved / Favorite Items Table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS saved_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            item_type TEXT NOT NULL,
+            item_id INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, item_type, item_id),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    ''')
 
     # Seed data
     seed_admin(cursor)
