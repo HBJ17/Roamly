@@ -7,16 +7,22 @@ import pymysql.cursors
 from config import Config
 
 class SQLiteDictCursor:
-    """Compatibility cursor wrapper for SQLite to behave like PyMySQL DictCursor with %s formatting."""
+    """Compatibility cursor wrapper for SQLite to behave like PyMySQL DictCursor with %s formatting and DDL normalization."""
     def __init__(self, cursor):
         self.cursor = cursor
 
     def execute(self, sql, params=None):
+        # Convert MySQL syntax quirks to SQLite compatible syntax for DDL
+        cleaned_sql = re.sub(r'ENGINE\s*=\s*\w+', '', sql, flags=re.IGNORECASE)
+        cleaned_sql = re.sub(r'DEFAULT\s+CHARSET\s*=\s*\w+', '', cleaned_sql, flags=re.IGNORECASE)
+        cleaned_sql = re.sub(r'INT\s+AUTO_INCREMENT\s+PRIMARY\s+KEY', 'INTEGER PRIMARY KEY AUTOINCREMENT', cleaned_sql, flags=re.IGNORECASE)
+        cleaned_sql = re.sub(r'UNIQUE\s+KEY\s+\w+\s*\((.*?)\)', r'UNIQUE(\1)', cleaned_sql, flags=re.IGNORECASE)
+        
         if params is not None:
             # Replace %s with ? for SQLite parameters
-            converted_sql = re.sub(r'%s', '?', sql)
+            converted_sql = re.sub(r'%s', '?', cleaned_sql)
             return self.cursor.execute(converted_sql, params)
-        return self.cursor.execute(sql)
+        return self.cursor.execute(cleaned_sql)
 
     def fetchone(self):
         row = self.cursor.fetchone()

@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}Custom Multi-Day Trip Builder - Roamly{% endblock %}
+
+{% block content %}
+<div class="travel-hero">
+    <h2>Custom Multi-Day Trip Planner</h2>
+    <p>Design your tailor-made South India holiday by combining private transport, luxury stays, and curated excursions.</p>
+</div>
+
+<div class="package-detail-layout" style="display:grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+    <!-- Builder Configuration Form -->
+    <div>
+        <form action="{{ url_for('itinerary.save_itinerary') }}" method="POST" id="itineraryForm">
+            <!-- Step 1: Destination & Dates -->
+            <div class="card mb-20">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3>1. Destination & Vacation Schedule</h3>
+                    <span class="travel-tag travel-tag-accent">Step 1</span>
+                </div>
+                
+                <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Destination</label>
+                        <select name="destination" class="form-control" onchange="window.location.href='/itinerary/builder?destination=' + this.value">
+                            <option value="Ooty" {% if destination == 'Ooty' %}selected{% endif %}>Ooty & Nilgiris</option>
+                            <option value="Kodaikanal" {% if destination == 'Kodaikanal' %}selected{% endif %}>Kodaikanal Valley</option>
+                            <option value="Madurai" {% if destination == 'Madurai' %}selected{% endif %}>Madurai Temple City</option>
+                            <option value="Thanjavur" {% if destination == 'Thanjavur' %}selected{% endif %}>Thanjavur & Chola Heritage</option>
+                            <option value="Rameswaram" {% if destination == 'Rameswaram' %}selected{% endif %}>Rameswaram Island & Pamban</option>
+                            <option value="Chennai" {% if destination == 'Chennai' %}selected{% endif %}>Chennai Coastal City</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Trip Title / Custom Label</label>
+                        <input type="text" name="title" class="form-control" value="Exclusive {{ destination }} Getaway" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Departure / Start Date</label>
+                        <input type="date" name="start_date" id="startDate" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Trip Duration</label>
+                        <select name="duration_days" id="durationDays" class="form-control" onchange="recalculateCost()">
+                            <option value="2">2 Days / 1 Night</option>
+                            <option value="3" selected>3 Days / 2 Nights</option>
+                            <option value="4">4 Days / 3 Nights</option>
+                            <option value="5">5 Days / 4 Nights</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Transport Mode -->
+            <div class="card mb-20">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3>2. Choose Travel & Transit Service</h3>
+                    <span class="travel-tag travel-tag-accent">Step 2</span>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Available Transit Options</label>
+                    <select name="transport_id" id="transportSelect" class="form-control" onchange="recalculateCost()">
+                        <option value="" data-price="0">-- No Transport (Self-Drive / Direct) --</option>
+                        {% for t in transports %}
+                        <option value="{{ t['id'] }}" data-price="{{ t['price'] }}">
+                            {{ t['title'] }} ({{ t['transport_type'] }}) - {{ t['source_city'] }} to {{ t['destination_city'] }} [₹{{ t['price'] }}]
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Step 3: Hotel & Stay Selection -->
+            <div class="card mb-20">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3>3. Select Luxury Hotel & Lodging</h3>
+                    <span class="travel-tag travel-tag-accent">Step 3</span>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Curated Properties in {{ destination }}</label>
+                    <select name="hotel_id" id="hotelSelect" class="form-control" onchange="recalculateCost()">
+                        <option value="" data-price="0">-- No Hotel Booking Required --</option>
+                        {% for h in hotels %}
+                        <option value="{{ h['id'] }}" data-price="{{ h['price_per_night'] }}">
+                            {{ h['name'] }} ({{ h['city'] }}) - ⭐ {{ h['star_rating'] }} [₹{{ h['price_per_night'] }}/night]
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Step 4: Day-by-Day Activities -->
+            <div class="card mb-20">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3>4. Add Curated Excursions & Sightseeing</h3>
+                    <span class="travel-tag travel-tag-accent">Step 4</span>
+                </div>
+                
+                <p style="color:var(--text-muted); font-size:13.5px; margin-bottom:12px;">Select activities to include in your customized schedule.</p>
+                <div class="activities-checklist">
+                    {% for act in activities %}
+                    <div style="display:flex; align-items:flex-start; gap:12px; padding:12px; background:var(--bg-page); border-radius:var(--radius-md); margin-bottom:10px; border:1px solid var(--border-color);">
+                        <input type="checkbox" class="activity-checkbox" value="{{ act['title'] }}" data-price="{{ act['cost'] }}" data-time="{{ act['time'] }}" data-desc="{{ act['desc'] }}" onchange="recalculateCost()" checked style="margin-top:4px; transform:scale(1.2);">
+                        <div style="flex:1;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <strong>{{ act['title'] }}</strong>
+                                <span class="travel-card-price" style="font-size:14px;">₹{{ act['cost'] }}</span>
+                            </div>
+                            <small style="color:var(--accent); font-weight:600;">{{ act['time'] }} Slot</small> • <small style="color:var(--text-muted);">{{ act['desc'] }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <input type="hidden" name="total_price" id="totalPriceInput" value="0">
+            <input type="hidden" name="day_plan_json" id="dayPlanJsonInput" value="[]">
+
+            <!-- Map Visualization -->
+            {% include 'components/map.html' %}
+
+            <div style="margin-top:25px;">
+                {% if session.get('user_id') %}
+                <button type="submit" class="btn btn-accent btn-lg" style="width:100%;">
+                    Save & Proceed to Checkout
+                </button>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg" style="width:100%;">
+                    Log in to Save & Book This Itinerary
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Live Cost Calculator Sidebar -->
+    <div>
+        <div class="boarding-card" style="position:sticky; top:90px;">
+            <div class="boarding-card-header">
+                <div>
+                    <h4 style="color:white; margin:0;">Estimated Trip Cost</h4>
+                    <small style="opacity:0.8;">Live composite price</small>
+                </div>
+                <span class="travel-tag travel-tag-accent" style="background:white; color:var(--primary);">Custom Plan</span>
+            </div>
+            
+            <div class="boarding-card-body">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
+                    <span style="color:var(--text-muted);">Transit Base:</span>
+                    <strong id="sidebarTransitPrice">₹0</strong>
+                </div>
+                
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
+                    <span style="color:var(--text-muted);">Stay (<span id="sidebarNights">2</span> Nights):</span>
+                    <strong id="sidebarHotelPrice">₹0</strong>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
+                    <span style="color:var(--text-muted);">Curated Excursions:</span>
+                    <strong id="sidebarActivitiesPrice">₹0</strong>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:14px;">
+                    <span style="color:var(--text-muted);">Taxes & Service (12%):</span>
+                    <strong id="sidebarTaxPrice">₹0</strong>
+                </div>
+
+                <hr style="border:none; border-top:1px dashed var(--border-color); margin:15px 0;">
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:16px; font-weight:700;">Grand Total:</span>
+                    <span class="travel-card-price" id="sidebarTotalPrice" style="font-size:26px;">₹0</span>
+                </div>
+                
+                <p style="font-size:11.5px; color:var(--text-muted); margin-top:12px; line-height:1.4;">
+                    Instant confirmation voucher with QR pass generated immediately upon checkout.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function recalculateCost() {
+        var days = parseInt(document.getElementById('durationDays').value) || 3;
+        var nights = Math.max(1, days - 1);
+        document.getElementById('sidebarNights').innerText = nights;
+        
+        var transportSelect = document.getElementById('transportSelect');
+        var transportPrice = parseFloat(transportSelect.options[transportSelect.selectedIndex].getAttribute('data-price')) || 0;
+        
+        var hotelSelect = document.getElementById('hotelSelect');
+        var hotelNightRate = parseFloat(hotelSelect.options[hotelSelect.selectedIndex].getAttribute('data-price')) || 0;
+        var totalHotelPrice = hotelNightRate * nights;
+        
+        var activitiesPrice = 0;
+        var activityElements = document.querySelectorAll('.activity-checkbox:checked');
+        var dayPlans = [];
+        
+        activityElements.forEach(function(el, idx) {
+            var cost = parseFloat(el.getAttribute('data-price')) || 0;
+            activitiesPrice += cost;
+            var dayNum = (idx % days) + 1;
+            dayPlans.push({
+                day: dayNum,
+                title: el.value,
+                time: el.getAttribute('data-time'),
+                desc: el.getAttribute('data-desc'),
+                cost: cost
+            });
+        });
+        
+        var subtotal = transportPrice + totalHotelPrice + activitiesPrice;
+        var taxes = Math.round(subtotal * 0.12);
+        var grandTotal = subtotal + taxes;
+        
+        document.getElementById('sidebarTransitPrice').innerText = '₹' + transportPrice.toLocaleString();
+        document.getElementById('sidebarHotelPrice').innerText = '₹' + totalHotelPrice.toLocaleString();
+        document.getElementById('sidebarActivitiesPrice').innerText = '₹' + activitiesPrice.toLocaleString();
+        document.getElementById('sidebarTaxPrice').innerText = '₹' + taxes.toLocaleString();
+        document.getElementById('sidebarTotalPrice').innerText = '₹' + grandTotal.toLocaleString();
+        
+        document.getElementById('totalPriceInput').value = grandTotal;
+        document.getElementById('dayPlanJsonInput').value = JSON.stringify(dayPlans);
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        var today = new Date();
+        today.setDate(today.getDate() + 2);
+        document.getElementById('startDate').value = today.toISOString().split('T')[0];
+        recalculateCost();
+    });
+</script>
+{% endblock %}

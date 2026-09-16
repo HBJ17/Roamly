@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ itinerary['title'] }} - Roamly Trip Plan{% endblock %}
+
+{% block content %}
+<div class="package-detail-container">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <a href="/itineraries" class="btn btn-outline btn-sm">View All My Trips</a>
+        <div style="display:flex; gap:10px;">
+            <button onclick="window.print()" class="btn btn-outline btn-sm">Print Itinerary</button>
+            <a href="/bookings" class="btn btn-primary btn-sm">My Bookings</a>
+        </div>
+    </div>
+
+    <!-- Hero Header -->
+    <div class="travel-hero">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+                <span class="travel-tag travel-tag-accent" style="background:white; color:var(--primary); margin-bottom:10px;">Confirmed Custom Plan #ITIN-{{ itinerary['id'] }}</span>
+                <h2>{{ itinerary['title'] }}</h2>
+                <p>Destination: <strong>{{ itinerary['destination'] }}</strong> • Schedule: <strong>{{ itinerary['duration_days'] }} Days / {{ itinerary['duration_nights'] }} Nights</strong> starting on <strong>{{ itinerary['start_date'] }}</strong></p>
+            </div>
+            <div style="text-align:right;">
+                <span style="font-size:13px; opacity:0.8;">Estimated Total Cost</span>
+                <div class="travel-card-price" style="font-size:30px; color:#38bdf8;">₹{{ itinerary['total_estimated_price']|int }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Components Grid -->
+    <div class="grid-2 mb-30">
+        <!-- Transport Card -->
+        <div class="boarding-card">
+            <div class="boarding-card-header">
+                <div>
+                    <h4 style="color:white; margin:0;">Reserved Transit</h4>
+                    <small style="opacity:0.8;">Transit Pass</small>
+                </div>
+                <span class="travel-tag" style="background:white; color:var(--primary);">{{ itinerary['transport_type']|default('Private Transfer') }}</span>
+            </div>
+            <div class="boarding-card-body">
+                {% if itinerary['transport_title'] %}
+                    <h4>{{ itinerary['transport_title'] }}</h4>
+                    <p style="color:var(--text-muted); font-size:14px; margin-top:4px;">
+                        Route: <strong>{{ itinerary['source_city'] }}</strong> to <strong>{{ itinerary['destination_city'] }}</strong>
+                    </p>
+                    <p style="color:var(--accent); font-size:13px; font-weight:600; margin-top:8px;">
+                        Status: Confirmed & Scheduled for Departure Date
+                    </p>
+                {% else %}
+                    <p style="color:var(--text-muted);">Self-arranged transportation / Direct arrival.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Hotel Card -->
+        <div class="boarding-card">
+            <div class="boarding-card-header">
+                <div>
+                    <h4 style="color:white; margin:0;">Luxury Accommodations</h4>
+                    <small style="opacity:0.8;">Hotel Voucher</small>
+                </div>
+                <span class="travel-tag" style="background:white; color:var(--primary);">⭐ {{ itinerary['hotel_stars']|default('4.5') }} Rating</span>
+            </div>
+            <div class="boarding-card-body">
+                {% if itinerary['hotel_name'] %}
+                    <h4>{{ itinerary['hotel_name'] }}</h4>
+                    <p style="color:var(--text-muted); font-size:14px; margin-top:4px;">
+                        Location: <strong>{{ itinerary['hotel_city'] }}</strong> • Stay: <strong>{{ itinerary['duration_nights'] }} Nights</strong>
+                    </p>
+                    <p style="color:var(--accent); font-size:13px; font-weight:600; margin-top:8px;">
+                        Status: Confirmed Check-In on {{ itinerary['start_date'] }}
+                    </p>
+                {% else %}
+                    <p style="color:var(--text-muted);">Independent accommodation arranged.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Day-by-Day Timeline -->
+    <div class="card mb-30">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3>Day-by-Day Excursion Timeline</h3>
+            <span class="travel-tag travel-tag-accent">Personalized Itinerary</span>
+        </div>
+
+        <div class="timeline">
+            {% for plan in day_plans %}
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong>Day {{ plan['day'] }} • {{ plan['time'] }} Excursion</strong>
+                        <span class="travel-tag">₹{{ plan['cost'] }}</span>
+                    </div>
+                    <h4 style="margin: 6px 0 4px; font-size:16px;">{{ plan['title'] }}</h4>
+                    <p style="color:var(--text-muted); font-size:13.5px; margin:0;">{{ plan['desc'] }}</p>
+                </div>
+            </div>
+            {% else %}
+            <p style="color:var(--text-muted);">No custom activities selected for this itinerary.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Geolocation Map Component -->
+    {% include 'components/map.html' %}
+</div>
+{% endblock %}

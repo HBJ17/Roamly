@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}My Custom Itineraries - Roamly{% endblock %}
+
+{% block content %}
+<div class="travel-hero">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <h2>My Custom Itineraries</h2>
+            <p>View and manage all your customized trip plans and travel schedules.</p>
+        </div>
+        <a href="/itinerary/builder" class="btn btn-accent btn-md">Build New Custom Trip</a>
+    </div>
+</div>
+
+<div class="grid-3">
+    {% for itin in itineraries %}
+    <div class="boarding-card">
+        <div class="boarding-card-header">
+            <div>
+                <h4 style="color:white; margin:0;">{{ itin['destination'] }}</h4>
+                <small style="opacity:0.8;">{{ itin['duration_days'] }}D / {{ itin['duration_nights'] }}N</small>
+            </div>
+            <span class="travel-tag" style="background:white; color:var(--primary);">#ITIN-{{ itin['id'] }}</span>
+        </div>
+        <div class="boarding-card-body">
+            <h4 style="margin-bottom:8px;">{{ itin['title'] }}</h4>
+            <p style="color:var(--text-muted); font-size:13.5px; margin-bottom:6px;">
+                Start Date: <strong>{{ itin['start_date'] }}</strong>
+            </p>
+            {% if itin['hotel_name'] %}
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom:4px;">
+                Hotel: {{ itin['hotel_name'] }}
+            </p>
+            {% endif %}
+            {% if itin['transport_title'] %}
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom:12px;">
+                Transit: {{ itin['transport_title'] }}
+            </p>
+            {% endif %}
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; padding-top:12px; border-top:1px solid var(--border-soft);">
+                <span class="travel-card-price" style="font-size:18px;">₹{{ itin['total_estimated_price']|int }}</span>
+                <a href="/itinerary/{{ itin['id'] }}" class="btn btn-primary btn-sm">View Schedule</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card" style="grid-column: 1 / -1; text-align:center; padding:40px;">
+        <h3>No Custom Itineraries Built Yet</h3>
+        <p style="color:var(--text-muted); margin:10px 0 20px;">Use our step-by-step trip builder to craft custom multi-day vacations.</p>
+        <a href="/itinerary/builder" class="btn btn-accent">Start Building Your Trip</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -259,6 +259,27 @@ def init_db():
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
+    # custom itineraries table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS custom_itineraries (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            title VARCHAR(255) NOT NULL,
+            destination VARCHAR(150) NOT NULL,
+            duration_days INT DEFAULT 3,
+            duration_nights INT DEFAULT 2,
+            start_date VARCHAR(50) NOT NULL,
+            hotel_id INT,
+            transport_id INT,
+            day_plan_json TEXT NOT NULL,
+            total_estimated_price DECIMAL(10,2) NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE SET NULL,
+            FOREIGN KEY (transport_id) REFERENCES transports(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ''')
+
     # seed data
     seed_admin(cursor)
     seed_users(cursor)

@@ -11,6 +11,7 @@ from admin import admin_bp
 from agency import agency_bp
 from payments import payments_bp
 from reviews import reviews_bp
+from itinerary import itinerary_bp
 from database.connection import get_db_connection
 
 app = Flask(__name__)
@@ -27,6 +28,7 @@ app.register_blueprint(admin_bp)
 app.register_blueprint(agency_bp)
 app.register_blueprint(payments_bp)
 app.register_blueprint(reviews_bp)
+app.register_blueprint(itinerary_bp)
 
 # legacy route handler
 def url_build_error_handler(error, endpoint, values):
@@ -36,6 +38,23 @@ def url_build_error_handler(error, endpoint, values):
     raise error
 
 app.url_build_error_handlers.append(url_build_error_handler)
+
+# custom template filters
+@app.template_filter('format_date')
+def format_date_filter(val):
+    if not val:
+        return ''
+    if hasattr(val, 'strftime'):
+        return val.strftime('%Y-%m-%d')
+    return str(val)[:10]
+
+@app.template_filter('format_datetime')
+def format_datetime_filter(val):
+    if not val:
+        return ''
+    if hasattr(val, 'strftime'):
+        return val.strftime('%Y-%m-%d %H:%M:%S')
+    return str(val)
 
 # global template context
 @app.context_processor
