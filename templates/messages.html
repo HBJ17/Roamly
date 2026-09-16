@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Travel Messages & Trip Coordination - Roamly{% endblock %}
+
+{% block content %}
+<div class="travel-hero">
+    <h2>Trip Messages & Concierge Support</h2>
+    <p>Direct live chat with your booked hotels, cab drivers, and tour operators for seamless travel coordination.</p>
+</div>
+
+<div class="package-detail-layout" style="display:grid; grid-template-columns: 1fr 2fr; gap: 24px;">
+    <!-- Conversations Sidebar -->
+    <div class="card" style="padding:15px; height:600px; display:flex; flex-direction:column;">
+        <h4 style="margin-bottom:12px; padding:0 8px;">My Booked Trips</h4>
+        
+        <div style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
+            {% for conv in conversations %}
+            <a href="/messages/{{ conv['booking_id'] }}" style="text-decoration:none; color:inherit; padding:12px; border-radius:var(--radius-md); border:1px solid var(--border-color); background:{% if active_booking and active_booking['booking_id'] == conv['booking_id'] %}var(--bg-page){% else %}white{% endif %}; transition:var(--transition); display:block;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <strong style="font-size:14px; color:var(--primary);">{{ conv['agency_name'] }}</strong>
+                    {% if conv['unread_count'] > 0 %}
+                    <span class="badge" style="background:var(--accent);">{{ conv['unread_count'] }}</span>
+                    {% endif %}
+                </div>
+                <div style="font-size:12.5px; color:var(--text-muted); margin-top:3px;">
+                    #ROAM-{{ conv['booking_type'][:3]|upper }}-{{ "%04d"|format(conv['booking_id']) }} • {{ conv['item_title'] }}
+                </div>
+                {% if conv['last_message'] %}
+                <p style="font-size:12px; color:var(--text-main); margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; opacity:0.8;">
+                    {{ conv['last_message'] }}
+                </p>
+                {% endif %}
+            </a>
+            {% else %}
+            <p style="color:var(--text-muted); text-align:center; padding:30px 10px; font-size:13px;">
+                No active trip conversations found. Chat threads are opened automatically upon completing a booking.
+            </p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Active Chat Box -->
+    <div>
+        {% if active_booking %}
+        <div class="chat-container" style="height:600px;">
+            <div class="chat-header">
+                <div>
+                    <h4 style="color:white; margin:0; font-size:16px;">{{ active_booking['agency_name'] }}</h4>
+                    <small style="opacity:0.8;">Ref: #ROAM-{{ active_booking['booking_type'][:3]|upper }}-{{ "%04d"|format(active_booking['booking_id']) }} • {{ active_booking['item_title'] }}</small>
+                </div>
+                <span class="travel-tag" style="background:rgba(255,255,255,0.2); color:white; border:none;">{{ active_booking['status'] }}</span>
+            </div>
+
+            <div class="chat-messages" id="chatMessagesBox">
+                <!-- System Greeting -->
+                <div class="chat-msg chat-msg-received" style="align-self:center; max-width:85%; background:var(--bg-page); border:1px dashed var(--border-color); text-align:center;">
+                    <small style="font-weight:600; color:var(--accent);">Roamly Secure Trip Channel Initialized</small>
+                    <p style="font-size:12.5px; margin:4px 0 0; color:var(--text-muted);">
+                        Use this thread to coordinate pickup timings, request room preferences, or notify the driver/hotel reception.
+                    </p>
+                </div>
+
+                {% for msg in messages %}
+                <div class="chat-msg {% if msg['sender_type'] == 'user' %}chat-msg-sent{% else %}chat-msg-received{% endif %}">
+                    <div style="font-weight:600; font-size:11px; margin-bottom:3px; opacity:0.8;">
+                        {% if msg['sender_type'] == 'user' %}You{% else %}{{ active_booking['agency_name'] }}{% endif %}
+                    </div>
+                    <div>{{ msg['message_text'] }}</div>
+                    <div class="chat-time">{{ msg['created_at'] }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <form action="{{ url_for('messages.send_user_message', booking_id=active_booking['booking_id']) }}" method="POST" class="chat-input-area">
+                <input type="hidden" name="agency_id" value="{{ active_booking['agency_id'] }}">
+                <input type="text" name="message_text" class="form-control" placeholder="Type your message or special request..." required autofocus autocomplete="off">
+                <button type="submit" class="btn btn-accent" style="white-space:nowrap;">Send</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="card" style="height:600px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px;">
+            <h3>Select a Trip Conversation</h3>
+            <p style="color:var(--text-muted); max-width:400px; margin:10px 0 20px;">
+                Choose a booking from the left sidebar to start coordinating directly with the travel agency, resort manager, or transit provider.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var box = document.getElementById('chatMessagesBox');
+        if (box) {
+            box.scrollTop = box.scrollHeight;
+        }
+    });
+</script>
+{% endblock %}

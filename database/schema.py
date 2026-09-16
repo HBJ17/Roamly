@@ -343,6 +343,21 @@ def init_db():
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
+    # messages table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS messages (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            booking_id INT NOT NULL,
+            sender_type VARCHAR(20) NOT NULL,
+            sender_id INT NOT NULL,
+            recipient_id INT NOT NULL,
+            message_text TEXT NOT NULL,
+            is_read INT DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ''')
+
     # seed data
     seed_admin(cursor)
     seed_users(cursor)
