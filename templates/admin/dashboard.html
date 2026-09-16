@@ -11,11 +11,13 @@
             <h2>Platform Response & Analytics</h2>
             <p class="admin-welcome-text">Live metrics, financial performance, and multi-service response overview.</p>
         </div>
-        <div class="admin-nav-actions">
-            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary-inline active">Analytics Overview</a>
-            <a href="/admin/agencies" class="btn btn-secondary-inline">Agency Management</a>
-            <a href="/admin/bookings" class="btn btn-secondary-inline">All Bookings Audit</a>
-            <a href="{{ url_for('admin.logout') }}" class="btn btn-danger-inline">Logout Admin</a>
+        <div class="admin-nav-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary btn-sm">Analytics</a>
+            <a href="/admin/commissions" class="btn btn-outline btn-sm">Commissions & Payouts</a>
+            <a href="/admin/coupons" class="btn btn-outline btn-sm">Promo Coupons</a>
+            <a href="/admin/agencies" class="btn btn-outline btn-sm">Agencies</a>
+            <a href="/admin/bookings" class="btn btn-outline btn-sm">Audit Ledger</a>
+            <a href="{{ url_for('admin.logout') }}" class="btn btn-sm nav-logout">Logout</a>
         </div>
     </div>
 
@@ -66,36 +68,45 @@
                 <div class="breakdown-item">
                     <div class="breakdown-header">
                         <span class="breakdown-name">Holiday Tour Packages</span>
-                        <strong class="breakdown-val">₹{{ "{:,.2f}".format(category_metrics['Package']['revenue']) }} ({{ category_metrics['Package']['pct_rev'] }}%)</strong>
+                        <strong class="breakdown-val">₹{{ "{:,.2f}".format(category_metrics['Package']['revenue']) }}
+                            ({{ category_metrics['Package']['pct_rev'] }}%)</strong>
                     </div>
                     <div class="progress-bar-container">
-                        <div class="progress-bar-fill fill-blue" style="width: {{ category_metrics['Package']['pct_rev'] }}%;"></div>
+                        <div class="progress-bar-fill fill-blue"
+                            style="width: {{ category_metrics['Package']['pct_rev'] }}%;"></div>
                     </div>
-                    <small class="text-muted">{{ category_metrics['Package']['count'] }} Bookings ({{ category_metrics['Package']['pct_cnt'] }}% of volume)</small>
+                    <small class="text-muted">{{ category_metrics['Package']['count'] }} Bookings ({{
+                        category_metrics['Package']['pct_cnt'] }}% of volume)</small>
                 </div>
 
                 <!-- Hotel -->
                 <div class="breakdown-item mt-15">
                     <div class="breakdown-header">
                         <span class="breakdown-name">Hotels & Stays</span>
-                        <strong class="breakdown-val">₹{{ "{:,.2f}".format(category_metrics['Hotel']['revenue']) }} ({{ category_metrics['Hotel']['pct_rev'] }}%)</strong>
+                        <strong class="breakdown-val">₹{{ "{:,.2f}".format(category_metrics['Hotel']['revenue']) }} ({{
+                            category_metrics['Hotel']['pct_rev'] }}%)</strong>
                     </div>
                     <div class="progress-bar-container">
-                        <div class="progress-bar-fill fill-green" style="width: {{ category_metrics['Hotel']['pct_rev'] }}%;"></div>
+                        <div class="progress-bar-fill fill-green"
+                            style="width: {{ category_metrics['Hotel']['pct_rev'] }}%;"></div>
                     </div>
-                    <small class="text-muted">{{ category_metrics['Hotel']['count'] }} Bookings ({{ category_metrics['Hotel']['pct_cnt'] }}% of volume)</small>
+                    <small class="text-muted">{{ category_metrics['Hotel']['count'] }} Bookings ({{
+                        category_metrics['Hotel']['pct_cnt'] }}% of volume)</small>
                 </div>
 
                 <!-- Transport -->
                 <div class="breakdown-item mt-15">
                     <div class="breakdown-header">
                         <span class="breakdown-name">Cabs & Transports</span>
-                        <strong class="breakdown-val">₹{{ "{:,.2f}".format(category_metrics['Transport']['revenue']) }} ({{ category_metrics['Transport']['pct_rev'] }}%)</strong>
+                        <strong class="breakdown-val">₹{{ "{:,.2f}".format(category_metrics['Transport']['revenue']) }}
+                            ({{ category_metrics['Transport']['pct_rev'] }}%)</strong>
                     </div>
                     <div class="progress-bar-container">
-                        <div class="progress-bar-fill fill-purple" style="width: {{ category_metrics['Transport']['pct_rev'] }}%;"></div>
+                        <div class="progress-bar-fill fill-purple"
+                            style="width: {{ category_metrics['Transport']['pct_rev'] }}%;"></div>
                     </div>
-                    <small class="text-muted">{{ category_metrics['Transport']['count'] }} Bookings ({{ category_metrics['Transport']['pct_cnt'] }}% of volume)</small>
+                    <small class="text-muted">{{ category_metrics['Transport']['count'] }} Bookings ({{
+                        category_metrics['Transport']['pct_cnt'] }}% of volume)</small>
                 </div>
             </div>
         </div>
@@ -205,7 +216,8 @@
                         <td>{{ b['travel_date'] }}</td>
                         <td><strong>₹{{ "{:,.2f}".format(b['total_price']) }}</strong></td>
                         <td><span class="status-pill status-{{ b['status']|lower }}">{{ b['status'] }}</span></td>
-                        <td><a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}" class="btn-link">Voucher</a></td>
+                        <td><a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}"
+                                class="btn-link">Voucher</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

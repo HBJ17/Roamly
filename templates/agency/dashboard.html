@@ -11,11 +11,14 @@
             <h2>{{ agency['name'] }}</h2>
             <p class="admin-welcome-text">Logged in as <code>{{ agency['username'] }}</code> • {{ agency['email'] }} • {{ agency['phone'] or 'Support' }}</p>
         </div>
-        <div class="admin-nav-actions">
-            <a href="{{ url_for('agency.dashboard') }}" class="btn btn-primary-inline active">Agency Overview</a>
-            <a href="{{ url_for('agency.manage_packages') }}" class="btn btn-secondary-inline">Manage Packages & Pricing</a>
-            <a href="{{ url_for('agency.add_package') }}" class="btn btn-submit">+ Add Package Plan</a>
-            <a href="{{ url_for('agency.logout') }}" class="btn btn-danger-inline">Logout</a>
+        <div class="admin-nav-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a href="{{ url_for('agency.dashboard') }}" class="btn btn-primary btn-sm">Overview</a>
+            <a href="{{ url_for('agency.manage_packages') }}" class="btn btn-outline btn-sm">Catalog & Pricing</a>
+            <a href="/agency/payouts" class="btn btn-outline btn-sm">Payouts</a>
+            <a href="/agency/reviews" class="btn btn-outline btn-sm">Guest Reviews</a>
+            <a href="/agency/messages" class="btn btn-outline btn-sm">Guest Inbox</a>
+            <a href="{{ url_for('agency.add_package') }}" class="btn btn-accent btn-sm">+ Add Package</a>
+            <a href="{{ url_for('agency.logout') }}" class="btn btn-sm nav-logout">Logout</a>
         </div>
     </div>
 

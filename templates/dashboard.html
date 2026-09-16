@@ -10,26 +10,35 @@
     </div>
 
     <!-- Dashboard Navigation Tabs -->
-    <div class="dashboard-tabs">
-        <a href="{{ url_for('dashboard.dashboard', tab='overview') }}" class="tab-btn {% if active_tab == 'overview' %}active{% endif %}">
+    <div class="dashboard-tabs" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;">
+        <a href="{{ url_for('dashboard.dashboard', tab='overview') }}" class="btn btn-sm {% if active_tab == 'overview' %}btn-primary{% else %}btn-outline{% endif %}">
             Overview
         </a>
-        <a href="{{ url_for('dashboard.dashboard', tab='upcoming') }}" class="tab-btn {% if active_tab == 'upcoming' %}active{% endif %}">
+        <a href="{{ url_for('dashboard.dashboard', tab='upcoming') }}" class="btn btn-sm {% if active_tab == 'upcoming' %}btn-primary{% else %}btn-outline{% endif %}">
             Upcoming Trips ({% if upcoming_bookings %}{{ upcoming_bookings|length }}{% else %}0{% endif %})
         </a>
-        <a href="{{ url_for('dashboard.dashboard', tab='completed') }}" class="tab-btn {% if active_tab == 'completed' %}active{% endif %}">
+        <a href="{{ url_for('dashboard.dashboard', tab='completed') }}" class="btn btn-sm {% if active_tab == 'completed' %}btn-primary{% else %}btn-outline{% endif %}">
             Completed Trips ({% if completed_bookings %}{{ completed_bookings|length }}{% else %}0{% endif %})
         </a>
-        <a href="{{ url_for('dashboard.dashboard', tab='bookings') }}" class="tab-btn {% if active_tab == 'bookings' %}active{% endif %}">
+        <a href="{{ url_for('dashboard.dashboard', tab='bookings') }}" class="btn btn-sm {% if active_tab == 'bookings' %}btn-primary{% else %}btn-outline{% endif %}">
             All Bookings ({% if bookings %}{{ bookings|length }}{% else %}0{% endif %})
         </a>
-        <a href="{{ url_for('dashboard.dashboard', tab='saved') }}" class="tab-btn {% if active_tab == 'saved' %}active{% endif %}">
+        <a href="/itineraries" class="btn btn-sm btn-outline">
+            Custom Itineraries
+        </a>
+        <a href="/wallet" class="btn btn-sm btn-outline">
+            Digital Wallet
+        </a>
+        <a href="/messages" class="btn btn-sm btn-outline">
+            Messages
+        </a>
+        <a href="{{ url_for('dashboard.dashboard', tab='saved') }}" class="btn btn-sm {% if active_tab == 'saved' %}btn-primary{% else %}btn-outline{% endif %}">
             Saved Wishlist ({% if saved_items %}{{ saved_items|length }}{% else %}0{% endif %})
         </a>
-        <a href="{{ url_for('dashboard.dashboard', tab='profile') }}" class="tab-btn {% if active_tab == 'profile' %}active{% endif %}">
+        <a href="{{ url_for('dashboard.dashboard', tab='profile') }}" class="btn btn-sm {% if active_tab == 'profile' %}btn-primary{% else %}btn-outline{% endif %}">
             Profile
         </a>
-        <a href="{{ url_for('dashboard.dashboard', tab='preferences') }}" class="tab-btn {% if active_tab == 'preferences' %}active{% endif %}">
+        <a href="{{ url_for('dashboard.dashboard', tab='preferences') }}" class="btn btn-sm {% if active_tab == 'preferences' %}btn-primary{% else %}btn-outline{% endif %}">
             Preferences
         </a>
     </div>
@@ -107,7 +116,7 @@
                         <tr>
                             <td>
                                 <strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong><br>
-                                <small class="text-muted">{{ b['created_at'][:10] }}</small>
+                                <small class="text-muted">{{ b['created_at']|format_date }}</small>
                             </td>
                             <td>
                                 <strong>{{ b['item_title'] }}</strong><br>
@@ -236,7 +245,7 @@
                         <tr>
                             <td>
                                 <strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong><br>
-                                <small class="text-muted">{{ b['created_at'][:10] }}</small>
+                                <small class="text-muted">{{ b['created_at']|format_date }}</small>
                             </td>
                             <td>
                                 <strong>{{ b['item_title'] }}</strong><br>
