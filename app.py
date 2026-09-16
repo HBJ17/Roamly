@@ -13,6 +13,7 @@ from payments import payments_bp
 from reviews import reviews_bp
 from itinerary import itinerary_bp
 from messages import messages_bp
+from coupons import coupons_bp
 from database.connection import get_db_connection
 
 app = Flask(__name__)
@@ -31,6 +32,7 @@ app.register_blueprint(payments_bp)
 app.register_blueprint(reviews_bp)
 app.register_blueprint(itinerary_bp)
 app.register_blueprint(messages_bp)
+app.register_blueprint(coupons_bp)
 
 # legacy route handler
 def url_build_error_handler(error, endpoint, values):
