@@ -1,5 +1,5 @@
 import os
-from flask import Flask, session, url_for
+from flask import Flask, session, url_for, request, redirect
 from database.schema import init_db
 from auth import auth_bp
 from dashboard import dashboard_bp
@@ -43,6 +43,9 @@ def url_build_error_handler(error, endpoint, values):
 
 app.url_build_error_handlers.append(url_build_error_handler)
 
+from config import Config
+from utils.i18n import translate
+
 # custom template filters
 @app.template_filter('format_date')
 def format_date_filter(val):
@@ -59,6 +62,46 @@ def format_datetime_filter(val):
     if hasattr(val, 'strftime'):
         return val.strftime('%Y-%m-%d %H:%M:%S')
     return str(val)
+
+@app.template_filter('currency')
+def format_currency_filter(amount):
+    """Dynamically convert base INR amount to active session currency."""
+    if amount is None:
+        return '0'
+    try:
+        val = float(amount)
+    except (ValueError, TypeError):
+        return str(amount)
+        
+    curr_code = session.get('currency', 'INR')
+    curr_info = Config.SUPPORTED_CURRENCIES.get(curr_code, Config.SUPPORTED_CURRENCIES['INR'])
+    converted = val * curr_info['rate']
+    
+    if curr_code == 'INR':
+        return f"{curr_info['symbol']}{converted:,.2f}"
+    return f"{curr_info['symbol']}{converted:,.2f}"
+
+@app.template_filter('t')
+def translate_filter(key):
+    """Translate dictionary keys into current session language."""
+    lang = session.get('lang', 'en')
+    return translate(key, lang)
+
+# currency switcher route
+@app.route('/set-currency/<curr_code>')
+def set_currency(curr_code):
+    curr_code = curr_code.upper()
+    if curr_code in Config.SUPPORTED_CURRENCIES:
+        session['currency'] = curr_code
+    return redirect(request.referrer or url_for('packages.packages'))
+
+# language switcher route
+@app.route('/set-lang/<lang_code>')
+def set_language(lang_code):
+    lang_code = lang_code.lower()
+    if lang_code in Config.SUPPORTED_LANGUAGES:
+        session['lang'] = lang_code
+    return redirect(request.referrer or url_for('packages.packages'))
 
 # global template context
 @app.context_processor
