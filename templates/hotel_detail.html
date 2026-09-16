@@ -46,11 +46,13 @@
             <div class="card mt-20">
                 <h3>Room Categories Available</h3>
                 <div class="room-types-grid">
-                    {% for room in hotel['room_types'].split(',') %}
+                    {% for room in (hotel['room_types'] or '').split(',') %}
+                        {% if room.strip() %}
                         <div class="room-type-card">
                             <h4>{{ room.strip() }}</h4>
                             <p class="room-features-text">Max 2-3 Guests • Climate Control AC • En-Suite Bathroom • Scenic View</p>
                         </div>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
@@ -65,18 +67,21 @@
             <div class="card mt-20">
                 <h3>Hotel Amenities & Privileges</h3>
                 <ul class="amenities-list">
-                    {% for item in hotel['amenities'].split(',') %}
-                        <li><span class="bullet">•</span> {{ item.strip() }}</li>
+                    {% for item in (hotel['amenities'] or '').split(',') %}
+                        {% if item.strip() %}<li><span class="bullet">•</span> {{ item.strip() }}</li>{% endif %}
                     {% endfor %}
                 </ul>
             </div>
+
+            <!-- Geolocation & Route Map -->
+            {% include 'components/map.html' %}
 
             <!-- Reviews & Ratings Section -->
             <div class="card mt-20 reviews-card">
                 <div class="reviews-header-flex">
                     <div>
                         <h3>Guest Reviews & Ratings</h3>
-                        <p class="section-desc">Verified feedback from guests who stayed at this property.</p>
+                        <p class="section-desc">Verified feedback from guests who stayed at this hotel.</p>
                     </div>
                     <div class="overall-rating-badge">
                         <span class="score">{{ reviews_data['average_rating'] }}</span>
@@ -103,7 +108,7 @@
                 <!-- Leave a Review Form -->
                 {% if session.get('user_id') %}
                 <div class="add-review-section mt-20">
-                    <h4>Review Your Stay</h4>
+                    <h4>Review Your Hotel Stay</h4>
                     <form action="{{ url_for('reviews.add_review') }}" method="POST" class="review-form mt-10">
                         <input type="hidden" name="item_type" value="hotel">
                         <input type="hidden" name="item_id" value="{{ hotel['id'] }}">
@@ -112,7 +117,7 @@
                             <div class="form-group flex-1">
                                 <label for="rating">Star Rating *</label>
                                 <select id="rating" name="rating" required>
-                                    <option value="5" selected>5 Stars - Exceptional Hospitality</option>
+                                    <option value="5" selected>5 Stars - Exceptional</option>
                                     <option value="4">4 Stars - Very Good</option>
                                     <option value="3">3 Stars - Average</option>
                                     <option value="2">2 Stars - Poor</option>
@@ -120,20 +125,20 @@
                                 </select>
                             </div>
                             <div class="form-group flex-1">
-                                <label for="travel_type">Travel Style</label>
+                                <label for="travel_type">Travel Type</label>
                                 <select id="travel_type" name="travel_type">
-                                    <option value="Family" selected>Family Vacation</option>
-                                    <option value="Couple">Couple / Getaway</option>
+                                    <option value="Family" selected>Family Stay</option>
+                                    <option value="Couple">Couple / Honeymoon</option>
                                     <option value="Solo">Solo Traveler</option>
-                                    <option value="Friends">Friends Group</option>
                                     <option value="Business">Business Trip</option>
+                                    <option value="Friends">Friends Group</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="title">Review Headline *</label>
-                            <input type="text" id="title" name="title" placeholder="e.g. Pristine rooms, wonderful view, and authentic Chettinad breakfast!" required>
+                            <input type="text" id="title" name="title" placeholder="e.g. Luxurious Colonial Suite and Exceptional Dining!" required>
                         </div>
 
                         <div class="form-group">
@@ -167,7 +172,7 @@
                             </div>
                             <h5 class="review-title mt-5">{{ r['title'] }}</h5>
                             <p class="review-body">{{ r['comment'] }}</p>
-                            <small class="review-date text-muted">Reviewed on {{ r['created_at'][:10] }}</small>
+                            <small class="review-date text-muted">Reviewed on {{ r['created_at']|format_date }}</small>
                         </div>
                         {% endfor %}
                     {% else %}

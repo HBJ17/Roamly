@@ -47,8 +47,8 @@
             <div class="card mt-20">
                 <h3>Key Sightseeing & Itinerary Highlights</h3>
                 <ul class="highlights-list">
-                    {% for hl in package['highlights'].split(',') %}
-                        <li><span class="bullet">•</span> {{ hl.strip() }}</li>
+                    {% for hl in (package['highlights'] or '').split(',') %}
+                        {% if hl.strip() %}<li><span class="bullet">•</span> {{ hl.strip() }}</li>{% endif %}
                     {% endfor %}
                 </ul>
             </div>
@@ -63,11 +63,14 @@
             <div class="card mt-20">
                 <h3>Included Amenities & Services</h3>
                 <ul class="amenities-list">
-                    {% for item in package['included_amenities'].split(',') %}
-                        <li><span class="bullet">•</span> {{ item.strip() }}</li>
+                    {% for item in (package['included_amenities'] or '').split(',') %}
+                        {% if item.strip() %}<li><span class="bullet">•</span> {{ item.strip() }}</li>{% endif %}
                     {% endfor %}
                 </ul>
             </div>
+
+            <!-- Geolocation & Route Map -->
+            {% include 'components/map.html' %}
 
             <!-- Reviews & Ratings Section -->
             <div class="card mt-20 reviews-card">
@@ -165,7 +168,7 @@
                             </div>
                             <h5 class="review-title mt-5">{{ r['title'] }}</h5>
                             <p class="review-body">{{ r['comment'] }}</p>
-                            <small class="review-date text-muted">Reviewed on {{ r['created_at'][:10] }}</small>
+                            <small class="review-date text-muted">Reviewed on {{ r['created_at']|format_date }}</small>
                         </div>
                         {% endfor %}
                     {% else %}

@@ -105,12 +105,18 @@ def package_detail(package_id):
     is_in_compare = package_id in compare_list
     reviews_data = get_item_reviews_summary('package', package_id)
 
+    from utils.geo import get_coordinates_for_location
+    map_lat, map_lng, map_title = get_coordinates_for_location(pkg['destination'])
+
     return render_template(
         'package_detail.html',
         package=pkg,
         is_in_compare=is_in_compare,
         reviews_data=reviews_data,
-        is_saved=is_saved
+        is_saved=is_saved,
+        map_lat=map_lat,
+        map_lng=map_lng,
+        map_title=map_title
     )
 
 # book package

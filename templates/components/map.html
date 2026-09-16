@@ -1,0 +1,36 @@
+<!-- Interactive Leaflet Geolocation Map Component -->
+<div class="card mt-20">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+        <h3>Interactive Geolocation & Route Map</h3>
+        <span class="travel-tag travel-tag-accent">Live GPS Coordinates</span>
+    </div>
+    <p style="color:var(--text-muted); font-size:13.5px; margin-bottom:14px;">
+        Explore the destination layout, surrounding landmarks, and transit access points.
+    </p>
+    <div id="interactive-map" class="leaflet-map-container"></div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var defaultLat = {{ map_lat|default(11.4102) }};
+        var defaultLng = {{ map_lng|default(76.6950) }};
+        var locationTitle = "{{ map_title|default('Destination') }}";
+        
+        var map = L.map('interactive-map').setView([defaultLat, defaultLng], 12);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        var customIcon = L.divIcon({
+            className: 'custom-map-pin',
+            html: '<div style="background-color:#e85d04; color:white; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid white; box-shadow:0 4px 10px rgba(0,0,0,0.3); font-weight:bold; font-size:14px;">📍</div>',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+        
+        var marker = L.marker([defaultLat, defaultLng], {icon: customIcon}).addTo(map);
+        marker.bindPopup('<div style="font-family:sans-serif; padding:4px;"><strong>' + locationTitle + '</strong><br><small>Verified Destination Point</small></div>').openPopup();
+    });
+</script>
