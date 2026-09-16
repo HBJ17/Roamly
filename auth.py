@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database.connection import get_db_connection
+from utils.security import hash_password, verify_password
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -41,18 +42,23 @@ def signup():
             flash('Username or email already registered. Please login.', 'danger')
             return render_template('signup.html')
 
-        # insert user
+        # insert user with hashed password
+        hashed_pwd = hash_password(password)
         cursor.execute(
             'INSERT INTO users (username, email, password) VALUES (%s, %s, %s)',
-            (username, email, password)
+            (username, email, hashed_pwd)
         )
         new_user_id = cursor.lastrowid
         
         # default preferences
-        cursor.execute(
-            'INSERT IGNORE INTO user_preferences (user_id) VALUES (%s)',
-            (new_user_id,)
-        )
+        try:
+            cursor.execute(
+                'INSERT INTO user_preferences (user_id) VALUES (%s)',
+                (new_user_id,)
+            )
+        except Exception:
+            pass
+
         conn.commit()
         conn.close()
 
@@ -83,10 +89,10 @@ def login():
         cursor = conn.cursor()
 
         # check users
-        cursor.execute('SELECT * FROM users WHERE username = %s AND password = %s', (username, password))
+        cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
         user = cursor.fetchone()
 
-        if user:
+        if user and verify_password(password, user['password']):
             conn.close()
             session['user_id'] = user['id']
             session['username'] = user['username']
@@ -94,10 +100,10 @@ def login():
             return redirect(url_for('dashboard.dashboard'))
 
         # check admins
-        cursor.execute('SELECT * FROM admins WHERE username = %s AND password = %s', (username, password))
+        cursor.execute('SELECT * FROM admins WHERE username = %s', (username,))
         admin = cursor.fetchone()
 
-        if admin:
+        if admin and verify_password(password, admin['password']):
             conn.close()
             session['admin_id'] = admin['id']
             session['admin_username'] = admin['username']
@@ -107,11 +113,11 @@ def login():
             return redirect(url_for('admin.dashboard'))
 
         # check agencies
-        cursor.execute('SELECT * FROM agencies WHERE username = %s AND password = %s', (username, password))
+        cursor.execute('SELECT * FROM agencies WHERE username = %s', (username,))
         agency = cursor.fetchone()
         conn.close()
 
-        if agency:
+        if agency and verify_password(password, agency['password']):
             if agency['status'] != 'Active':
                 flash('Your agency account is currently suspended. Please contact administrator.', 'danger')
                 return render_template('login.html')
