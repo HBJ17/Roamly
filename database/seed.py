@@ -790,3 +790,19 @@ def seed_wallets(cursor):
             VALUES (2, 7500.00, 'Credit', 'Welcome promotional travel credits', 'CREDIT-WELCOME-02')
         ''')
 
+# seed agency payouts
+def seed_payouts(cursor):
+    cursor.execute('SELECT COUNT(*) as count FROM agency_payouts')
+    count = cursor.fetchone()['count']
+    if count == 0:
+        payouts_data = [
+            (1, 45000.00, 4500.00, 40500.00, 'HDFC Bank - A/C 50100238491021 (IFSC: HDFC0000123)', 'Approved'),
+            (2, 62000.00, 6200.00, 55800.00, 'SBI Bank - A/C 30492819201 (IFSC: SBIN0001452)', 'Pending'),
+            (3, 38000.00, 3800.00, 34200.00, 'ICICI Bank - A/C 00192837461 (IFSC: ICIC0000088)', 'Processed')
+        ]
+        cursor.executemany('''
+            INSERT INTO agency_payouts (agency_id, amount, commission_amount, net_payout, bank_account_info, status)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        ''', payouts_data)
+
+

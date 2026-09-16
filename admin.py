@@ -365,3 +365,69 @@ def global_bookings():
         selected_status=status,
         query=query
     )
+
+# admin commission & payout settlement console
+@admin_bp.route('/commissions')
+@admin_required
+def commissions():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # compute platform financials
+    cursor.execute("SELECT COALESCE(SUM(total_price), 0) as total_sales FROM bookings WHERE status != 'Cancelled'")
+    total_sales = float(cursor.fetchone()['total_sales'])
+    
+    commission_rate = 0.10 # 10% platform fee
+    platform_earnings = round(total_sales * commission_rate, 2)
+    net_agency_pool = round(total_sales - platform_earnings, 2)
+
+    # fetch all payout requests
+    cursor.execute('''
+        SELECT p.*, a.name as agency_name, a.agency_type, a.email as agency_email, a.phone as agency_phone
+        FROM agency_payouts p
+        JOIN agencies a ON p.agency_id = a.id
+        ORDER BY p.created_at DESC
+    ''')
+    payouts = cursor.fetchall()
+    conn.close()
+
+    return render_template(
+        'admin/commissions.html',
+        total_sales=total_sales,
+        platform_earnings=platform_earnings,
+        net_agency_pool=net_agency_pool,
+        commission_rate=int(commission_rate * 100),
+        payouts=payouts
+    )
+
+# approve payout
+@admin_bp.route('/payouts/approve/<int:payout_id>', methods=['POST'])
+@admin_required
+def approve_payout(payout_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE agency_payouts 
+        SET status = 'Approved', processed_at = CURRENT_TIMESTAMP
+        WHERE id = %s
+    ''', (payout_id,))
+    conn.commit()
+    conn.close()
+    flash(f'Agency payout #{payout_id} approved for bank transfer settlement.', 'success')
+    return redirect(url_for('admin.commissions'))
+
+# reject payout
+@admin_bp.route('/payouts/reject/<int:payout_id>', methods=['POST'])
+@admin_required
+def reject_payout(payout_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE agency_payouts 
+        SET status = 'Rejected', processed_at = CURRENT_TIMESTAMP
+        WHERE id = %s
+    ''', (payout_id,))
+    conn.commit()
+    conn.close()
+    flash(f'Agency payout #{payout_id} marked as rejected.', 'warning')
+    return redirect(url_for('admin.commissions'))

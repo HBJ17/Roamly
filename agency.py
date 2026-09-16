@@ -386,3 +386,86 @@ def reviews():
     conn.close()
 
     return render_template('agency/reviews.html', reviews=reviews_list)
+
+# agency payouts & settlement ledger
+@agency_bp.route('/payouts')
+@agency_required
+def payouts():
+    agency_id = session['agency_id']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # gross earnings from confirmed bookings
+    cursor.execute('''
+        SELECT COALESCE(SUM(b.total_price), 0) as gross_sales
+        FROM bookings b
+        LEFT JOIN packages p ON b.package_id = p.id
+        LEFT JOIN hotels h ON b.hotel_id = h.id
+        LEFT JOIN transports t ON b.transport_id = t.id
+        WHERE (p.agency_id = %s OR h.agency_id = %s OR t.agency_id = %s)
+          AND b.status != 'Cancelled'
+    ''', (agency_id, agency_id, agency_id))
+    gross_sales = float(cursor.fetchone()['gross_sales'])
+
+    commission_rate = 0.10
+    platform_fee = round(gross_sales * commission_rate, 2)
+    net_earnings = round(gross_sales - platform_fee, 2)
+
+    # total already withdrawn or approved
+    cursor.execute('''
+        SELECT COALESCE(SUM(net_payout), 0) as total_settled
+        FROM agency_payouts
+        WHERE agency_id = %s AND status IN ('Approved', 'Processed')
+    ''', (agency_id,))
+    total_settled = float(cursor.fetchone()['total_settled'])
+    available_balance = max(0.0, round(net_earnings - total_settled, 2))
+
+    # payout history
+    cursor.execute('''
+        SELECT * FROM agency_payouts
+        WHERE agency_id = %s
+        ORDER BY created_at DESC
+    ''', (agency_id,))
+    history = cursor.fetchall()
+    conn.close()
+
+    return render_template(
+        'agency/payouts.html',
+        gross_sales=gross_sales,
+        platform_fee=platform_fee,
+        net_earnings=net_earnings,
+        available_balance=available_balance,
+        history=history,
+        commission_rate=int(commission_rate * 100)
+    )
+
+# submit payout settlement request
+@agency_bp.route('/payouts/request', methods=['POST'])
+@agency_required
+def request_payout():
+    agency_id = session['agency_id']
+    try:
+        req_amount = float(request.form.get('amount', 0.0))
+        bank_info = request.form.get('bank_info', '').strip()
+        
+        if req_amount <= 0 or not bank_info:
+            flash('Please enter a valid amount and complete bank account details.', 'danger')
+            return redirect(url_for('agency.payouts'))
+    except ValueError:
+        flash('Invalid withdrawal amount.', 'danger')
+        return redirect(url_for('agency.payouts'))
+
+    commission_amount = round(req_amount * 0.10, 2)
+    net_payout = round(req_amount - commission_amount, 2)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO agency_payouts (agency_id, amount, commission_amount, net_payout, bank_account_info, status)
+        VALUES (%s, %s, %s, %s, %s, 'Pending')
+    ''', (agency_id, req_amount, commission_amount, net_payout, bank_info))
+    conn.commit()
+    conn.close()
+
+    flash(f'Settlement request for ₹{net_payout:,.2f} submitted to Roamly Admin for processing.', 'success')
+    return redirect(url_for('agency.payouts'))

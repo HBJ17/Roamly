@@ -10,7 +10,8 @@ from database.seed import (
     seed_notifications,
     seed_saved_items,
     seed_coupons,
-    seed_wallets
+    seed_wallets,
+    seed_payouts
 )
 
 # initialize database schema
@@ -358,6 +359,22 @@ def init_db():
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
+    # agency payouts table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS agency_payouts (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            agency_id INT NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            commission_amount DECIMAL(10,2) NOT NULL,
+            net_payout DECIMAL(10,2) NOT NULL,
+            bank_account_info VARCHAR(255) NOT NULL,
+            status VARCHAR(50) DEFAULT 'Pending',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            processed_at DATETIME,
+            FOREIGN KEY (agency_id) REFERENCES agencies(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ''')
+
     # seed data
     seed_admin(cursor)
     seed_users(cursor)
@@ -370,6 +387,7 @@ def init_db():
     seed_saved_items(cursor)
     seed_coupons(cursor)
     seed_wallets(cursor)
+    seed_payouts(cursor)
 
     conn.commit()
     conn.close()
