@@ -5,110 +5,116 @@
 {% block content %}
 <div class="admin-dashboard-wrapper">
     <!-- Admin Top Navigation Bar -->
-    <div class="admin-portal-header">
-        <div>
-            <span class="admin-shield-badge">Superadmin Control Panel</span>
-            <h2>Platform Bookings Audit & Logs</h2>
-            <p class="admin-welcome-text">Comprehensive transaction ledger across all registered users and travel services.</p>
-        </div>
-        <div class="admin-nav-actions">
-            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary-inline">Analytics Overview</a>
-            <a href="{{ url_for('admin.agencies') }}" class="btn btn-secondary-inline">Agency Management</a>
-            <a href="{{ url_for('admin.global_bookings') }}" class="btn btn-primary-inline active">All Bookings Audit</a>
-            <a href="{{ url_for('admin.logout') }}" class="btn btn-danger-inline">Logout Admin</a>
+    <div class="card" style="padding:22px; margin-bottom:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div>
+                <span class="badge badge-yellow" style="margin-bottom:6px;">SUPERADMIN CONSOLE</span>
+                <h2 style="margin:0; font-size:24px; font-weight:800; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Platform Bookings Audit &amp; Logs</h2>
+                <p style="color:var(--text-secondary); font-size:13px; margin:4px 0 0;">Comprehensive transaction ledger across all registered users and travel services.</p>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline btn-sm">Analytics</a>
+                <a href="/admin/commissions" class="btn btn-outline btn-sm">Commissions</a>
+                <a href="/admin/coupons" class="btn btn-outline btn-sm">Promo Coupons</a>
+                <a href="{{ url_for('admin.agencies') }}" class="btn btn-outline btn-sm">Agencies</a>
+                <a href="{{ url_for('admin.global_bookings') }}" class="btn btn-primary btn-sm">Audit Ledger</a>
+                <a href="{{ url_for('admin.logout') }}" class="btn btn-outline btn-sm">Logout</a>
+            </div>
         </div>
     </div>
 
     <!-- Search & Filter Section -->
-    <div class="search-filter-section mt-25">
-        <form method="GET" action="{{ url_for('admin.global_bookings') }}" class="search-filter-form">
-            <div class="search-inputs-grid">
-                <div class="input-group">
-                    <label for="q">Search Transactions</label>
-                    <input type="text" id="q" name="q" value="{{ query }}" placeholder="Username, email, service title, phone...">
-                </div>
-
-                <div class="input-group">
-                    <label for="type">Booking Service Category</label>
-                    <select id="type" name="type">
-                        <option value="">All Services (Package, Hotel, Transport)</option>
-                        <option value="Package" {% if selected_type == 'Package' %}selected{% endif %}>Package Tours</option>
-                        <option value="Hotel" {% if selected_type == 'Hotel' %}selected{% endif %}>Hotel Stays</option>
-                        <option value="Transport" {% if selected_type == 'Transport' %}selected{% endif %}>Transports & Cabs</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label for="status">Booking Status</label>
-                    <select id="status" name="status">
-                        <option value="">All Statuses</option>
-                        <option value="Confirmed" {% if selected_status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
-                        <option value="Modified" {% if selected_status == 'Modified' %}selected{% endif %}>Modified</option>
-                        <option value="Cancelled" {% if selected_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
-                    </select>
-                </div>
+    <div class="filter-card" style="margin-bottom:24px;">
+        <form method="GET" action="{{ url_for('admin.global_bookings') }}" style="display:grid; grid-template-columns: 2fr 1.5fr 1fr auto; gap:16px; align-items:flex-end;">
+            <div class="form-group">
+                <label class="form-label" for="q">Search Transactions</label>
+                <input type="text" id="q" name="q" value="{{ query }}" class="form-control" placeholder="Username, email, service title, phone...">
             </div>
 
-            <div class="filter-actions">
-                <button type="submit" class="btn btn-search">Search Audit Log</button>
+            <div class="form-group">
+                <label class="form-label" for="type">Booking Service Category</label>
+                <select id="type" name="type" class="form-control">
+                    <option value="">All Services</option>
+                    <option value="Package" {% if selected_type == 'Package' %}selected{% endif %}>Package Tours</option>
+                    <option value="Hotel" {% if selected_type == 'Hotel' %}selected{% endif %}>Hotel Stays</option>
+                    <option value="Transport" {% if selected_type == 'Transport' %}selected{% endif %}>Transports &amp; Cabs</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="status">Booking Status</label>
+                <select id="status" name="status" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="Confirmed" {% if selected_status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+                    <option value="Modified" {% if selected_status == 'Modified' %}selected{% endif %}>Modified</option>
+                    <option value="Cancelled" {% if selected_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+
+            <div style="display:flex; gap:8px;">
+                <button type="submit" class="btn btn-primary btn-sm">Filter</button>
                 {% if query or selected_type or selected_status %}
-                    <a href="{{ url_for('admin.global_bookings') }}" class="btn btn-reset">Clear Filters</a>
+                    <a href="{{ url_for('admin.global_bookings') }}" class="btn btn-outline btn-sm">Clear</a>
                 {% endif %}
             </div>
         </form>
     </div>
 
     <!-- Bookings Table Card -->
-    <div class="card mt-25">
-        <div class="card-header-flex">
+    <div class="card" style="padding:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid #000; padding-bottom:12px; flex-wrap:wrap; gap:10px;">
             <div>
-                <h3>Master Transaction Ledger ({{ bookings|length }})</h3>
-                <p class="section-desc">Auditable record of all booking orders placed on Roamly.</p>
+                <h3 style="margin-bottom:4px; font-size:18px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Master Transaction Ledger ({{ bookings|length }})</h3>
+                <p class="section-desc" style="margin:0;">Auditable record of all booking orders placed on Roamly.</p>
             </div>
         </div>
 
         {% if bookings %}
-        <div class="table-responsive">
-            <table class="data-table">
+        <div style="overflow-x:auto;">
+            <table class="table-executive">
                 <thead>
                     <tr>
-                        <th>Booking Ref</th>
-                        <th>Customer Details</th>
-                        <th>Service / Package</th>
-                        <th>Category</th>
-                        <th>Travel Date</th>
-                        <th>Travelers</th>
-                        <th>Total Paid</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th>BOOKING REF</th>
+                        <th>EXPLORER</th>
+                        <th>SERVICE / PACKAGE</th>
+                        <th>CATEGORY</th>
+                        <th>TRAVEL DATE</th>
+                        <th>QTY</th>
+                        <th>TOTAL PAID</th>
+                        <th>STATUS</th>
+                        <th style="text-align:right;">ACTION</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for b in bookings %}
                     <tr>
-                        <td>
-                            <strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong><br>
-                            <small class="text-muted">{{ b['created_at']|format_date }}</small>
+                        <td style="font-family:'Space Grotesk',monospace; font-weight:700; font-size:12px;">
+                            #ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}<br>
+                            <small style="color:var(--text-secondary); font-family:'Space Grotesk',sans-serif;">{{ b['created_at']|format_date }}</small>
                         </td>
                         <td>
-                            <strong>{{ b['user_full_name'] or b['username'] }}</strong><br>
-                            <small class="text-muted">{{ b['user_email'] }}</small><br>
-                            <small class="text-muted">{{ b['contact_phone'] or 'No phone' }}</small>
+                            <strong style="color:var(--text-primary); font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">{{ b['user_full_name'] or b['username'] }}</strong><br>
+                            <small style="color:var(--text-secondary);">{{ b['user_email'] }}</small><br>
+                            <small style="color:var(--text-secondary);">{{ b['contact_phone'] or 'No phone' }}</small>
                         </td>
                         <td>
-                            <strong>{{ b['item_title'] }}</strong><br>
-                            <small class="text-muted">{{ b['item_location'] }}</small>
+                            <strong style="color:var(--text-primary); font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">{{ b['item_title'] or 'Service' }}</strong>
+                            {% if b['agency_name'] %}<br><small style="color:var(--text-secondary); font-weight:700; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Via {{ b['agency_name'] }}</small>{% endif %}
                         </td>
-                        <td><span class="category-tag">{{ b['booking_type'] }}</span></td>
+                        <td><span class="badge badge-yellow">{{ b['booking_type'] }}</span></td>
+                        <td style="font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700;">{{ b['travel_date'] }}</td>
+                        <td style="font-family:'Space Grotesk',sans-serif; font-weight:700; text-align:center;">{{ b['num_travelers'] }}</td>
+                        <td style="font-weight:800; font-family:'Space Grotesk',sans-serif; color:#000;">₹{{ "{:,.2f}".format(b['total_price']) }}</td>
                         <td>
-                            <strong>{{ b['travel_date'] }}</strong>
-                            {% if b['check_out_date'] %}<br><small class="text-muted">to {{ b['check_out_date'] }}</small>{% endif %}
+                            <span class="badge {% if b['status'] == 'Confirmed' %}badge-mint{% elif b['status'] == 'Modified' %}badge-yellow{% else %}badge-pink{% endif %}">
+                                {{ b['status'] }}
+                            </span>
                         </td>
-                        <td>{{ b['num_travelers'] }}</td>
-                        <td><strong class="text-accent">₹{{ "{:,.2f}".format(b['total_price']) }}</strong></td>
-                        <td><span class="status-pill status-{{ b['status']|lower }}">{{ b['status'] }}</span></td>
-                        <td>
-                            <a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}" class="btn-link font-bold">Voucher</a>
+                        <td style="text-align:right;">
+                            <div style="display:inline-flex; gap:6px;">
+                                <a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11.5px;">Voucher</a>
+                                <a href="{{ url_for('payments.view_invoice', booking_id=b['id']) }}" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11.5px;">Invoice</a>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -116,9 +122,8 @@
             </table>
         </div>
         {% else %}
-        <div class="dashboard-empty">
-            <h3>No Bookings Found</h3>
-            <p>No transactions match the selected filters or search parameters.</p>
+        <div style="text-align:center; padding:40px; color:var(--text-secondary); font-family:'Space Grotesk',sans-serif;">
+            <p style="margin:0;">No bookings match your filter criteria.</p>
         </div>
         {% endif %}
     </div>

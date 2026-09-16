@@ -4,129 +4,114 @@
 
 {% block content %}
 <div class="email-viewer-container">
-    <div class="email-viewer-actions no-print">
-        <a href="{{ url_for('bookings.booking_summary', booking_id=booking['id']) }}" class="btn btn-secondary-inline">
-            Back to Booking Voucher
+    <div class="email-viewer-actions no-print" style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <a href="{{ url_for('bookings.booking_summary', booking_id=booking['id']) }}" class="btn btn-outline btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span>
+            <span>Back to Booking Voucher</span>
         </a>
-        <div class="right-buttons">
-            <a href="{{ url_for('payments.view_invoice', booking_id=booking['id']) }}" class="btn btn-secondary-inline">
-                View Official Tax Invoice
+        <div style="display:flex; gap:10px;">
+            <a href="{{ url_for('payments.view_invoice', booking_id=booking['id']) }}" class="btn btn-yellow btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">receipt_long</span>
+                <span>View Official Tax Invoice</span>
             </a>
-            <button onclick="window.print()" class="btn btn-print">Print Email Copy</button>
+            <button onclick="window.print()" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">print</span>
+                <span>Print Email Copy</span>
+            </button>
         </div>
     </div>
 
-    <!-- Email Client Frame -->
-    <div class="email-client-card">
+    <!-- Email Client Frame (Airmail Stitched Dispatch) -->
+    <div class="card" style="padding:0; overflow:hidden; border:3px solid #000; box-shadow:8px 8px 0px #000;">
+        <!-- Airmail top stripe -->
+        <div class="airmail-stripe" style="height:14px; border-bottom:2px solid #000;"></div>
+
         <!-- Email Metadata Header -->
-        <div class="email-meta-header">
-            <div class="meta-row">
-                <span class="meta-label">From:</span>
-                <span class="meta-val">Roamly Travel Confirmations &lt;confirmations@bookings.roamly.com&gt;</span>
-            </div>
-            <div class="meta-row">
-                <span class="meta-label">To:</span>
-                <span class="meta-val">{{ booking['contact_email'] or booking['user_email'] or session.get('username', 'traveler') + '@roamly.com' }}</span>
-            </div>
-            <div class="meta-row">
-                <span class="meta-label">Subject:</span>
-                <span class="meta-val"><strong>Booking Confirmed: {{ (item.get('title') or item.get('name') if item else 'Travel Service') }} [#ROAM-{{ "%04d"|format(booking['id']) }}]</strong></span>
-            </div>
-            <div class="meta-row">
-                <span class="meta-label">Date:</span>
-                <span class="meta-val">{{ booking['created_at']|format_datetime }} (Delivered to Primary Inbox)</span>
-            </div>
+        <div style="padding:20px 24px; background:var(--pastel-yellow-warm); border-bottom:2px solid #000; font-family:'Space Grotesk',sans-serif; font-size:13px; display:flex; flex-direction:column; gap:6px;">
+            <div><strong style="text-transform:uppercase;">FROM:</strong> Roamly Travel Confirmations &lt;confirmations@bookings.roamly.com&gt;</div>
+            <div><strong style="text-transform:uppercase;">TO:</strong> {{ booking['contact_email'] or booking['user_email'] or session.get('username', 'traveler') + '@roamly.com' }}</div>
+            <div><strong style="text-transform:uppercase;">SUBJECT:</strong> <strong>Expedition Confirmed: {{ (item.get('title') or item.get('name') if item else 'Travel Service') }} [#ROAM-{{ "%04d"|format(booking['id']) }}]</strong></div>
+            <div><strong style="text-transform:uppercase;">DATE:</strong> {{ booking['created_at']|format_datetime }} (Delivered to Primary Inbox)</div>
         </div>
 
-        <div class="email-body-wrapper">
-            <!-- Simulated HTML Email Template Content -->
-            <div class="rendered-email-canvas">
-                <div class="email-banner">
-                    <div class="email-brand-title">Roamly Travel Network</div>
-                    <div class="email-confirmed-badge">BOOKING & PAYMENT CONFIRMED</div>
+        <div style="padding:32px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:16px; margin-bottom:20px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="text-headline-md font-headline-md uppercase text-primary border-2 border-primary px-2.5 py-0.5 shadow-[2px_2px_0px_#000000] bg-pastel-yellow" style="font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:18px; border:2px solid #000; padding:2px 8px;">ROAMLY DISPATCH</span>
                 </div>
+                <span class="badge badge-mint" style="font-size:12px;">PASSPORT &amp; SETTLEMENT APPROVED</span>
+            </div>
 
-                <div class="email-content-block">
-                    <h3>Hello {{ booking['user_full_name'] or booking['username'] }},</h3>
-                    <p class="email-greeting">
-                        Your travel itinerary is officially locked in! We have confirmed your reservation and received full settlement via our secure payment gateway.
-                    </p>
+            <h3 style="font-family:'Space Grotesk',sans-serif; text-transform:uppercase; margin-bottom:8px;">Hello {{ booking['user_full_name'] or booking['username'] }},</h3>
+            <p style="color:var(--text-secondary); font-size:15px; line-height:1.6; margin-bottom:20px;">
+                Your travel itinerary is officially stamped and locked in! We have confirmed your reservation and received full settlement via our secure treasury system.
+            </p>
 
-                    <div class="booking-key-box">
-                        <div class="key-col">
-                            <span class="k-title">Booking Reference</span>
-                            <span class="k-val">#ROAM-{{ booking['booking_type'][:3]|upper }}-{{ "%04d"|format(booking['id']) }}</span>
-                        </div>
-                        <div class="key-col">
-                            <span class="k-title">Transaction Ref</span>
-                            <span class="k-val">{{ payment['transaction_id'] if payment else 'TXN-ROAM-8839210' }}</span>
-                        </div>
-                        <div class="key-col">
-                            <span class="k-title">Amount Paid</span>
-                            <span class="k-val price-green">₹{{ "{:,.2f}".format(booking['total_price']) }}</span>
-                        </div>
-                    </div>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:14px; margin-bottom:24px;">
+                <div style="background:var(--pastel-yellow-light); border:2px solid #000; box-shadow:3px 3px 0px #000; border-radius:4px; padding:14px;">
+                    <span style="font-size:10px; font-family:'Space Grotesk',sans-serif; font-weight:700; text-transform:uppercase; color:var(--text-secondary);">BOOKING REFERENCE</span>
+                    <div style="font-size:16px; font-weight:800; font-family:'Space Grotesk',sans-serif; color:#000;">#ROAM-{{ booking['booking_type'][:3]|upper }}-{{ "%04d"|format(booking['id']) }}</div>
+                </div>
+                <div style="background:var(--pastel-blue-light); border:2px solid #000; box-shadow:3px 3px 0px #000; border-radius:4px; padding:14px;">
+                    <span style="font-size:10px; font-family:'Space Grotesk',sans-serif; font-weight:700; text-transform:uppercase; color:var(--text-secondary);">TRANSACTION REF</span>
+                    <div style="font-size:16px; font-weight:800; font-family:'Space Grotesk',sans-serif; color:#000;">{{ payment['transaction_id'] if payment else 'TXN-ROAM-8839210' }}</div>
+                </div>
+                <div style="background:var(--pastel-mint-light); border:2px solid #000; box-shadow:3px 3px 0px #000; border-radius:4px; padding:14px;">
+                    <span style="font-size:10px; font-family:'Space Grotesk',sans-serif; font-weight:700; text-transform:uppercase; color:var(--text-secondary);">AMOUNT PAID</span>
+                    <div style="font-size:18px; font-weight:800; font-family:'Space Grotesk',sans-serif; color:#15803d;">₹{{ "{:,.2f}".format(booking['total_price']) }}</div>
+                </div>
+            </div>
 
-                    <h4 class="mt-20">Itinerary & Service Summary</h4>
-                    <table class="email-summary-table">
+            <h4 style="font-family:'Space Grotesk',sans-serif; text-transform:uppercase; margin-bottom:12px; font-size:16px;">Itinerary &amp; Service Summary</h4>
+            <div style="overflow-x:auto;">
+                <table class="table-executive" style="margin-bottom:24px;">
+                    <tbody>
                         <tr>
-                            <td class="tbl-lbl">Service:</td>
+                            <td style="font-weight:700; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; width:30%;">Service:</td>
                             <td><strong>{{ (item.get('title') or item.get('name') if item else 'Travel Itinerary') }}</strong></td>
                         </tr>
                         <tr>
-                            <td class="tbl-lbl">Category:</td>
+                            <td style="font-weight:700; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Category:</td>
                             <td>{{ booking['booking_type'] }} Booking</td>
                         </tr>
                         <tr>
-                            <td class="tbl-lbl">Travel / Check-in:</td>
+                            <td style="font-weight:700; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Travel / Check-in:</td>
                             <td>{{ booking['travel_date'] }}</td>
                         </tr>
                         {% if booking['check_out_date'] %}
                         <tr>
-                            <td class="tbl-lbl">Check-out Date:</td>
+                            <td style="font-weight:700; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Check-out Date:</td>
                             <td>{{ booking['check_out_date'] }}</td>
                         </tr>
                         {% endif %}
                         <tr>
-                            <td class="tbl-lbl">Travelers / Units:</td>
+                            <td style="font-weight:700; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Explorers / Units:</td>
                             <td>{{ booking['num_travelers'] }} Person(s)</td>
                         </tr>
                         {% if booking['room_type'] %}
                         <tr>
-                            <td class="tbl-lbl">Room Type:</td>
+                            <td style="font-weight:700; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Room Type:</td>
                             <td>{{ booking['room_type'] }}</td>
                         </tr>
                         {% endif %}
                         {% if booking['pickup_location'] %}
                         <tr>
-                            <td class="tbl-lbl">Pickup Location:</td>
+                            <td style="font-weight:700; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Pickup Point:</td>
                             <td>{{ booking['pickup_location'] }}</td>
                         </tr>
                         {% endif %}
-                        {% if booking['drop_location'] %}
-                        <tr>
-                            <td class="tbl-lbl">Drop Location:</td>
-                            <td>{{ booking['drop_location'] }}</td>
-                        </tr>
-                        {% endif %}
-                    </table>
+                    </tbody>
+                </table>
+            </div>
 
-                    <div class="email-guidelines-box mt-20">
-                        <h4>Traveler Instructions & Guidelines</h4>
-                        <ul>
-                            <li><strong>ID Proof:</strong> Please carry a government-issued photo identity card (Aadhaar, Passport, or Driving License) for all traveling guests.</li>
-                            <li><strong>Check-in Timings:</strong> Standard hotel check-in is 12:00 PM; transport departure starts promptly at the scheduled time.</li>
-                            <li><strong>Voucher Access:</strong> You can download or print your official voucher and tax invoice anytime from your Roamly dashboard.</li>
-                        </ul>
-                    </div>
-
-                    <div class="email-footer-signoff mt-20">
-                        <p>Need support or alterations? Reach out to our 24/7 Tamil Nadu customer concierge at <strong>support@roamly.com</strong> or call <strong>+91 44 2840 9000</strong>.</p>
-                        <p class="signoff-note">Warm regards,<br><strong>The Roamly Operations Team</strong></p>
-                    </div>
-                </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:2px solid #000; padding-top:16px; flex-wrap:wrap; gap:12px;">
+                <span class="badge badge-yellow">HAPPY EXPEDITION &bull; SAFE TRAVELS</span>
+                <div class="font-marker" style="font-size:20px; color:#000;">The Roamly Expedition Team ★</div>
             </div>
         </div>
+
+        <!-- Airmail bottom stripe -->
+        <div class="airmail-stripe" style="height:14px; border-top:2px solid #000;"></div>
     </div>
 </div>
 {% endblock %}

@@ -441,3 +441,110 @@ def clear_notifications():
     conn.close()
     flash('Read notifications cleared.', 'info')
     return redirect(url_for('payments.notifications'))
+
+# view official tax invoice
+@payments_bp.route('/invoice/<int:booking_id>')
+def view_invoice(booking_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT b.*, u.username, u.full_name as user_full_name, u.email as user_email, u.phone as user_phone, u.address as user_address
+        FROM bookings b
+        JOIN users u ON b.user_id = u.id
+        WHERE b.id = %s
+    ''', (booking_id,))
+    booking = cursor.fetchone()
+    if not booking:
+        conn.close()
+        flash('Booking record not found.', 'danger')
+        return redirect(url_for('dashboard.dashboard'))
+
+    # fetch invoice record
+    cursor.execute('SELECT * FROM invoices WHERE booking_id = %s', (booking_id,))
+    inv = cursor.fetchone()
+    invoice_number = inv['invoice_number'] if inv else f"INV-2026-{booking_id:06d}"
+
+    # fetch item
+    item = None
+    if booking['booking_type'] == 'Package' and booking['package_id']:
+        cursor.execute('''
+            SELECT p.*, a.name as agency_name, a.phone as agency_phone, a.email as agency_email, a.address as agency_address
+            FROM packages p
+            LEFT JOIN agencies a ON p.agency_id = a.id
+            WHERE p.id = %s
+        ''', (booking['package_id'],))
+        item = cursor.fetchone()
+    elif booking['booking_type'] == 'Hotel' and booking['hotel_id']:
+        cursor.execute('''
+            SELECT h.*, a.name as agency_name, a.phone as agency_phone, a.email as agency_email, a.address as agency_address
+            FROM hotels h
+            LEFT JOIN agencies a ON h.agency_id = a.id
+            WHERE h.id = %s
+        ''', (booking['hotel_id'],))
+        item = cursor.fetchone()
+    elif booking['booking_type'] == 'Transport' and booking['transport_id']:
+        cursor.execute('''
+            SELECT t.*, a.name as agency_name, a.phone as agency_phone, a.email as agency_email, a.address as agency_address
+            FROM transports t
+            LEFT JOIN agencies a ON t.agency_id = a.id
+            WHERE t.id = %s
+        ''', (booking['transport_id'],))
+        item = cursor.fetchone()
+
+    conn.close()
+
+    total = float(booking['total_price'])
+    subtotal = total / 1.05
+    tax_amount = total - subtotal
+
+    return render_template(
+        'invoice.html',
+        booking=booking,
+        item=item or {},
+        invoice_number=invoice_number,
+        subtotal=subtotal,
+        tax_amount=tax_amount
+    )
+
+# view email confirmation simulation
+@payments_bp.route('/email-confirmation/<int:booking_id>')
+def view_email_confirmation(booking_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT b.*, u.username, u.full_name as user_full_name, u.email as user_email, u.phone as user_phone, u.address as user_address
+        FROM bookings b
+        JOIN users u ON b.user_id = u.id
+        WHERE b.id = %s
+    ''', (booking_id,))
+    booking = cursor.fetchone()
+    if not booking:
+        conn.close()
+        flash('Booking record not found.', 'danger')
+        return redirect(url_for('dashboard.dashboard'))
+
+    # fetch payment
+    cursor.execute('SELECT * FROM payments WHERE booking_id = %s ORDER BY id DESC LIMIT 1', (booking_id,))
+    payment = cursor.fetchone()
+
+    # fetch item
+    item = None
+    if booking['booking_type'] == 'Package' and booking['package_id']:
+        cursor.execute('SELECT * FROM packages WHERE id = %s', (booking['package_id'],))
+        item = cursor.fetchone()
+    elif booking['booking_type'] == 'Hotel' and booking['hotel_id']:
+        cursor.execute('SELECT * FROM hotels WHERE id = %s', (booking['hotel_id'],))
+        item = cursor.fetchone()
+    elif booking['booking_type'] == 'Transport' and booking['transport_id']:
+        cursor.execute('SELECT * FROM transports WHERE id = %s', (booking['transport_id'],))
+        item = cursor.fetchone()
+
+    conn.close()
+
+    return render_template(
+        'email_confirmation.html',
+        booking=booking,
+        item=item or {},
+        payment=payment
+    )
+

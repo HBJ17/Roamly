@@ -1,51 +1,57 @@
 {% extends 'base.html' %}
 
-{% block title %}Checkout & Secure Payment - Roamly{% endblock %}
+{% block title %}Checkout & Payment - Roamly{% endblock %}
 
 {% block content %}
 <div class="travel-hero">
+    <div style="display:inline-flex; align-items:center; gap:8px; border:2px solid #000; background:var(--pastel-yellow); padding:4px 12px; transform:rotate(-1deg); box-shadow:2px 2px 0px #000; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; margin-bottom:12px;">
+        <span class="material-symbols-outlined" style="font-size:16px;">lock</span>
+        <span>SECTION 05: TRAVELER SETTLEMENT DESK</span>
+    </div>
     <h2>Secure Traveler Checkout</h2>
-    <p>Review your booking details, apply promotional discount coupons, and complete your reservation securely.</p>
+    <p>Review booking itinerary, apply promotional coupons, and complete your reservation with instant confirmation.</p>
 </div>
 
-<div class="package-detail-layout" style="display:grid; grid-template-columns: 1fr 1.6fr; gap: 30px;">
-    <!-- Left Column: Summary & Pricing Breakdown -->
+<div class="package-detail-layout" style="display:grid; grid-template-columns: 1fr 1.6fr; gap: 28px;">
+    <!-- Left Column: Summary & Pricing Breakdown (Boarding Pass) -->
     <div>
-        <div class="boarding-card">
+        <div class="boarding-card" style="position:sticky; top:80px;">
             <div class="boarding-card-header">
                 <div>
-                    <h4 style="color:white; margin:0;">{{ item.get('title') or item.get('name') or 'Travel Booking' }}</h4>
-                    <small style="opacity:0.8;">{{ booking_type }} Reservation</small>
+                    <h4 style="color:#000; margin:0; font-size:17px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; font-weight:800;">{{ item.get('title') or item.get('name') or 'Travel Booking' }}</h4>
+                    <small style="opacity:0.85; color:var(--text-secondary); font-family:'Space Grotesk',sans-serif; font-weight:700; text-transform:uppercase; font-size:10px;">{{ booking_type }} RESERVATION</small>
                 </div>
-                <span class="travel-tag" style="background:white; color:var(--primary);">{{ item.get('city') or item.get('destination') or 'Tamil Nadu' }}</span>
+                <span class="badge badge-yellow">
+                    {{ item.get('city') or item.get('destination') or 'Tamil Nadu' }}
+                </span>
             </div>
             
             <div class="boarding-card-body">
                 {% if booking_type == 'Package' %}
-                    <p style="font-size:14px; margin-bottom:6px;"><strong>Duration:</strong> {{ item['duration_days'] }} Days / {{ item['duration_nights'] }} Nights</p>
-                    <p style="font-size:14px; margin-bottom:6px;"><strong>Category:</strong> {{ item['category'] }}</p>
+                    <p style="font-size:13.5px; margin-bottom:6px; font-family:'Space Grotesk',sans-serif;"><strong>DURATION:</strong> {{ item['duration_days'] }} Days / {{ item['duration_nights'] }} Nights</p>
+                    <p style="font-size:13.5px; margin-bottom:6px; font-family:'Space Grotesk',sans-serif;"><strong>CATEGORY:</strong> {{ item['category'] }}</p>
                 {% elif booking_type == 'Hotel' %}
-                    <p style="font-size:14px; margin-bottom:6px;"><strong>Room Category:</strong> {{ room_type }}</p>
-                    <p style="font-size:14px; margin-bottom:6px;"><strong>Stay Duration:</strong> {{ nights }} Night(s)</p>
+                    <p style="font-size:13.5px; margin-bottom:6px; font-family:'Space Grotesk',sans-serif;"><strong>ROOM:</strong> {{ room_type }}</p>
+                    <p style="font-size:13.5px; margin-bottom:6px; font-family:'Space Grotesk',sans-serif;"><strong>DURATION:</strong> {{ nights }} Night(s)</p>
                 {% elif booking_type == 'Transport' %}
-                    <p style="font-size:14px; margin-bottom:6px;"><strong>Vehicle / Mode:</strong> {{ item['transport_type'] }}</p>
-                    <p style="font-size:14px; margin-bottom:6px;"><strong>Route:</strong> {{ item['source_city'] }} to {{ item['destination_city'] }}</p>
+                    <p style="font-size:13.5px; margin-bottom:6px; font-family:'Space Grotesk',sans-serif;"><strong>TRANSIT:</strong> {{ item['transport_type'] }}</p>
+                    <p style="font-size:13.5px; margin-bottom:6px; font-family:'Space Grotesk',sans-serif;"><strong>ROUTE:</strong> {{ item['source_city'] }} to {{ item['destination_city'] }}</p>
                 {% endif %}
 
-                <div style="background:var(--bg-page); padding:12px; border-radius:var(--radius-md); border:1px solid var(--border-color); margin:15px 0; font-size:13.5px;">
-                    <div><strong>Travel Date:</strong> {{ travel_date }}</div>
-                    {% if check_out_date %}<div><strong>Check-out Date:</strong> {{ check_out_date }}</div>{% endif %}
-                    <div><strong>Guests / Travelers:</strong> {{ num_travelers }} Person(s)</div>
+                <div style="background:var(--pastel-yellow-light); padding:12px; border-radius:4px; border:2px solid #000; box-shadow:2px 2px 0px #000; margin:14px 0; font-size:13px; line-height:1.6; font-family:'Space Grotesk',sans-serif;">
+                    <div><strong>TRAVEL DATE:</strong> {{ travel_date }}</div>
+                    {% if check_out_date %}<div><strong>CHECK-OUT:</strong> {{ check_out_date }}</div>{% endif %}
+                    <div><strong>TRAVELERS:</strong> {{ num_travelers }} Person(s)</div>
                 </div>
 
                 <!-- Live Promo Coupon Input -->
-                <div style="margin: 20px 0 15px;">
+                <div style="margin: 16px 0 12px;">
                     <label class="form-label">Apply Promo / Coupon Code</label>
-                    <div style="display:flex; gap:8px;">
-                        <input type="text" id="couponCodeInput" class="form-control" placeholder="e.g. ROAMFIRST, SUMMER20" style="text-transform:uppercase;">
-                        <button type="button" class="btn btn-outline btn-sm" onclick="applyCouponCode()">Apply</button>
+                    <div style="display:flex; gap:6px;">
+                        <input type="text" id="couponCodeInput" class="form-control" placeholder="e.g. ROAMFIRST, SUMMER20" style="text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">
+                        <button type="button" class="btn btn-yellow btn-sm" onclick="applyCouponCode()">Apply</button>
                     </div>
-                    <div id="couponStatusMessage" style="font-size:12.5px; margin-top:6px; font-weight:600;"></div>
+                    <div id="couponStatusMessage" style="font-size:12px; margin-top:6px; font-weight:700; font-family:'Space Grotesk',sans-serif;"></div>
                     
                     <!-- Quick Coupon Suggestions -->
                     <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
@@ -55,26 +61,26 @@
                     </div>
                 </div>
 
-                <hr style="border:none; border-top:1px dashed var(--border-color); margin:15px 0;">
+                <div style="border-top:2px dashed #000; margin:16px 0;"></div>
 
                 <!-- Fare Calculation Table -->
-                <div style="display:flex; flex-direction:column; gap:8px; font-size:14px;">
+                <div style="display:flex; flex-direction:column; gap:8px; font-size:14px; font-family:'Space Grotesk',sans-serif;">
                     <div style="display:flex; justify-content:space-between;">
-                        <span style="color:var(--text-muted);">Base Subtotal:</span>
+                        <span style="color:var(--text-secondary);">Base Subtotal:</span>
                         <strong id="displaySubtotal">₹{{ "{:,.2f}".format(subtotal) }}</strong>
                     </div>
-                    <div id="discountRow" style="display:none; justify-content:space-between; color:#10b981;">
+                    <div id="discountRow" style="display:none; justify-content:space-between; color:#000; font-weight:700;">
                         <span>Promotional Discount:</span>
-                        <strong id="displayDiscount">-₹0.00</strong>
+                        <strong id="displayDiscount" style="background:var(--pastel-mint); border:1px solid #000; padding:1px 6px;">-₹0.00</strong>
                     </div>
                     <div style="display:flex; justify-content:space-between;">
-                        <span style="color:var(--text-muted);">Taxes & GST (5%):</span>
+                        <span style="color:var(--text-secondary);">Taxes &amp; GST (5%):</span>
                         <strong id="displayTax">₹{{ "{:,.2f}".format(tax_amount) }}</strong>
                     </div>
-                    <hr style="border:none; border-top:1px solid var(--border-soft); margin:6px 0;">
+                    <div style="border-top:2px solid #000; margin:4px 0;"></div>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:16px; font-weight:700;">Total Payable:</span>
-                        <span class="travel-card-price" id="displayGrandTotal" style="font-size:24px;">₹{{ "{:,.2f}".format(total_estimated) }}</span>
+                        <span style="font-size:15px; font-weight:800; text-transform:uppercase;">Total Payable:</span>
+                        <span class="package-price" id="displayGrandTotal" style="font-size:24px;">₹{{ "{:,.2f}".format(total_estimated) }}</span>
                     </div>
                 </div>
             </div>
@@ -95,9 +101,12 @@
             <input type="hidden" name="payment_method" id="selectedPaymentMethod" value="Roamly Wallet">
 
             <!-- Primary Traveler Details -->
-            <div class="card mb-20">
-                <h3 style="margin-bottom:12px;">1. Primary Traveler Information</h3>
-                <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+            <div class="card mb-20" style="padding:22px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:16px;">
+                    <h3 style="margin:0; font-size:18px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">1. Explorer Manifest &amp; Contact</h3>
+                    <span class="badge badge-mint">REQUIRED</span>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
                     <div class="form-group">
                         <label class="form-label">Full Name *</label>
                         <input type="text" name="contact_name" class="form-control" value="{{ user['full_name'] or user['username'] }}" required>
@@ -115,48 +124,50 @@
                         <input type="text" name="pickup_location_custom" class="form-control" value="{{ pickup_location or user['address'] or 'Chennai Central' }}">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Special Requests / Dietary Notes</label>
+                <div class="form-group mt-15">
+                    <label class="form-label">Special Requests / Preferences</label>
                     <textarea name="special_requests" class="form-control" rows="2" placeholder="e.g. Early check-in requested, ground floor room preferred, vegetarian food..."></textarea>
                 </div>
             </div>
 
             <!-- Multi-Gateway Payment Selector -->
-            <div class="card mb-20">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3>2. Select Payment Channel</h3>
-                    <span class="travel-tag travel-tag-accent">256-Bit SSL Secured</span>
+            <div class="card mb-20" style="padding:22px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:16px;">
+                    <h3 style="margin:0; font-size:18px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">2. Payment Channel</h3>
+                    <span class="badge badge-yellow">
+                        <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">lock</span> 256-Bit SSL Encrypted
+                    </span>
                 </div>
 
                 <!-- Payment Options Grid -->
-                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
-                    <button type="button" class="btn btn-outline payment-tab-btn active" onclick="selectPaymentTab('wallet', this)">Roamly Wallet</button>
-                    <button type="button" class="btn btn-outline payment-tab-btn" onclick="selectPaymentTab('card', this)">Card (Stripe)</button>
-                    <button type="button" class="btn btn-outline payment-tab-btn" onclick="selectPaymentTab('upi', this)">UPI (Razorpay)</button>
-                    <button type="button" class="btn btn-outline payment-tab-btn" onclick="selectPaymentTab('netbanking', this)">Net Banking</button>
+                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 18px;">
+                    <button type="button" class="btn btn-primary payment-tab-btn active" onclick="selectPaymentTab('wallet', this)" style="font-size:12px; padding:9px;">Roamly Wallet</button>
+                    <button type="button" class="btn btn-outline payment-tab-btn" onclick="selectPaymentTab('card', this)" style="font-size:12px; padding:9px;">Credit/Debit</button>
+                    <button type="button" class="btn btn-outline payment-tab-btn" onclick="selectPaymentTab('upi', this)" style="font-size:12px; padding:9px;">UPI QR</button>
+                    <button type="button" class="btn btn-outline payment-tab-btn" onclick="selectPaymentTab('netbanking', this)" style="font-size:12px; padding:9px;">Net Banking</button>
                 </div>
 
                 <!-- Panel: Wallet -->
                 <div id="tab-wallet" class="payment-panel">
-                    <div class="wallet-card" style="padding:20px; border-radius:var(--radius-md);">
-                        <div style="display:flex; justify-content:space-between;">
-                            <span>ROAMLY TRAVEL WALLET</span>
-                            <span class="travel-tag" style="background:rgba(255,255,255,0.2); color:white; border:none;">FastPay</span>
+                    <div class="wallet-card" style="padding:22px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:11px; letter-spacing:0.08em; font-family:'Space Grotesk',sans-serif; font-weight:700;">ROAMLY DIGITAL WALLET</span>
+                            <span class="badge badge-mint" style="font-size:10px;">FastPay Ready</span>
                         </div>
-                        <div class="wallet-balance" style="font-size:28px; margin:8px 0 12px;">₹{{ wallet_balance|int }}</div>
-                        <p style="font-size:12.5px; opacity:0.85; margin:0;">
-                            Instant zero-fee payment authentication. Deducted straight from your active travel balance.
+                        <div class="wallet-balance" style="font-size:28px; margin:8px 0 10px;">₹{{ wallet_balance|int }}</div>
+                        <p style="font-size:12.5px; color:#000; margin:0; font-family:'Space Grotesk',sans-serif;">
+                            Zero-click instant transaction authorization deducted straight from your verified travel credits.
                         </p>
                     </div>
                 </div>
 
                 <!-- Panel: Card -->
                 <div id="tab-card" class="payment-panel" style="display:none;">
-                    <div class="form-group">
+                    <div class="form-group mb-10">
                         <label class="form-label">Card Number</label>
                         <input type="text" class="form-control" placeholder="4532 •••• •••• 8821" value="4532 8891 0023 8821">
                     </div>
-                    <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:12px;">
+                    <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:10px;">
                         <div class="form-group">
                             <label class="form-label">Cardholder Name</label>
                             <input type="text" class="form-control" value="{{ user['full_name'] or 'Ramesh Kumar' }}">
@@ -174,15 +185,15 @@
 
                 <!-- Panel: UPI QR -->
                 <div id="tab-upi" class="payment-panel" style="display:none;">
-                    <div style="display:flex; align-items:center; gap:20px; padding:15px; background:var(--bg-page); border-radius:var(--radius-md); border:1px solid var(--border-color);">
-                        <div style="background:white; padding:10px; border-radius:var(--radius-sm); border:1px solid var(--border-color); text-align:center;">
-                            <div style="width:100px; height:100px; background: repeating-conic-gradient(#0b192c 0% 25%, #ffffff 0% 50%) 50% / 20px 20px; border-radius:4px;"></div>
-                            <small style="font-size:10px; color:var(--text-muted); display:block; margin-top:4px;">Scan & Pay</small>
+                    <div style="display:flex; align-items:center; gap:16px; padding:16px; background:var(--pastel-yellow-light); border-radius:4px; border:2px solid #000; box-shadow:3px 3px 0px #000;">
+                        <div style="background:white; padding:8px; border-radius:4px; border:2px solid #000; text-align:center;">
+                            <div style="width:90px; height:90px; background: repeating-conic-gradient(#000 0% 25%, #ffffff 0% 50%) 50% / 18px 18px; border-radius:2px;"></div>
+                            <small style="font-size:9px; color:#000; display:block; margin-top:3px; font-weight:700; font-family:'Space Grotesk',sans-serif;">SCAN &amp; PAY</small>
                         </div>
                         <div style="flex:1;">
                             <label class="form-label">Or Pay via UPI VPA ID</label>
                             <input type="text" class="form-control" value="traveler@okhdfcbank" placeholder="yourname@upi">
-                            <small style="color:var(--text-muted); display:block; margin-top:6px;">Supported: Google Pay, PhonePe, Paytm, BHIM</small>
+                            <small style="color:var(--text-secondary); display:block; margin-top:4px; font-size:11.5px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Supported: Google Pay, PhonePe, Paytm, BHIM</small>
                         </div>
                     </div>
                 </div>
@@ -202,8 +213,9 @@
             </div>
 
             <!-- Authorize Payment Button -->
-            <button type="submit" class="btn btn-accent btn-lg" id="submitPaymentBtn" style="width:100%;">
-                Authorize Payment & Confirm Reservation
+            <button type="submit" class="btn btn-primary btn-lg" id="submitPaymentBtn" style="width:100%; display:flex; justify-content:center; align-items:center; gap:8px;">
+                <span>Authorize Payment &amp; Confirm Reservation</span>
+                <span class="material-symbols-outlined" style="font-size:20px;">arrow_forward</span>
             </button>
         </form>
     </div>
@@ -248,19 +260,18 @@
             if (data.valid) {
                 currentDiscount = data.discount;
                 document.getElementById('appliedPromoCodeHidden').value = data.code;
-                msgEl.innerText = data.message;
-                msgEl.style.color = '#10b981';
-                updatePricingDisplay();
+                msgEl.innerText = 'Coupon ' + data.code + ' applied successfully! Saved ₹' + data.discount;
+                msgEl.style.color = '#15803d';
             } else {
                 currentDiscount = 0;
                 document.getElementById('appliedPromoCodeHidden').value = '';
-                msgEl.innerText = data.message;
+                msgEl.innerText = data.message || 'Invalid or expired coupon code.';
                 msgEl.style.color = '#ef4444';
-                updatePricingDisplay();
             }
+            updatePricingDisplay();
         })
         .catch(function(err) {
-            msgEl.innerText = 'Error validating coupon code.';
+            msgEl.innerText = 'Error validating coupon.';
             msgEl.style.color = '#ef4444';
         });
     }
@@ -270,18 +281,29 @@
         applyCouponCode();
     }
     
-    function selectPaymentTab(type, btn) {
-        document.querySelectorAll('.payment-tab-btn').forEach(function(b) { b.classList.remove('active'); });
-        btn.classList.add('active');
+    function selectPaymentTab(tab, btn) {
+        document.querySelectorAll('.payment-panel').forEach(function(el) {
+            el.style.display = 'none';
+        });
+        document.querySelectorAll('.payment-tab-btn').forEach(function(el) {
+            el.classList.remove('active', 'btn-primary');
+            el.classList.add('btn-outline');
+        });
         
-        document.querySelectorAll('.payment-panel').forEach(function(p) { p.style.display = 'none'; });
-        document.getElementById('tab-' + type).style.display = 'block';
+        var targetPanel = document.getElementById('tab-' + tab);
+        if (targetPanel) {
+            targetPanel.style.display = 'block';
+        }
+        btn.classList.remove('btn-outline');
+        btn.classList.add('active', 'btn-primary');
         
-        var methodInput = document.getElementById('selectedPaymentMethod');
-        if (type === 'wallet') methodInput.value = 'Roamly Wallet';
-        else if (type === 'card') methodInput.value = 'Credit / Debit Card (Stripe)';
-        else if (type === 'upi') methodInput.value = 'UPI / QR (Razorpay)';
-        else if (type === 'netbanking') methodInput.value = 'Net Banking';
+        var methodMapping = {
+            'wallet': 'Roamly Wallet',
+            'card': 'Credit / Debit Card (Stripe)',
+            'upi': 'UPI QR (Razorpay)',
+            'netbanking': 'Net Banking'
+        };
+        document.getElementById('selectedPaymentMethod').value = methodMapping[tab] || 'Roamly Wallet';
     }
 </script>
 {% endblock %}

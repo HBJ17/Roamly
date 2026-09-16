@@ -1,232 +1,142 @@
 {% extends 'base.html' %}
 
-{% block title %}Agency Partner Dashboard - {{ agency['name'] }}{% endblock %}
+{% block title %}Agency Partner Console - {{ agency['name'] }}{% endblock %}
 
 {% block content %}
 <div class="admin-dashboard-wrapper">
-    <!-- Agency Top Navigation Bar -->
-    <div class="admin-portal-header">
-        <div>
-            <span class="category-tag">{{ agency['agency_type'] }} Partner</span>
-            <h2>{{ agency['name'] }}</h2>
-            <p class="admin-welcome-text">Logged in as <code>{{ agency['username'] }}</code> • {{ agency['email'] }} • {{ agency['phone'] or 'Support' }}</p>
-        </div>
-        <div class="admin-nav-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-            <a href="{{ url_for('agency.dashboard') }}" class="btn btn-primary btn-sm">Overview</a>
-            <a href="{{ url_for('agency.manage_packages') }}" class="btn btn-outline btn-sm">Catalog & Pricing</a>
-            <a href="/agency/payouts" class="btn btn-outline btn-sm">Payouts</a>
-            <a href="/agency/reviews" class="btn btn-outline btn-sm">Guest Reviews</a>
-            <a href="/agency/messages" class="btn btn-outline btn-sm">Guest Inbox</a>
-            <a href="{{ url_for('agency.add_package') }}" class="btn btn-accent btn-sm">+ Add Package</a>
-            <a href="{{ url_for('agency.logout') }}" class="btn btn-sm nav-logout">Logout</a>
+    <!-- Agency Top Navigation Bar (Doodle Expedition Dossier) -->
+    <div class="card" style="padding:22px; margin-bottom:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div>
+                <div style="display:inline-flex; align-items:center; gap:6px; margin-bottom:6px;">
+                    <span class="badge badge-yellow">{{ agency['agency_type'] }} Partner</span>
+                    <span class="badge badge-mint">VERIFIED DISPATCHER</span>
+                </div>
+                <h2 style="margin:0; font-size:24px; font-weight:800; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">{{ agency['name'] }}</h2>
+                <p style="color:var(--text-secondary); font-size:13px; margin:4px 0 0; font-family:'Space Grotesk',sans-serif;">
+                    LOGGED IN: <code>{{ agency['username'] }}</code> &bull; {{ agency['email'] }} &bull; {{ agency['phone'] or 'Verified Agency' }}
+                </p>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <a href="{{ url_for('agency.dashboard') }}" class="btn btn-primary btn-sm">Overview</a>
+                <a href="{{ url_for('agency.manage_packages') }}" class="btn btn-outline btn-sm">Catalog &amp; Pricing</a>
+                <a href="/agency/payouts" class="btn btn-outline btn-sm">Payouts</a>
+                <a href="/agency/reviews" class="btn btn-outline btn-sm">Guest Reviews</a>
+                <a href="/agency/messages" class="btn btn-outline btn-sm">Guest Inbox</a>
+                <a href="{{ url_for('agency.add_package') }}" class="btn btn-yellow btn-sm">+ Add Package</a>
+                <a href="{{ url_for('agency.logout') }}" class="btn btn-outline btn-sm">Logout</a>
+            </div>
         </div>
     </div>
 
     <!-- Agency KPI Cards -->
-    <div class="overview-grid mt-25">
+    <div class="overview-grid">
         <div class="stat-card">
-            <div class="stat-info">
-                <span class="kpi-label">Packages Listed</span>
-                <h3 class="kpi-val">{{ pkg_count }}</h3>
-                <p class="kpi-sub">Active Holiday Plans</p>
-            </div>
+            <div class="stat-card-label">PACKAGES LISTED</div>
+            <div class="stat-card-val">{{ pkg_count }}</div>
+            <div class="stat-card-change">Active Tour Plans</div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-info">
-                <span class="kpi-label">Hotels / Properties</span>
-                <h3 class="kpi-val">{{ hotel_count }}</h3>
-                <p class="kpi-sub">Managed Stays</p>
-            </div>
+            <div class="stat-card-label">HOTELS &amp; PROPERTIES</div>
+            <div class="stat-card-val">{{ hotel_count }}</div>
+            <div class="stat-card-change">Managed Stays</div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-info">
-                <span class="kpi-label">Transport Services</span>
-                <h3 class="kpi-val">{{ transport_count }}</h3>
-                <p class="kpi-sub">Fleet & Routes</p>
-            </div>
+            <div class="stat-card-label">TRANSPORT FLEET</div>
+            <div class="stat-card-val">{{ transport_count }}</div>
+            <div class="stat-card-change">Active Routes</div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-info">
-                <span class="kpi-label">Total Agency Earnings</span>
-                <h3 class="kpi-val text-accent">₹{{ "{:,.2f}".format(total_earnings) }}</h3>
-                <p class="kpi-sub">{{ total_orders }} Customer Orders Handled</p>
-            </div>
+            <div class="stat-card-label">TOTAL AGENCY EARNINGS</div>
+            <div class="stat-card-val" style="color:#15803d;">₹{{ "{:,.2f}".format(total_earnings) }}</div>
+            <div class="stat-card-change">{{ total_orders }} Customer Orders Handled</div>
         </div>
     </div>
 
     <!-- Quick Action / Add Service Section -->
-    <div class="admin-analytics-grid mt-25">
-        <!-- Add Hotel Quick Modal/Form for Hotel Owners -->
+    <div class="grid-2" style="margin-top:24px;">
+        <!-- Add Hotel Quick Form for Hotel Owners -->
         {% if agency['agency_type'] in ['Hotel Owner', 'Travel Brand'] %}
-        <div class="card flex-1">
-            <h3>+ Register New Hotel Property</h3>
-            <p class="section-desc">Add a resort, hotel, or hill villa stay under your agency banner.</p>
+        <div class="card" style="padding:22px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:16px;">
+                <h3 style="margin:0; font-size:18px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Register Hotel Property</h3>
+                <span class="badge badge-yellow">LODGING</span>
+            </div>
+            <p class="section-desc" style="margin-bottom:20px;">Add a resort, hotel, or hill villa stay under your agency banner.</p>
 
-            <form action="{{ url_for('agency.add_hotel') }}" method="POST" class="form">
-                <div class="form-group">
-                    <label for="hotel_name">Property Name *</label>
-                    <input type="text" id="hotel_name" name="name" placeholder="e.g. Nilgiri Tea Estate Villa" required>
+            <form action="{{ url_for('agency.add_hotel') }}" method="POST">
+                <div class="form-group mb-15">
+                    <label class="form-label" for="hotel_name">Property Name *</label>
+                    <input type="text" id="hotel_name" name="name" class="form-control" placeholder="e.g. Nilgiri Tea Estate Villa" required>
                 </div>
-                <div class="form-row">
-                    <div class="form-group flex-1">
-                        <label for="hotel_city">City / Destination *</label>
-                        <input type="text" id="hotel_city" name="city" placeholder="Ooty / Kodaikanal" required>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:15px;">
+                    <div class="form-group">
+                        <label class="form-label" for="hotel_city">City / Destination *</label>
+                        <input type="text" id="hotel_city" name="city" class="form-control" placeholder="Ooty / Kodaikanal" required>
                     </div>
-                    <div class="form-group flex-1">
-                        <label for="price_per_night">Nightly Rate (₹) *</label>
-                        <input type="number" id="price_per_night" name="price_per_night" placeholder="4500" required>
+                    <div class="form-group">
+                        <label class="form-label" for="price_per_night">Nightly Rate (₹) *</label>
+                        <input type="number" id="price_per_night" name="price_per_night" class="form-control" placeholder="4500" required>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="hotel_address">Address *</label>
-                    <input type="text" id="hotel_address" name="address" placeholder="Monterosa Road, Ooty" required>
+                <div class="form-group mb-15">
+                    <label class="form-label" for="hotel_address">Address *</label>
+                    <input type="text" id="hotel_address" name="address" class="form-control" placeholder="Monterosa Road, Ooty" required>
                 </div>
-                <div class="form-group">
-                    <label for="hotel_desc">Short Description</label>
-                    <textarea id="hotel_desc" name="description" rows="2" placeholder="Experience misty mountains with luxurious amenities..."></textarea>
+                <div class="form-group mb-20">
+                    <label class="form-label" for="hotel_desc">Short Description</label>
+                    <textarea id="hotel_desc" name="description" class="form-control" rows="2" placeholder="Experience misty mountains with luxurious amenities..."></textarea>
                 </div>
-                <button type="submit" class="btn btn-submit">+ Add Hotel Stay</button>
+                <button type="submit" class="btn btn-primary btn-sm">+ Register Hotel Stay</button>
             </form>
         </div>
         {% endif %}
 
         <!-- Add Transport Quick Form for Cab Services / Tour Operators -->
         {% if agency['agency_type'] in ['Cab Service', 'Tour Operator', 'Travel Brand'] %}
-        <div class="card flex-1">
-            <h3>+ Register Transport Route / Fleet</h3>
-            <p class="section-desc">Add cab rides, luxury Volvo coaches, or airport transfers.</p>
+        <div class="card" style="padding:22px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:16px;">
+                <h3 style="margin:0; font-size:18px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Register Transport Route / Fleet</h3>
+                <span class="badge badge-mint">TRANSIT</span>
+            </div>
+            <p class="section-desc" style="margin-bottom:20px;">Add cab rides, luxury Volvo coaches, or airport transfers.</p>
 
-            <form action="{{ url_for('agency.add_transport') }}" method="POST" class="form">
-                <div class="form-group">
-                    <label for="trans_title">Vehicle / Route Title *</label>
-                    <input type="text" id="trans_title" name="title" placeholder="e.g. AC Innova Crysta Private Sightseeing Cab" required>
+            <form action="{{ url_for('agency.add_transport') }}" method="POST">
+                <div class="form-group mb-15">
+                    <label class="form-label" for="trans_title">Vehicle / Route Title *</label>
+                    <input type="text" id="trans_title" name="title" class="form-control" placeholder="e.g. AC Innova Crysta Private Sightseeing Cab" required>
                 </div>
-                <div class="form-row">
-                    <div class="form-group flex-1">
-                        <label for="trans_type">Type</label>
-                        <select id="trans_type" name="transport_type">
-                            <option value="Cab">Private Cab</option>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:15px;">
+                    <div class="form-group">
+                        <label class="form-label" for="trans_type">Transit Mode *</label>
+                        <select id="trans_type" name="transport_type" class="form-control" required>
+                            <option value="Cab">Private AC Cab</option>
                             <option value="Bus">Luxury Volvo Bus</option>
-                            <option value="Train">Scenic Train</option>
-                            <option value="Flight">Flight</option>
+                            <option value="Train">Mountain Train</option>
+                            <option value="Flight">Regional Express</option>
                         </select>
                     </div>
-                    <div class="form-group flex-1">
-                        <label for="trans_price">Fare (₹) *</label>
-                        <input type="number" id="trans_price" name="price" placeholder="3500" required>
+                    <div class="form-group">
+                        <label class="form-label" for="trans_price">Price per Seat (₹) *</label>
+                        <input type="number" id="trans_price" name="price" class="form-control" placeholder="1800" required>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group flex-1">
-                        <label for="source_city">Origin City *</label>
-                        <input type="text" id="source_city" name="source_city" placeholder="Coimbatore" required>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:15px;">
+                    <div class="form-group">
+                        <label class="form-label" for="trans_source">Origin City *</label>
+                        <input type="text" id="trans_source" name="source_city" class="form-control" placeholder="Coimbatore" required>
                     </div>
-                    <div class="form-group flex-1">
-                        <label for="dest_city">Destination City *</label>
-                        <input type="text" id="dest_city" name="destination_city" placeholder="Ooty" required>
+                    <div class="form-group">
+                        <label class="form-label" for="trans_dest">Destination City *</label>
+                        <input type="text" id="trans_dest" name="destination_city" class="form-control" placeholder="Ooty" required>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-submit">+ Add Transport Route</button>
+                <button type="submit" class="btn btn-primary btn-sm">+ Register Transport Fleet</button>
             </form>
         </div>
-        {% endif %}
-    </div>
-
-    <!-- Agency Managed Packages Table -->
-    <div class="card mt-25">
-        <div class="card-header-flex">
-            <div>
-                <h3>Holiday Packages & Tour Plans ({{ my_packages|length }})</h3>
-                <p class="section-desc">Manage package itineraries and set custom pricing.</p>
-            </div>
-            <a href="{{ url_for('agency.add_package') }}" class="btn btn-primary-inline">+ Add New Package</a>
-        </div>
-
-        {% if my_packages %}
-        <div class="table-responsive">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Package Title</th>
-                        <th>Destination</th>
-                        <th>Category</th>
-                        <th>Duration</th>
-                        <th>Price (₹)</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in my_packages %}
-                    <tr>
-                        <td>
-                            <strong>{{ p['title'] }}</strong>
-                        </td>
-                        <td>{{ p['destination'] }}</td>
-                        <td><span class="category-tag">{{ p['category'] }}</span></td>
-                        <td>{{ p['duration_days'] }}D / {{ p['duration_nights'] }}N</td>
-                        <td><strong class="text-accent">₹{{ "{:,.2f}".format(p['price']) }}</strong></td>
-                        <td>
-                            <a href="{{ url_for('agency.edit_package', package_id=p['id']) }}" class="btn-link">Edit / Price</a>
-                            <span class="text-muted">•</span>
-                            <form action="{{ url_for('agency.delete_package', package_id=p['id']) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this package?');">
-                                <button type="submit" class="btn-text-danger">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div class="dashboard-empty">
-            <h3>No Packages Listed Yet</h3>
-            <p>List holiday packages and set pricing so travelers across Tamil Nadu can discover your offerings.</p>
-            <a href="{{ url_for('agency.add_package') }}" class="btn btn-primary-inline mt-15">+ Create First Package Plan</a>
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- Agency Customer Orders Table -->
-    <div class="card mt-25">
-        <h3>Recent Customer Bookings for Your Listings</h3>
-        <p class="section-desc">Orders and customer reservations placed for your inventory.</p>
-
-        {% if bookings %}
-        <div class="table-responsive">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Booking Ref</th>
-                        <th>Customer</th>
-                        <th>Service Booked</th>
-                        <th>Date</th>
-                        <th>Travelers</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for b in bookings %}
-                    <tr>
-                        <td><strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong></td>
-                        <td>{{ b['username'] }}<br><small class="text-muted">{{ b['contact_phone'] or 'No phone' }}</small></td>
-                        <td><strong>{{ b['item_title'] }}</strong></td>
-                        <td>{{ b['travel_date'] }}</td>
-                        <td>{{ b['num_travelers'] }}</td>
-                        <td><strong class="text-accent">₹{{ "{:,.2f}".format(b['total_price']) }}</strong></td>
-                        <td><span class="status-pill status-{{ b['status']|lower }}">{{ b['status'] }}</span></td>
-                        <td><a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}" class="btn-link">Voucher</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <p class="text-muted">No customer bookings received yet for your listings.</p>
         {% endif %}
     </div>
 </div>

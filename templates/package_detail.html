@@ -4,115 +4,159 @@
 
 {% block content %}
 <div class="package-detail-container">
-    <div class="breadcrumb-bar">
-        <a href="{{ url_for('packages.packages') }}" class="btn-breadcrumb">Back to Packages</a>
-        <div class="breadcrumb-right">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <a href="{{ url_for('packages.packages') }}" class="btn btn-outline btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span>
+            <span>Back to Packages</span>
+        </a>
+        <div style="display:flex; gap:8px;">
             {% if session.get('user_id') %}
             <form action="{{ url_for('dashboard.toggle_favorite', item_type='package', item_id=package['id']) }}" method="POST" style="display:inline;">
-                <button type="submit" class="btn btn-wishlist {% if is_saved %}saved{% endif %}">
-                    {% if is_saved %}In Saved Wishlist{% else %}Save Destination{% endif %}
+                <button type="submit" class="btn btn-yellow btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+                    <span class="material-symbols-outlined" style="font-size:16px;">favorite</span>
+                    <span>{% if is_saved %}Saved in Wishlist{% else %}Save Destination{% endif %}</span>
                 </button>
             </form>
             {% endif %}
+            <form action="{{ url_for('packages.compare_toggle', package_id=package['id']) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-outline btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+                    <span class="material-symbols-outlined" style="font-size:16px;">compare_arrows</span>
+                    <span>{% if is_in_compare %}In Comparison{% else %}Add to Compare{% endif %}</span>
+                </button>
+            </form>
         </div>
     </div>
 
-    <div class="package-detail-layout">
-        <!-- Main Details Column -->
+    <div class="package-detail-layout" style="display:grid; grid-template-columns: 2fr 1fr; gap:28px;">
+        <!-- Main Details Column (Master Comic Panel) -->
         <div class="detail-main">
-            <div class="detail-header-card">
-                <div class="detail-header-top">
-                    <span class="category-badge">{{ package['category'] }}</span>
-                    {% if package['agency_name'] %}
-                        <span class="agency-badge">Posted by {{ package['agency_name'] }}</span>
-                    {% endif %}
-                    <span class="rating-badge">Rating: {{ package['rating'] }} / 5.0</span>
+            <div class="card" style="padding:0; overflow:hidden;">
+                <!-- Panel Header Bar -->
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:2px solid #000; background:var(--pastel-yellow-warm);">
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span class="badge badge-yellow">{{ package['category'] }}</span>
+                        {% if package['agency_name'] %}
+                            <span class="badge badge-mint">Curated by {{ package['agency_name'] }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="badge badge-blue">
+                        <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">star</span> Rating: {{ package['rating'] }} / 5.0
+                    </span>
                 </div>
-                <h2>{{ package['title'] }}</h2>
-                <p class="detail-location"><strong>Destination:</strong> {{ package['destination'] }}</p>
-                <p class="detail-duration"><strong>Duration:</strong> {{ package['duration_days'] }} Days / {{ package['duration_nights'] }} Nights</p>
-            </div>
 
-            {% if package['image_url'] %}
-            <div class="detail-hero-image-wrap mt-20">
-                <img src="{{ package['image_url'] }}" alt="{{ package['title'] }}" class="detail-hero-image">
-            </div>
-            {% endif %}
+                <div style="padding:24px;">
+                    <h2 style="font-size:30px; font-weight:800; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; margin-bottom:12px; color:var(--text-primary);">{{ package['title'] }}</h2>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
+                        <span class="travel-tag" style="background:var(--pastel-blue-light); border:1.5px solid #000;">
+                            <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">pin_drop</span> {{ package['destination'] }}
+                        </span>
+                        <span class="travel-tag" style="background:var(--pastel-peach-light); border:1.5px solid #000;">
+                            <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">schedule</span> {{ package['duration_days'] }} Days / {{ package['duration_nights'] }} Nights
+                        </span>
+                        <span class="badge badge-mint">
+                            <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">verified</span> Instant Confirmation
+                        </span>
+                    </div>
 
-            <div class="card mt-20">
-                <h3>About This Experience</h3>
-                <p class="detail-description">{{ package['description'] }}</p>
-            </div>
+                    {% if package['image_url'] %}
+                    <div style="border:2px solid #000; box-shadow:4px 4px 0px #000; border-radius:4px; overflow:hidden; height:380px; width:100%; margin-bottom:24px; position:relative;">
+                        <img src="{{ package['image_url'] }}" alt="{{ package['title'] }}" style="width:100%; height:100%; object-fit:cover;">
+                        <div class="stamp-box" style="position:absolute; bottom:14px; right:14px; background:var(--pastel-yellow); transform:rotate(-3deg); padding:4px 10px;">
+                            <div style="font-size:9px; font-weight:800;">EXPEDITION SEAL</div>
+                            <div style="font-size:11px; font-weight:700;">OFFICIAL ROUTE</div>
+                        </div>
+                    </div>
+                    {% endif %}
 
-            <div class="card mt-20">
-                <h3>Key Sightseeing & Itinerary Highlights</h3>
-                <ul class="highlights-list">
-                    {% for hl in (package['highlights'] or '').split(',') %}
-                        {% if hl.strip() %}<li><span class="bullet">•</span> {{ hl.strip() }}</li>{% endif %}
-                    {% endfor %}
-                </ul>
-            </div>
+                    <h3 style="margin-bottom:8px; font-size:18px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">About This Experience</h3>
+                    <p style="color:var(--text-secondary); font-size:15px; line-height:1.7; margin-bottom:24px;">{{ package['description'] }}</p>
 
-            {% if package['food_highlights'] %}
-            <div class="card mt-20">
-                <h3>Culinary & Dining Inclusions</h3>
-                <p class="dining-desc">{{ package['food_highlights'] }}</p>
-            </div>
-            {% endif %}
+                    <!-- Sightseeing Highlights (Comic Notes) -->
+                    <div style="background:var(--pastel-yellow-light); border:2px solid #000; box-shadow:3px 3px 0px #000; border-radius:4px; padding:20px; margin-bottom:24px;">
+                        <h4 style="margin-bottom:12px; font-size:16px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; display:flex; align-items:center; gap:6px;">
+                            <span class="material-symbols-outlined" style="font-size:18px;">draw</span> Key Sightseeing Highlights
+                        </h4>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:10px;">
+                            {% for hl in (package['highlights'] or '').split(',') %}
+                                {% if hl.strip() %}
+                                <div style="display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600; color:var(--text-primary); font-family:'Space Grotesk',sans-serif;">
+                                    <span class="material-symbols-outlined" style="font-size:16px; color:#000;">check_circle</span> {{ hl.strip() }}
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
 
-            <div class="card mt-20">
-                <h3>Included Amenities & Services</h3>
-                <ul class="amenities-list">
-                    {% for item in (package['included_amenities'] or '').split(',') %}
-                        {% if item.strip() %}<li><span class="bullet">•</span> {{ item.strip() }}</li>{% endif %}
-                    {% endfor %}
-                </ul>
-            </div>
+                    {% if package['food_highlights'] %}
+                    <div style="background:var(--pastel-peach-light); border:2px solid #000; box-shadow:3px 3px 0px #000; border-radius:4px; padding:18px; margin-bottom:24px;">
+                        <h4 style="color:#000; margin-bottom:6px; font-size:15px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; display:flex; align-items:center; gap:6px;">
+                            <span class="material-symbols-outlined" style="font-size:18px;">restaurant_menu</span> Dining &amp; Culinary Inclusions
+                        </h4>
+                        <p style="color:var(--text-primary); font-size:14px; margin:0;">{{ package['food_highlights'] }}</p>
+                    </div>
+                    {% endif %}
 
-            <!-- Geolocation & Route Map -->
-            {% include 'components/map.html' %}
+                    <!-- Included Amenities -->
+                    <div style="margin-bottom:24px;">
+                        <h4 style="margin-bottom:10px; font-size:16px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Included Services &amp; Amenities</h4>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            {% for item in (package['included_amenities'] or '').split(',') %}
+                                {% if item.strip() %}
+                                <span class="travel-tag" style="background:var(--pastel-mint-light); border:1.5px solid #000; font-size:12px; padding:4px 10px;">
+                                    {{ item.strip() }}
+                                </span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Geolocation & Route Map -->
+                    {% include 'components/map.html' %}
+                </div>
+            </div>
 
             <!-- Reviews & Ratings Section -->
-            <div class="card mt-20 reviews-card">
-                <div class="reviews-header-flex">
+            <div class="card mt-25" style="padding:24px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px;">
                     <div>
-                        <h3>Guest Reviews & Ratings</h3>
+                        <div class="badge badge-yellow" style="margin-bottom:6px;">VOYAGER DISPATCHES</div>
+                        <h3 style="margin-bottom:3px; font-size:20px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Customer Reviews &amp; Ratings</h3>
                         <p class="section-desc">Verified feedback from travelers who booked this itinerary.</p>
                     </div>
-                    <div class="overall-rating-badge">
-                        <span class="score">{{ reviews_data['average_rating'] }}</span>
-                        <span class="out-of">/ 5.0</span>
-                        <small class="total-reviews">({{ reviews_data['total_count'] }} Reviews)</small>
+                    <div style="text-align:right;">
+                        <span style="font-size:32px; font-weight:800; color:#000; font-family:'Space Grotesk',sans-serif;">{{ reviews_data['average_rating'] }}</span>
+                        <span style="color:var(--text-secondary); font-size:14px; font-weight:700;">/ 5.0</span>
+                        <div style="font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">({{ reviews_data['total_count'] }} Reviews)</div>
                     </div>
                 </div>
 
                 <!-- Star Breakdown Bars -->
-                <div class="rating-breakdown-grid mt-15">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:24px;">
                     {% for star in [5, 4, 3, 2, 1] %}
-                    <div class="breakdown-row">
-                        <span class="star-label">{{ star }} Stars</span>
-                        <div class="progress-bar-wrap">
+                    <div style="display:flex; align-items:center; gap:12px; font-size:13px; font-family:'Space Grotesk',sans-serif; font-weight:600;">
+                        <span style="width:60px;">{{ star }} Stars</span>
+                        <div class="progress-bar-wrap" style="flex:1;">
                             <div class="progress-bar-fill" style="width: {{ reviews_data['breakdown_pct'][star] }}%;"></div>
                         </div>
-                        <span class="star-count">{{ reviews_data['breakdown'][star] }}</span>
+                        <span style="width:35px; text-align:right; color:var(--text-secondary);">{{ reviews_data['breakdown'][star] }}</span>
                     </div>
                     {% endfor %}
                 </div>
 
-                <hr class="divider mt-20">
-
                 <!-- Leave a Review Form -->
                 {% if session.get('user_id') %}
-                <div class="add-review-section mt-20">
-                    <h4>Share Your Experience</h4>
-                    <form action="{{ url_for('reviews.add_review') }}" method="POST" class="review-form mt-10">
+                <div style="background:var(--pastel-yellow-light); border:2px solid #000; box-shadow:3px 3px 0px #000; border-radius:4px; padding:20px; margin-top:18px;">
+                    <h4 style="margin-bottom:12px; font-size:16px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; display:flex; align-items:center; gap:6px;">
+                        <span class="material-symbols-outlined" style="font-size:18px;">rate_review</span> Stamp a Review
+                    </h4>
+                    <form action="{{ url_for('reviews.add_review') }}" method="POST">
                         <input type="hidden" name="item_type" value="package">
                         <input type="hidden" name="item_id" value="{{ package['id'] }}">
 
-                        <div class="form-row">
-                            <div class="form-group flex-1">
-                                <label for="rating">Star Rating *</label>
-                                <select id="rating" name="rating" required>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+                            <div class="form-group">
+                                <label class="form-label">Rating *</label>
+                                <select name="rating" class="form-control" required>
                                     <option value="5" selected>5 Stars - Exceptional</option>
                                     <option value="4">4 Stars - Very Good</option>
                                     <option value="3">3 Stars - Average</option>
@@ -120,119 +164,128 @@
                                     <option value="1">1 Star - Terrible</option>
                                 </select>
                             </div>
-                            <div class="form-group flex-1">
-                                <label for="travel_type">Travel Type</label>
-                                <select id="travel_type" name="travel_type">
+                            <div class="form-group">
+                                <label class="form-label">Travel Style</label>
+                                <select name="travel_type" class="form-control">
                                     <option value="Family" selected>Family Vacation</option>
-                                    <option value="Couple">Couple / Honeymoon</option>
+                                    <option value="Couple">Couple</option>
                                     <option value="Solo">Solo Traveler</option>
                                     <option value="Friends">Group of Friends</option>
-                                    <option value="Business">Business / Leisure</option>
+                                    <option value="Business">Business</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="title">Review Headline *</label>
-                            <input type="text" id="title" name="title" placeholder="e.g. Unforgettable Ooty Toy Train and Tea Estate Tour!" required>
+                        <div class="form-group mb-10">
+                            <label class="form-label">Review Headline *</label>
+                            <input type="text" name="title" class="form-control" placeholder="e.g. Unforgettable tea estate trails and heritage food" required>
                         </div>
 
-                        <div class="form-group">
-                            <label for="comment">Detailed Feedback *</label>
-                            <textarea id="comment" name="comment" rows="3" placeholder="Share specific details about accommodation, driver punctuality, sightseeing, and dining..." required></textarea>
+                        <div class="form-group mb-15">
+                            <label class="form-label">Review Feedback *</label>
+                            <textarea name="comment" class="form-control" rows="3" placeholder="Share your experience regarding itinerary flow, transport punctuality, guide support..." required></textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-submit">Submit Verified Review</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Submit Review</button>
                     </form>
-                </div>
-                {% else %}
-                <div class="review-login-prompt mt-15">
-                    <p><a href="{{ url_for('auth.login') }}">Log in</a> to submit a verified traveler review for this package.</p>
                 </div>
                 {% endif %}
 
                 <!-- Existing Reviews List -->
-                <div class="reviews-feed mt-25">
+                <div style="display:flex; flex-direction:column; gap:14px; margin-top:24px;">
                     {% if reviews_data['reviews'] %}
                         {% for r in reviews_data['reviews'] %}
-                        <div class="review-item-card">
-                            <div class="review-item-header">
-                                <div>
-                                    <strong>{{ r['full_name'] or r['username'] }}</strong>
-                                    <span class="verified-tag">Verified Traveler</span>
-                                    <span class="travel-type-tag">{{ r['travel_type'] }}</span>
+                        <div style="background:var(--surface-container-lowest); border:2px solid #000; box-shadow:3px 3px 0px #000; border-radius:4px; padding:16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <strong style="font-family:'Space Grotesk',sans-serif;">{{ r['full_name'] or r['username'] }}</strong>
+                                    <span class="badge badge-mint" style="font-size:10px;">Verified Voyager</span>
                                 </div>
-                                <div class="review-stars-pill">
-                                    Rating: {{ r['rating'] }}/5
-                                </div>
+                                <span class="badge badge-yellow">Rating: {{ r['rating'] }}/5</span>
                             </div>
-                            <h5 class="review-title mt-5">{{ r['title'] }}</h5>
-                            <p class="review-body">{{ r['comment'] }}</p>
-                            <small class="review-date text-muted">Reviewed on {{ r['created_at']|format_date }}</small>
+                            <h5 style="font-size:15px; font-weight:700; font-family:'Space Grotesk',sans-serif; margin-bottom:4px;">{{ r['title'] }}</h5>
+                            <p style="font-size:13.5px; color:var(--text-secondary); line-height:1.5; margin-bottom:6px;">{{ r['comment'] }}</p>
+                            <small style="color:var(--text-muted); font-size:11.5px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Reviewed on {{ r['created_at']|format_date }}</small>
                         </div>
                         {% endfor %}
                     {% else %}
-                        <p class="text-muted mt-10">No customer reviews yet. Be the first to review this holiday package!</p>
+                        <p style="color:var(--text-muted); text-align:center; padding:16px; font-family:'Space Grotesk',sans-serif;">No reviews yet. Be the first explorer to review!</p>
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        <!-- Booking Sidebar Column -->
-        <div class="detail-sidebar">
-            <div class="booking-card">
-                <div class="price-box">
-                    <span class="price-tag">₹{{ "{:,.0f}".format(package['price']) }}</span>
-                    <span class="price-sub">/ traveler</span>
+        <!-- Booking Sidebar Column (Boarding Pass) -->
+        <div>
+            <div class="boarding-card" style="position:sticky; top:80px;">
+                <div class="boarding-card-header">
+                    <div>
+                        <small style="text-transform:uppercase; letter-spacing:0.08em; opacity:0.85; font-size:11px; font-family:'Space Grotesk',sans-serif;">Expedition Fare / Person</small>
+                        <div style="font-size:28px; font-weight:800; font-family:'Space Grotesk',sans-serif; color:#000;">
+                            {{ package['price']|currency }}
+                        </div>
+                    </div>
+                    <span class="badge badge-mint" style="font-size:11px;">Best Value</span>
                 </div>
 
-                {% if session.get('user_id') %}
-                <form action="{{ url_for('payments.checkout', booking_type='package', item_id=package['id']) }}" method="GET" class="booking-form">
-                    <div class="form-group">
-                        <label for="travel_date">Select Travel Date *</label>
-                        <input type="date" id="travel_date" name="travel_date" required min="2026-08-15" value="2026-09-10">
-                    </div>
+                <div class="boarding-card-body">
+                    {% if session.get('user_id') %}
+                    <form action="{{ url_for('payments.checkout', booking_type='package', item_id=package['id']) }}" method="GET">
+                        <div class="form-group mb-15">
+                            <label class="form-label">Departure Date *</label>
+                            <input type="date" id="travel_date" name="travel_date" class="form-control" required>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="num_travelers">Number of Travelers *</label>
-                        <select id="num_travelers" name="num_travelers" required onchange="updateTotalPrice(this.value, {{ package['price'] }})">
-                            <option value="1">1 Person</option>
-                            <option value="2" selected>2 Persons</option>
-                            <option value="3">3 Persons</option>
-                            <option value="4">4 Persons</option>
-                            <option value="5">5+ Group</option>
-                        </select>
-                    </div>
+                        <div class="form-group mb-15">
+                            <label class="form-label">Number of Explorers *</label>
+                            <select name="num_travelers" id="num_travelers" class="form-control" required onchange="calculatePackagePrice({{ package['price'] }})">
+                                <option value="1">1 Explorer (Solo)</option>
+                                <option value="2" selected>2 Explorers (Duo)</option>
+                                <option value="3">3 Explorers</option>
+                                <option value="4">4 Explorers (Squad)</option>
+                                <option value="5">5+ Explorers (Group)</option>
+                            </select>
+                        </div>
 
-                    <div class="total-calc-box">
-                        <span>Total Estimated Cost:</span>
-                        <strong id="total_price_display">₹{{ "{:,.0f}".format(package['price'] * 2) }}</strong>
-                    </div>
+                        <div style="background:var(--pastel-yellow-light); border:2px solid #000; box-shadow:2px 2px 0px #000; border-radius:4px; padding:14px; margin-bottom:18px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; font-size:13.5px; margin-bottom:4px;">
+                                <span style="font-family:'Space Grotesk',sans-serif; font-weight:600; text-transform:uppercase;">Total (<span id="travelers_display">2</span> Explorers):</span>
+                                <strong id="total_price_display" style="font-size:18px; font-family:'Space Grotesk',sans-serif; color:#000;">₹{{ "{:,.0f}".format(package['price'] * 2) }}</strong>
+                            </div>
+                            <small style="color:var(--text-secondary); font-size:11px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Includes all local permits, transfers &amp; stays</small>
+                        </div>
 
-                    <button type="submit" class="btn btn-book-now">Proceed to Secure Checkout</button>
-                </form>
-                {% else %}
-                <div class="login-prompt-box">
-                    <p>Log in to book this Tamil Nadu package, review travel vouchers, and track your trip timeline.</p>
-                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary-inline mt-10">Log In to Book</a>
+                        <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:15px; display:flex; justify-content:center; align-items:center; gap:6px;">
+                            <span>Stamp &amp; Book Expedition</span>
+                            <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+                        </button>
+                    </form>
+                    {% else %}
+                    <div style="text-align:center; padding:15px 0;">
+                        <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:15px;">Please log in to book this expedition.</p>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="width:100%;">Log In to Book</a>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-
-                <hr class="divider">
-
-                <form action="{{ url_for('packages.compare_toggle', package_id=package['id']) }}" method="POST">
-                    <button type="submit" class="btn btn-secondary-inline block-btn {% if is_in_compare %}active{% endif %}">
-                        {% if is_in_compare %}In Comparison List (Remove){% else %}Add to Compare{% endif %}
-                    </button>
-                </form>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-function updateTotalPrice(travelers, unitPrice) {
-    const total = parseInt(travelers) * parseFloat(unitPrice);
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    const travelDateInput = document.getElementById('travel_date');
+    if (travelDateInput) {
+        travelDateInput.min = today;
+        travelDateInput.value = today;
+    }
+});
+
+function calculatePackagePrice(basePrice) {
+    const num = parseInt(document.getElementById('num_travelers').value) || 1;
+    document.getElementById('travelers_display').innerText = num;
+    const total = num * basePrice;
     document.getElementById('total_price_display').innerText = '₹' + total.toLocaleString('en-IN');
 }
 </script>

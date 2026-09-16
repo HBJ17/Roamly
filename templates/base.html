@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Roamly - Luxury Travel & Destination Platform{% endblock %}</title>
+    <title>{% block title %}ROAMLY — The Doodle Expedition Co.{% endblock %}</title>
     
     <!-- PWA Manifest & Meta -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <meta name="theme-color" content="#0b192c">
+    <meta name="theme-color" content="#fef08a">
     
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Space Grotesk, Plus Jakarta Sans & Permanent Marker -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
     <!-- Leaflet Maps CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -23,94 +26,116 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <header>
-        <div class="header-brand">
-            <a href="{{ url_for('packages.packages') if session.get('user_id') else url_for('auth.home') }}" class="logo-link">
-                <h1>Roamly</h1>
-                <span class="logo-badge">Travel Pro</span>
-            </a>
-        </div>
-        <nav class="nav-menu">
-            <a href="{{ url_for('packages.packages') }}">Packages</a>
-            <a href="{{ url_for('hotels.hotels') }}">Hotels</a>
-            <a href="{{ url_for('transports.transports') }}">Transports</a>
-            <a href="/itinerary/builder" class="travel-tag-accent" style="text-decoration:none; padding: 6px 12px; border-radius: 6px;">Trip Builder</a>
-            <a href="{{ url_for('packages.compare') }}">Compare {% if compare_count > 0 %}<span class="badge">{{ compare_count }}</span>{% endif %}</a>
-            
-            {% if session.get('user_id') %}
-                <a href="/wallet">Wallet</a>
-                <a href="/messages">Messages</a>
-                <a href="{{ url_for('dashboard.saved_destinations') }}">Saved {% if saved_count > 0 %}<span class="badge">{{ saved_count }}</span>{% endif %}</a>
-                <a href="{{ url_for('payments.notifications') }}">Alerts {% if unread_notifications_count > 0 %}<span class="badge badge-accent">{{ unread_notifications_count }}</span>{% endif %}</a>
-                <a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
-                <a href="{{ url_for('auth.logout') }}" class="btn btn-sm nav-logout">Logout ({{ session.get('username') }})</a>
-            {% elif session.get('agency_id') %}
-                <a href="/agency/dashboard" class="btn btn-sm btn-outline" style="color:white; border-color:rgba(255,255,255,0.3);">Agency ({{ session.get('agency_name') }})</a>
-                <a href="/agency/payouts">Payouts</a>
-                <a href="/agency/messages">Inbox</a>
-                <a href="/agency/logout" class="btn btn-sm nav-logout">Logout</a>
-            {% elif session.get('admin_id') %}
-                <a href="/admin/dashboard" class="btn btn-sm btn-outline" style="color:white; border-color:rgba(255,255,255,0.3);">Admin Console</a>
-                <a href="/admin/commissions">Commissions</a>
-                <a href="/admin/coupons">Coupons</a>
-                <a href="/admin/logout" class="btn btn-sm nav-logout">Logout</a>
-            {% else %}
-                <a href="{{ url_for('auth.login') }}">Login</a>
-                <a href="{{ url_for('auth.signup') }}" class="btn btn-sm nav-signup">Sign Up</a>
-            {% endif %}
+    <!-- Subtle Halftone Texture Underlay -->
+    <div class="halftone-bg"></div>
 
-            <!-- Currency & Language Bar -->
-            <div class="currency-lang-bar">
-                <select class="currency-select" onchange="window.location.href='/set-currency/' + this.value">
-                    <option value="INR" {% if session.get('currency', 'INR') == 'INR' %}selected{% endif %}>INR (₹)</option>
-                    <option value="USD" {% if session.get('currency') == 'USD' %}selected{% endif %}>USD ($)</option>
-                    <option value="EUR" {% if session.get('currency') == 'EUR' %}selected{% endif %}>EUR (€)</option>
-                    <option value="GBP" {% if session.get('currency') == 'GBP' %}selected{% endif %}>GBP (£)</option>
-                    <option value="AED" {% if session.get('currency') == 'AED' %}selected{% endif %}>AED</option>
-                </select>
-                <select class="lang-select" onchange="window.location.href='/set-lang/' + this.value">
-                    <option value="en" {% if session.get('lang', 'en') == 'en' %}selected{% endif %}>EN</option>
-                    <option value="ta" {% if session.get('lang') == 'ta' %}selected{% endif %}>தமிழ்</option>
-                </select>
+    <!-- Header Navigation -->
+    <header>
+        <div class="header-inner">
+            <div class="header-brand">
+                <a href="{{ url_for('packages.packages') if session.get('user_id') else url_for('auth.home') }}" class="logo-link">
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Roamly Logo" class="brand-logo-img">
+                    <span class="brand-title-badge">ROAMLY</span>
+                </a>
+                <span class="brand-est-badge">EST. 1924</span>
             </div>
-        </nav>
+
+            <nav class="nav-menu">
+                <a href="{{ url_for('packages.packages') }}" class="nav-link">Packages</a>
+                <a href="{{ url_for('hotels.hotels') }}" class="nav-link">Hotels</a>
+                <a href="{{ url_for('transports.transports') }}" class="nav-link">Transports</a>
+                <a href="/itinerary/builder" class="nav-link">Custom Itinerary</a>
+                <a href="{{ url_for('packages.compare') }}" class="nav-link">Compare {% if compare_count > 0 %}<span class="badge badge-yellow">{{ compare_count }}</span>{% endif %}</a>
+                
+                {% if session.get('user_id') %}
+                    <a href="/wallet" class="nav-link">Wallet</a>
+                    <a href="/messages" class="nav-link">Messages</a>
+                    <a href="{{ url_for('dashboard.saved_destinations') }}" class="nav-link">Wishlist {% if saved_count > 0 %}<span class="badge badge-yellow">{{ saved_count }}</span>{% endif %}</a>
+                    <a href="{{ url_for('payments.notifications') }}" class="nav-link">Alerts {% if unread_notifications_count > 0 %}<span class="badge badge-pink">{{ unread_notifications_count }}</span>{% endif %}</a>
+                    <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-yellow btn-sm">Explorer Desk</a>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-outline btn-sm">Logout ({{ session.get('username') }})</a>
+                {% elif session.get('agency_id') %}
+                    <a href="/agency/dashboard" class="btn btn-mint btn-sm">Agency Partner ({{ session.get('agency_name') }})</a>
+                    <a href="/agency/payouts" class="nav-link">Payouts</a>
+                    <a href="/agency/messages" class="nav-link">Inbox</a>
+                    <a href="/agency/logout" class="btn btn-outline btn-sm">Logout</a>
+                {% elif session.get('admin_id') %}
+                    <a href="/admin/dashboard" class="btn btn-peach btn-sm">Central Admin</a>
+                    <a href="/admin/commissions" class="nav-link">Commissions</a>
+                    <a href="/admin/coupons" class="nav-link">Coupons</a>
+                    <a href="/admin/logout" class="btn btn-outline btn-sm">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-sm">Sign In</a>
+                    <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">Join Caravan →</a>
+                {% endif %}
+
+                <!-- Currency Bar -->
+                <div style="display:flex; gap:4px; margin-left:6px;">
+                    <select class="form-control" style="padding:4px 8px; font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; box-shadow:2px 2px 0px #000; width:auto;" onchange="window.location.href='/set-currency/' + this.value">
+                        <option value="INR" {% if session.get('currency', 'INR') == 'INR' %}selected{% endif %}>INR (₹)</option>
+                        <option value="USD" {% if session.get('currency') == 'USD' %}selected{% endif %}>USD ($)</option>
+                        <option value="EUR" {% if session.get('currency') == 'EUR' %}selected{% endif %}>EUR (€)</option>
+                        <option value="GBP" {% if session.get('currency') == 'GBP' %}selected{% endif %}>GBP (£)</option>
+                    </select>
+                </div>
+            </nav>
+        </div>
     </header>
 
-    <main class="container">
+    <div class="flashes-container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
+                    <div class="alert {% if category == 'success' %}alert-success{% elif category == 'danger' %}alert-danger{% else %}alert-warning{% endif %}">
                         {{ message }}
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
+    </div>
 
+    <main class="main-container">
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Airmail & Stamped Authentic Seal Footer -->
     <footer>
-        <div class="footer-content">
-            <p>&copy; 2026 Roamly Travel Technologies Pvt Ltd. All rights reserved.</p>
-            <div style="margin-top: 10px; display:flex; justify-content:center; gap: 15px; font-size: 13px;">
-                <a href="/itinerary/builder" style="color:#cbd5e1; text-decoration:none;">Custom Trip Builder</a>
-                <span>•</span>
-                <a href="/agency/login" style="color:#cbd5e1; text-decoration:none;">Agency Partner Portal</a>
-                <span>•</span>
-                <a href="/admin/login" style="color:#cbd5e1; text-decoration:none;">Administrator Console</a>
+        <div class="footer-inner">
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <span class="brand-title-badge" style="font-size:16px;">ROAMLY</span>
+                <span class="badge badge-mint">CERTIFIED #1924</span>
+                <p style="font-size:12.5px; color:var(--text-secondary); margin:0;">
+                    &copy; 1924–2026 Roamly Expedition Travel Co. Stamped &amp; Logged by Hand.
+                </p>
+            </div>
+
+            <div class="footer-links">
+                <a href="/packages">Destinations</a>
+                <a href="/itinerary/builder">Field Planner</a>
+                <a href="/agency/login">Partner Desk</a>
+                <a href="/admin/login">Admin Console</a>
+            </div>
+
+            <!-- Inked Stamp Graphic Seal -->
+            <div class="postal-stamp-box">
+                <div style="font-size:8px; font-weight:800; line-height:1.2; text-transform:uppercase;">
+                    SEAL OF<br/>WANDER
+                </div>
             </div>
         </div>
     </footer>
+
+    <!-- Inked Scroll & Interaction Script -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
     <!-- Service Worker Registration for PWA & Offline Access -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/static/sw.js').then(function(reg) {
-                    console.log('Roamly ServiceWorker registered:', reg.scope);
+                    console.log('Roamly ServiceWorker active');
                 }).catch(function(err) {
-                    console.log('Roamly ServiceWorker registration failed:', err);
+                    console.log('Roamly ServiceWorker notice:', err);
                 });
             });
         }

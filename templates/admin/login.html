@@ -1,33 +1,33 @@
 {% extends 'base.html' %}
 
-{% block title %}Main Admin Portal Login - Roamly{% endblock %}
+{% block title %}Central Admin Console Login - Roamly{% endblock %}
 
 {% block content %}
-<div class="auth-container">
-    <div class="auth-card admin-auth-card">
-        <div class="admin-auth-header">
-            <span class="admin-shield-badge">Central Administration</span>
-            <h2>Roamly Executive Console</h2>
-            <p class="section-desc">Sign in with superadmin credentials to access business response metrics, agency provisioning, and platform analytics.</p>
+<div class="card reveal-scroll" style="max-width: 480px; margin: 40px auto; padding:36px; border: 3px solid #000; box-shadow: 8px 8px 0px #000;">
+    <div style="text-align:center; margin-bottom:24px;">
+        <span class="badge badge-peach" style="margin-bottom:8px; transform:rotate(1.5deg);">SUPERADMIN CONSOLE</span>
+        <h2 style="font-size:24px; margin:4px 0 6px;">Executive Admin Desk</h2>
+        <p style="color:var(--text-secondary); font-size:13.5px; margin:0;">Sign in with master credentials to access platform revenue metrics, commissions, and partner provisioning.</p>
+    </div>
+
+    <form action="{{ url_for('admin.login') }}" method="POST">
+        <div class="form-group mb-15">
+            <label class="form-label" for="username">Administrator Username *</label>
+            <input type="text" id="username" name="username" class="form-control" placeholder="e.g. admin" required autofocus>
         </div>
 
-        <form action="{{ url_for('admin.login') }}" method="POST" class="auth-form">
-            <div class="form-group">
-                <label for="username">Administrator Username *</label>
-                <input type="text" id="username" name="username" placeholder="e.g. admin" required autofocus>
-            </div>
-
-            <div class="form-group">
-                <label for="password">Security Password *</label>
-                <input type="password" id="password" name="password" placeholder="Enter administrative password" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary block-btn admin-btn-login mt-20">Access Admin Dashboard</button>
-        </form>
-
-        <div class="admin-login-hint mt-20">
-            <small class="text-muted">Default Master Credentials: <code>admin</code> / <code>admin123</code></small>
+        <div class="form-group mb-20">
+            <label class="form-label" for="password">Security Password *</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Enter administrative password" required>
         </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:14px;">
+            Access Admin Control Panel →
+        </button>
+    </form>
+
+    <div style="background:var(--pastel-yellow-light); border:2px solid #000; border-radius:var(--radius-sm); padding:12px; margin-top:20px; font-size:12px; text-align:center; box-shadow:2px 2px 0px #000;">
+        <strong style="font-family:'Space Grotesk',sans-serif;">Master Credentials:</strong> <code>admin</code> / <code>admin123</code>
     </div>
 </div>
 {% endblock %}

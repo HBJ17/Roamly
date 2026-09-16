@@ -1,31 +1,38 @@
 {% extends 'base.html' %}
 
-{% block title %}Sign Up - Roamly{% endblock %}
+{% block title %}Join the Caravan - Create Explorer Account - Roamly{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 450px; margin: 50px auto;">
-    <h2>Sign Up</h2>
-    <form action="{{ url_for('signup') }}" method="POST">
-        <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" placeholder="Choose a username" required>
+<div class="card reveal-scroll" style="max-width: 480px; margin: 40px auto; padding:36px; border: 3px solid #000; box-shadow: 8px 8px 0px #000;">
+    <div style="text-align:center; margin-bottom:24px;">
+        <span class="badge badge-mint" style="margin-bottom:8px; transform:rotate(1.5deg);">NEW PASSPORT ISSUANCE</span>
+        <h2 style="font-size:24px; margin:4px 0 6px;">Join The Traveling Caravan</h2>
+        <p style="color:var(--text-secondary); font-size:13.5px; margin:0;">Create your free Roamly explorer account to earn reward stamps and book expeditions.</p>
+    </div>
+
+    <form action="{{ url_for('auth.signup') }}" method="POST">
+        <div class="form-group mb-15">
+            <label class="form-label" for="username">Choose Explorer Username</label>
+            <input type="text" id="username" name="username" class="form-control" placeholder="e.g. wanderer42" required autofocus>
         </div>
 
-        <div class="form-group">
-            <label for="email">Email Address</label>
-            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+        <div class="form-group mb-15">
+            <label class="form-label" for="email">Airmail Email Address</label>
+            <input type="email" id="email" name="email" class="form-control" placeholder="wanderer@roamly.com" required>
         </div>
 
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="Create a password" required>
+        <div class="form-group mb-20">
+            <label class="form-label" for="password">Create Security Password</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Create a secure password" required>
         </div>
 
-        <button type="submit" class="btn">Sign Up</button>
+        <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:14px;">
+            Issue Explorer Passport →
+        </button>
     </form>
 
-    <div class="auth-footer">
-        <p>Already have an account? <a href="{{ url_for('login') }}">Log In here</a></p>
+    <div style="text-align:center; margin-top:20px; font-size:13.5px;">
+        <p style="margin:0; color:var(--text-secondary);">Already hold a passport? <a href="{{ url_for('auth.login') }}" style="color:#000; font-weight:800; text-decoration:underline;">Sign In Here</a></p>
     </div>
 </div>
 {% endblock %}

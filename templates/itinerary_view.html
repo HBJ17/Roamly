@@ -1,54 +1,69 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ itinerary['title'] }} - Roamly Trip Plan{% endblock %}
+{% block title %}{{ itinerary['title'] }} - Roamly{% endblock %}
 
 {% block content %}
 <div class="package-detail-container">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <a href="/itineraries" class="btn btn-outline btn-sm">View All My Trips</a>
-        <div style="display:flex; gap:10px;">
-            <button onclick="window.print()" class="btn btn-outline btn-sm">Print Itinerary</button>
-            <a href="/bookings" class="btn btn-primary btn-sm">My Bookings</a>
+        <a href="/itineraries" class="btn btn-outline btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span>
+            <span>Back to Custom Trips</span>
+        </a>
+        <div style="display:flex; gap:8px;">
+            <button onclick="window.print()" class="btn btn-yellow btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">print</span>
+                <span>Print Dossier</span>
+            </button>
+            <a href="/dashboard" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">dashboard</span>
+                <span>Explorer Passport</span>
+            </a>
         </div>
     </div>
 
-    <!-- Hero Header -->
-    <div class="travel-hero">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+    <!-- Hero Header (Stamped Dossier) -->
+    <div class="travel-hero" style="text-align:left;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
             <div>
-                <span class="travel-tag travel-tag-accent" style="background:white; color:var(--primary); margin-bottom:10px;">Confirmed Custom Plan #ITIN-{{ itinerary['id'] }}</span>
-                <h2>{{ itinerary['title'] }}</h2>
-                <p>Destination: <strong>{{ itinerary['destination'] }}</strong> • Schedule: <strong>{{ itinerary['duration_days'] }} Days / {{ itinerary['duration_nights'] }} Nights</strong> starting on <strong>{{ itinerary['start_date'] }}</strong></p>
+                <div class="badge badge-yellow" style="margin-bottom:10px;">
+                    DOSSIER #ITIN-{{ itinerary['id'] }}
+                </div>
+                <h2 style="font-size:28px; margin-bottom:8px;">{{ itinerary['title'] }}</h2>
+                <p style="margin:0; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; font-size:13px; font-weight:600;">
+                    DESTINATION: <strong style="color:#000;">{{ itinerary['destination'] }}</strong> &bull; SCHEDULE: <strong style="color:#000;">{{ itinerary['duration_days'] }} DAYS / {{ itinerary['duration_nights'] }} NIGHTS</strong> &bull; DEPARTURE: <strong style="color:#000;">{{ itinerary['start_date'] }}</strong>
+                </p>
             </div>
-            <div style="text-align:right;">
-                <span style="font-size:13px; opacity:0.8;">Estimated Total Cost</span>
-                <div class="travel-card-price" style="font-size:30px; color:#38bdf8;">₹{{ itinerary['total_estimated_price']|int }}</div>
+            <div style="text-align:right; background:var(--pastel-yellow-warm); border:2px solid #000; box-shadow:3px 3px 0px #000; padding:12px 18px; border-radius:4px;">
+                <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.08em; font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--text-secondary); display:block;">ESTIMATED TOTAL COST</span>
+                <div class="package-price" style="font-size:26px; color:#000;">
+                    ₹{{ "{:,.0f}".format(itinerary['total_estimated_price']) }}
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Booking Components Grid -->
-    <div class="grid-2 mb-30">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:24px;">
         <!-- Transport Card -->
         <div class="boarding-card">
             <div class="boarding-card-header">
                 <div>
-                    <h4 style="color:white; margin:0;">Reserved Transit</h4>
-                    <small style="opacity:0.8;">Transit Pass</small>
+                    <h4 style="color:#000; margin:0; font-size:16px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; font-weight:800;">Transit Reservation</h4>
+                    <small style="opacity:0.85; color:var(--text-secondary); font-family:'Space Grotesk',sans-serif; font-weight:700; text-transform:uppercase; font-size:10px;">TRANSIT PASS</small>
                 </div>
-                <span class="travel-tag" style="background:white; color:var(--primary);">{{ itinerary['transport_type']|default('Private Transfer') }}</span>
+                <span class="badge badge-mint">{{ itinerary['transport_type']|default('Private Transfer') }}</span>
             </div>
-            <div class="boarding-card-body">
+            <div class="boarding-card-body" style="padding:18px;">
                 {% if itinerary['transport_title'] %}
-                    <h4>{{ itinerary['transport_title'] }}</h4>
-                    <p style="color:var(--text-muted); font-size:14px; margin-top:4px;">
+                    <h4 style="font-family:'Space Grotesk',sans-serif; text-transform:uppercase; margin-bottom:6px;">{{ itinerary['transport_title'] }}</h4>
+                    <p style="color:var(--text-secondary); font-size:13.5px; margin-top:4px;">
                         Route: <strong>{{ itinerary['source_city'] }}</strong> to <strong>{{ itinerary['destination_city'] }}</strong>
                     </p>
-                    <p style="color:var(--accent); font-size:13px; font-weight:600; margin-top:8px;">
-                        Status: Confirmed & Scheduled for Departure Date
-                    </p>
+                    <div class="badge badge-mint" style="margin-top:8px;">
+                        <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">check_circle</span> Confirmed for {{ itinerary['start_date'] }}
+                    </div>
                 {% else %}
-                    <p style="color:var(--text-muted);">Self-arranged transportation / Direct arrival.</p>
+                    <p style="color:var(--text-secondary); font-size:13.5px;">Self-arranged transportation / Direct arrival.</p>
                 {% endif %}
             </div>
         </div>
@@ -57,54 +72,55 @@
         <div class="boarding-card">
             <div class="boarding-card-header">
                 <div>
-                    <h4 style="color:white; margin:0;">Luxury Accommodations</h4>
-                    <small style="opacity:0.8;">Hotel Voucher</small>
+                    <h4 style="color:#000; margin:0; font-size:16px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; font-weight:800;">Curated Accommodations</h4>
+                    <small style="opacity:0.85; color:var(--text-secondary); font-family:'Space Grotesk',sans-serif; font-weight:700; text-transform:uppercase; font-size:10px;">HOTEL VOUCHER</small>
                 </div>
-                <span class="travel-tag" style="background:white; color:var(--primary);">⭐ {{ itinerary['hotel_stars']|default('4.5') }} Rating</span>
+                <span class="badge badge-yellow">Rating: {{ itinerary['hotel_stars']|default('4.5') }}</span>
             </div>
-            <div class="boarding-card-body">
+            <div class="boarding-card-body" style="padding:18px;">
                 {% if itinerary['hotel_name'] %}
-                    <h4>{{ itinerary['hotel_name'] }}</h4>
-                    <p style="color:var(--text-muted); font-size:14px; margin-top:4px;">
-                        Location: <strong>{{ itinerary['hotel_city'] }}</strong> • Stay: <strong>{{ itinerary['duration_nights'] }} Nights</strong>
+                    <h4 style="font-family:'Space Grotesk',sans-serif; text-transform:uppercase; margin-bottom:6px;">{{ itinerary['hotel_name'] }}</h4>
+                    <p style="color:var(--text-secondary); font-size:13.5px; margin-top:4px;">
+                        Location: <strong>{{ itinerary['hotel_city'] }}</strong> &bull; Duration: <strong>{{ itinerary['duration_nights'] }} Nights</strong>
                     </p>
-                    <p style="color:var(--accent); font-size:13px; font-weight:600; margin-top:8px;">
-                        Status: Confirmed Check-In on {{ itinerary['start_date'] }}
-                    </p>
+                    <div class="badge badge-mint" style="margin-top:8px;">
+                        <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">hotel</span> Confirmed Check-In on {{ itinerary['start_date'] }}
+                    </div>
                 {% else %}
-                    <p style="color:var(--text-muted);">Independent accommodation arranged.</p>
+                    <p style="color:var(--text-secondary); font-size:13.5px;">Independent accommodation arranged.</p>
                 {% endif %}
             </div>
         </div>
     </div>
 
     <!-- Day-by-Day Timeline -->
-    <div class="card mb-30">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h3>Day-by-Day Excursion Timeline</h3>
-            <span class="travel-tag travel-tag-accent">Personalized Itinerary</span>
+    <div class="card mb-25" style="padding:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:2px solid #000; padding-bottom:12px;">
+            <div>
+                <h3 style="margin-bottom:3px; font-size:18px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Day-by-Day Expedition Schedule</h3>
+                <p class="section-desc">Timeline of scheduled sightseeing and excursions.</p>
+            </div>
+            <span class="badge badge-peach">Handcrafted Flow</span>
         </div>
 
         <div class="timeline">
             {% for plan in day_plans %}
             <div class="timeline-item">
-                <div class="timeline-dot"></div>
+                <div class="timeline-dot">{{ plan['day'] }}</div>
                 <div class="timeline-content">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong>Day {{ plan['day'] }} • {{ plan['time'] }} Excursion</strong>
-                        <span class="travel-tag">₹{{ plan['cost'] }}</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <strong style="color:var(--text-primary); font-size:13.5px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Day {{ plan['day'] }} &bull; {{ plan['time'] }} Slot</strong>
+                        <span class="badge badge-yellow" style="font-size:11px;">₹{{ plan['cost'] }}</span>
                     </div>
-                    <h4 style="margin: 6px 0 4px; font-size:16px;">{{ plan['title'] }}</h4>
-                    <p style="color:var(--text-muted); font-size:13.5px; margin:0;">{{ plan['desc'] }}</p>
+                    <h4 style="margin: 3px 0 4px; font-size:16px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">{{ plan['title'] }}</h4>
+                    <p style="color:var(--text-secondary); font-size:13.5px; margin:0; line-height:1.5;">{{ plan['desc'] }}</p>
                 </div>
             </div>
-            {% else %}
-            <p style="color:var(--text-muted);">No custom activities selected for this itinerary.</p>
             {% endfor %}
         </div>
     </div>
 
-    <!-- Geolocation Map Component -->
+    <!-- Route Map -->
     {% include 'components/map.html' %}
 </div>
 {% endblock %}

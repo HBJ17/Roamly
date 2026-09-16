@@ -1,16 +1,61 @@
 {% extends 'base.html' %}
 
-{% block title %}User Dashboard - Roamly{% endblock %}
+{% block title %}Explorer Passport Desk - Roamly{% endblock %}
 
 {% block content %}
-<div class="dashboard-wrapper">
-    <div class="dashboard-header">
-        <h2>Traveler Dashboard</h2>
-        <p class="welcome-text">Welcome back, <strong>{{ user['full_name'] or user['username'] }}</strong>!</p>
+<div class="dashboard-wrapper reveal-scroll">
+    <!-- Stitch Interactive Passport Spread Header -->
+    <div class="card reveal-scroll" style="padding:28px 32px; background:var(--surface); margin-bottom:28px;">
+        <div style="display:grid; grid-template-columns: 1.1fr 1fr; gap:28px; align-items:center;">
+            <!-- Left Side: Explorer Passport ID -->
+            <div style="background:var(--pastel-yellow-warm); border:2px solid #000; border-radius:var(--radius-md); padding:20px; box-shadow:4px 4px 0px #000; position:relative;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:8px; margin-bottom:14px;">
+                    <span style="font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;">OFFICIAL EXPEDITION PASSPORT</span>
+                    <span class="badge badge-mint" style="font-size:10px;">DOC #ROAM-{{ "%04d"|format(user['id']) }}</span>
+                </div>
+                
+                <div style="display:flex; gap:16px; align-items:flex-start;">
+                    <div style="width:70px; height:85px; border:2px solid #000; background:var(--pastel-blue-light); border-radius:var(--radius-sm); box-shadow:3px 3px 0px #000; display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0;">
+                        <span class="material-symbols-outlined" style="font-size:36px;">face_6</span>
+                        <span style="font-family:'Space Grotesk',sans-serif; font-size:8px; font-weight:800; text-transform:uppercase; margin-top:2px;">EXPLORER</span>
+                    </div>
+
+                    <div style="flex-grow:1;">
+                        <span style="font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block;">BEARER SURNAME</span>
+                        <h2 style="font-size:22px; margin:0 0 6px;">{{ user['full_name'] or user['username'] }}</h2>
+                        <div style="font-size:12.5px; color:var(--text-secondary);">
+                            Citizen of the Earth &bull; Authority: Roamly Dispatch Bureau
+                        </div>
+                    </div>
+                </div>
+
+                <div style="border-top:2px dashed #000; margin-top:14px; padding-top:10px; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">HOLDER'S SIGNATURE</span>
+                    <span class="font-marker" style="font-size:18px; color:#000;">{{ user['full_name'] or user['username'] }} ★</span>
+                </div>
+            </div>
+
+            <!-- Right Side: Quick Action Props & Manifest Actions -->
+            <div>
+                <div class="inline-flex items-center gap-2 mb-3" style="display:inline-flex; align-items:center; gap:6px; border:1.5px solid #000; background:var(--pastel-mint-light); padding:2px 8px; box-shadow:2px 2px 0px #000; transform:rotate(1deg);">
+                    <span class="material-symbols-outlined" style="font-size:14px;">card_travel</span>
+                    <span style="font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:800; text-transform:uppercase;">TRAVEL MANIFEST ACTIVE</span>
+                </div>
+                <h3 style="font-size:20px; margin-bottom:8px;">Ready for Your Next Expedition?</h3>
+                <p style="color:var(--text-secondary); font-size:13.5px; margin-bottom:18px;">
+                    Custom craft multi-day adventures, manage sealed boarding tokens, and inspect your travel balance.
+                </p>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <a href="/itinerary/builder" class="btn btn-primary btn-sm">Build Custom Trip →</a>
+                    <a href="/wallet" class="btn btn-yellow btn-sm">Digital Wallet</a>
+                    <a href="/messages" class="btn btn-outline btn-sm">Concierge Chat</a>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Dashboard Navigation Tabs -->
-    <div class="dashboard-tabs" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;">
+    <!-- Dashboard Navigation Tabs (Inked Style) -->
+    <div class="dashboard-tabs reveal-scroll" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px;">
         <a href="{{ url_for('dashboard.dashboard', tab='overview') }}" class="btn btn-sm {% if active_tab == 'overview' %}btn-primary{% else %}btn-outline{% endif %}">
             Overview
         </a>
@@ -18,69 +63,63 @@
             Upcoming Trips ({% if upcoming_bookings %}{{ upcoming_bookings|length }}{% else %}0{% endif %})
         </a>
         <a href="{{ url_for('dashboard.dashboard', tab='completed') }}" class="btn btn-sm {% if active_tab == 'completed' %}btn-primary{% else %}btn-outline{% endif %}">
-            Completed Trips ({% if completed_bookings %}{{ completed_bookings|length }}{% else %}0{% endif %})
+            Completed ({% if completed_bookings %}{{ completed_bookings|length }}{% else %}0{% endif %})
         </a>
         <a href="{{ url_for('dashboard.dashboard', tab='bookings') }}" class="btn btn-sm {% if active_tab == 'bookings' %}btn-primary{% else %}btn-outline{% endif %}">
-            All Bookings ({% if bookings %}{{ bookings|length }}{% else %}0{% endif %})
+            All Manifests ({% if bookings %}{{ bookings|length }}{% else %}0{% endif %})
         </a>
         <a href="/itineraries" class="btn btn-sm btn-outline">
-            Custom Itineraries
-        </a>
-        <a href="/wallet" class="btn btn-sm btn-outline">
-            Digital Wallet
-        </a>
-        <a href="/messages" class="btn btn-sm btn-outline">
-            Messages
+            Custom Plans
         </a>
         <a href="{{ url_for('dashboard.dashboard', tab='saved') }}" class="btn btn-sm {% if active_tab == 'saved' %}btn-primary{% else %}btn-outline{% endif %}">
-            Saved Wishlist ({% if saved_items %}{{ saved_items|length }}{% else %}0{% endif %})
+            Wishlist ({% if saved_items %}{{ saved_items|length }}{% else %}0{% endif %})
         </a>
         <a href="{{ url_for('dashboard.dashboard', tab='profile') }}" class="btn btn-sm {% if active_tab == 'profile' %}btn-primary{% else %}btn-outline{% endif %}">
-            Profile
+            Passport ID
         </a>
         <a href="{{ url_for('dashboard.dashboard', tab='preferences') }}" class="btn btn-sm {% if active_tab == 'preferences' %}btn-primary{% else %}btn-outline{% endif %}">
-            Preferences
+            Vibe Preferences
         </a>
     </div>
 
     <!-- Tab 1: Overview -->
     {% if active_tab == 'overview' %}
-    <div class="tab-content">
+    <div class="tab-content reveal-scroll">
         <div class="overview-grid">
-            <div class="stat-card">
-                <div class="stat-info">
-                    <h3>{% if upcoming_bookings %}{{ upcoming_bookings|length }}{% else %}0{% endif %}</h3>
-                    <p>Upcoming Trips</p>
-                </div>
+            <div class="stat-card" style="background:var(--pastel-yellow-light);">
+                <div class="stat-card-label">Upcoming Expeditions</div>
+                <div class="stat-card-val">{% if upcoming_bookings %}{{ upcoming_bookings|length }}{% else %}0{% endif %}</div>
+                <div class="stat-card-change">Active travel schedules</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-info">
-                    <h3>{% if completed_bookings %}{{ completed_bookings|length }}{% else %}0{% endif %}</h3>
-                    <p>Completed Trips</p>
-                </div>
+            <div class="stat-card" style="background:var(--pastel-mint-light);">
+                <div class="stat-card-label">Completed Stays</div>
+                <div class="stat-card-val">{% if completed_bookings %}{{ completed_bookings|length }}{% else %}0{% endif %}</div>
+                <div class="stat-card-change">Logged field memories</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-info">
-                    <h3>{% if saved_items %}{{ saved_items|length }}{% else %}0{% endif %}</h3>
-                    <p>Saved Destinations</p>
-                </div>
+            <div class="stat-card" style="background:var(--pastel-blue-light);">
+                <div class="stat-card-label">Postcards Saved</div>
+                <div class="stat-card-val">{% if saved_items %}{{ saved_items|length }}{% else %}0{% endif %}</div>
+                <div class="stat-card-change">Bucket list destinations</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-info">
-                    <h3>{{ preferences['preferred_travel_mode'] if preferences else 'Train' }}</h3>
-                    <p>Preferred Mode</p>
-                </div>
+            <div class="stat-card" style="background:var(--pastel-peach-light);">
+                <div class="stat-card-label">Transit Vibe</div>
+                <div class="stat-card-val" style="font-size:20px;">{{ preferences['preferred_travel_mode'] if preferences else 'Scenic Train' }}</div>
+                <div class="stat-card-change">Preferred expedition route</div>
             </div>
         </div>
 
-        <div class="card mt-20">
-            <h3>Quick Travel Management</h3>
-            <p>Access your itinerary timelines, printable tax invoices, and explore curated South India holiday packages.</p>
-            <div class="action-buttons mt-15">
-                <a href="{{ url_for('packages.packages') }}" class="btn btn-primary-inline">Browse Packages</a>
-                <a href="{{ url_for('dashboard.dashboard', tab='upcoming') }}" class="btn btn-secondary-inline">View Upcoming Trips</a>
-                <a href="{{ url_for('dashboard.dashboard', tab='saved') }}" class="btn btn-secondary-inline">Open Wishlist</a>
-                <a href="{{ url_for('payments.notifications') }}" class="btn btn-secondary-inline">Check Notifications</a>
+        <div class="card" style="border:2.5px solid #000; background:var(--surface);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h3 style="margin-bottom:4px; font-size:18px;">Quick Expedition Actions</h3>
+                    <p style="color:var(--text-secondary); font-size:14px; margin:0;">Access your stamped passes, live journey milestones, and field notes.</p>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
+                <a href="{{ url_for('packages.packages') }}" class="btn btn-primary btn-sm">Explore Packages →</a>
+                <a href="{{ url_for('dashboard.dashboard', tab='upcoming') }}" class="btn btn-yellow btn-sm">Upcoming Schedules</a>
+                <a href="{{ url_for('dashboard.dashboard', tab='saved') }}" class="btn btn-mint btn-sm">Open Wishlist</a>
+                <a href="{{ url_for('payments.notifications') }}" class="btn btn-outline btn-sm">View Alerts</a>
             </div>
         </div>
     </div>
@@ -88,70 +127,46 @@
 
     <!-- Tab 2: Upcoming Trips -->
     {% if active_tab == 'upcoming' %}
-    <div class="tab-content">
+    <div class="tab-content reveal-scroll">
         <div class="card">
-            <div class="card-header-flex">
-                <div>
-                    <h3>Upcoming Travel Itineraries</h3>
-                    <p class="section-desc">Confirmed bookings and active schedules waiting for departure.</p>
-                </div>
-            </div>
+            <h3 style="margin-bottom:4px; font-size:18px;">Upcoming Travel Manifests</h3>
+            <p style="color:var(--text-secondary); margin-bottom:20px; font-size:14px;">Active confirmed itineraries ready for departure.</p>
 
             {% if upcoming_bookings %}
-            <div class="table-responsive mt-15">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Ref #</th>
-                            <th>Service Details</th>
-                            <th>Schedule Date</th>
-                            <th>Travelers / Units</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for b in upcoming_bookings %}
-                        <tr>
-                            <td>
-                                <strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong><br>
-                                <small class="text-muted">{{ b['created_at']|format_date }}</small>
-                            </td>
-                            <td>
-                                <strong>{{ b['item_title'] }}</strong><br>
-                                <small class="text-muted">{{ b['item_destination'] }}</small>
-                            </td>
-                            <td>
-                                <strong>{{ b['travel_date'] }}</strong>
-                                {% if b['check_out_date'] %}<br><small class="text-muted">to {{ b['check_out_date'] }}</small>{% endif %}
-                            </td>
-                            <td>{{ b['num_travelers'] }}</td>
-                            <td><strong>₹{{ "{:,.2f}".format(b['total_price']) }}</strong></td>
-                            <td>
-                                <span class="status-pill status-confirmed">Confirmed</span>
-                            </td>
-                            <td class="action-links-cell">
-                                <a href="{{ url_for('dashboard.trip_timeline', booking_id=b['id']) }}" class="btn-link font-bold">Timeline</a>
-                                <span class="text-muted">•</span>
-                                <a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}" class="btn-link">Voucher</a>
-                                <span class="text-muted">•</span>
-                                <a href="{{ url_for('payments.view_invoice', booking_id=b['id']) }}" class="btn-link">Invoice</a>
-                                <span class="text-muted">•</span>
-                                <a href="{{ url_for('bookings.modify_booking', booking_id=b['id']) }}" class="btn-link">Modify</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div style="display:flex; flex-direction:column; gap:16px;">
+                {% for b in upcoming_bookings %}
+                <div class="boarding-card">
+                    <div class="boarding-card-header">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                                <span class="badge badge-yellow">{{ b['booking_type']|upper }}</span>
+                                <span style="font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700;">#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</span>
+                            </div>
+                            <h4 style="margin:0; font-size:17px;">{{ b['item_title'] }}</h4>
+                            <div style="font-size:12.5px; color:var(--text-secondary); margin-top:2px;">Destination: {{ b['item_destination'] }}</div>
+                        </div>
+                        <span class="badge badge-mint">Confirmed Pass</span>
+                    </div>
+                    <div class="boarding-card-body" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+                        <div>
+                            <div style="font-size:13.5px; color:var(--text-secondary);">Departure: <strong>{{ b['travel_date'] }}</strong></div>
+                            <div style="font-size:13.5px; color:var(--text-secondary);">Travelers: <strong>{{ b['num_travelers'] }} Person(s)</strong> &bull; Total: <strong style="font-family:'Space Grotesk',sans-serif; font-size:16px;">₹{{ "{:,.2f}".format(b['total_price']) }}</strong></div>
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <a href="{{ url_for('dashboard.trip_timeline', booking_id=b['id']) }}" class="btn btn-primary btn-sm">Timeline Flow</a>
+                            <a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}" class="btn btn-yellow btn-sm">Boarding Pass</a>
+                            <a href="{{ url_for('payments.view_invoice', booking_id=b['id']) }}" class="btn btn-outline btn-sm">Tax Invoice</a>
+                            <a href="{{ url_for('bookings.modify_booking', booking_id=b['id']) }}" class="btn btn-outline btn-sm">Modify</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
             {% else %}
-            <div class="dashboard-empty">
-                <h3>No Upcoming Trips Scheduled</h3>
-                <p>You have no active travel bookings coming up. Plan your next getaway to Ooty, Kodaikanal, Madurai, or Thanjavur today!</p>
-                <div class="mt-15">
-                    <a href="{{ url_for('packages.packages') }}" class="btn btn-primary-inline">Discover Packages</a>
-                </div>
+            <div style="text-align:center; padding:50px 20px;">
+                <h3 style="margin-bottom:6px;">No Upcoming Expeditions Scheduled</h3>
+                <p style="color:var(--text-secondary); margin:0 0 20px; font-size:14px;">Ready for your next journey? Explore hill stations, temple towns, and coastal retreats.</p>
+                <a href="{{ url_for('packages.packages') }}" class="btn btn-primary btn-sm">Discover Expeditions →</a>
             </div>
             {% endif %}
         </div>
@@ -160,55 +175,34 @@
 
     <!-- Tab 3: Completed Trips -->
     {% if active_tab == 'completed' %}
-    <div class="tab-content">
+    <div class="tab-content reveal-scroll">
         <div class="card">
-            <div class="card-header-flex">
-                <div>
-                    <h3>Completed Journeys & Past Trips</h3>
-                    <p class="section-desc">Review your past vacations, download official tax receipts, and share feedback.</p>
-                </div>
-            </div>
+            <h3 style="margin-bottom:4px; font-size:18px;">Completed Journeys & Field Notes</h3>
+            <p style="color:var(--text-secondary); margin-bottom:20px; font-size:14px;">Review past travels, download tax receipts, and share feedback.</p>
 
             {% if completed_bookings %}
-            <div class="table-responsive mt-15">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Ref #</th>
-                            <th>Service Title</th>
-                            <th>Completed Date</th>
-                            <th>Travelers</th>
-                            <th>Total Cost</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for b in completed_bookings %}
-                        <tr>
-                            <td>
-                                <strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong>
-                            </td>
-                            <td>
-                                <strong>{{ b['item_title'] }}</strong><br>
-                                <small class="text-muted">{{ b['item_destination'] }}</small>
-                            </td>
-                            <td>{{ b['travel_date'] }}</td>
-                            <td>{{ b['num_travelers'] }}</td>
-                            <td>₹{{ "{:,.2f}".format(b['total_price']) }}</td>
-                            <td class="action-links-cell">
-                                <a href="{{ url_for('dashboard.trip_timeline', booking_id=b['id']) }}" class="btn-link font-bold">Review & Timeline</a>
-                                <span class="text-muted">•</span>
-                                <a href="{{ url_for('payments.view_invoice', booking_id=b['id']) }}" class="btn-link">Tax Invoice</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div style="display:flex; flex-direction:column; gap:14px;">
+                {% for b in completed_bookings %}
+                <div style="background:var(--surface); border:2px solid #000; border-radius:var(--radius-md); padding:18px; box-shadow:3px 3px 0px #000; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                            <span class="badge badge-mint">COMPLETED</span>
+                            <span style="font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700;">#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</span>
+                        </div>
+                        <h4 style="font-size:16px; margin:0 0 4px;">{{ b['item_title'] }}</h4>
+                        <div style="font-size:13px; color:var(--text-secondary);">Completed on {{ b['travel_date'] }} &bull; ₹{{ "{:,.2f}".format(b['total_price']) }}</div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <a href="{{ url_for('dashboard.trip_timeline', booking_id=b['id']) }}" class="btn btn-yellow btn-sm">Review Journey</a>
+                        <a href="{{ url_for('payments.view_invoice', booking_id=b['id']) }}" class="btn btn-outline btn-sm">Tax Invoice</a>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
             {% else %}
-            <div class="dashboard-empty">
-                <h3>No Completed Trips Yet</h3>
-                <p>Once you finish a scheduled trip or mark it completed in your trip timeline, it will be listed here.</p>
+            <div style="text-align:center; padding:50px 20px; color:var(--text-secondary);">
+                <h3 style="margin-bottom:6px;">No Completed Trips Yet</h3>
+                <p style="margin:0; font-size:14px;">Once you complete a scheduled journey, it will be logged here.</p>
             </div>
             {% endif %}
         </div>
@@ -217,59 +211,53 @@
 
     <!-- Tab 4: All Bookings History -->
     {% if active_tab == 'bookings' %}
-    <div class="tab-content">
+    <div class="tab-content reveal-scroll">
         <div class="card">
-            <div class="card-header-flex">
-                <div>
-                    <h3>Complete Booking History</h3>
-                    <p class="section-desc">Full archive of all past and active package tours, hotel stays, and transport bookings.</p>
-                </div>
-            </div>
+            <h3 style="margin-bottom:4px; font-size:18px;">Master Booking Manifests</h3>
+            <p style="color:var(--text-secondary); margin-bottom:20px; font-size:14px;">Full record of tour packages, hotel stays, and transit passes.</p>
 
             {% if bookings %}
-            <div class="table-responsive mt-15">
-                <table class="data-table">
+            <div style="overflow-x:auto;">
+                <table class="table-executive">
                     <thead>
                         <tr>
-                            <th>Ref #</th>
+                            <th>Reference</th>
                             <th>Service Details</th>
-                            <th>Type</th>
-                            <th>Schedule Date</th>
-                            <th>Total Amount</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Amount</th>
                             <th>Status</th>
-                            <th>Actions</th>
+                            <th style="text-align:right;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for b in bookings %}
                         <tr>
-                            <td>
-                                <strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong><br>
-                                <small class="text-muted">{{ b['created_at']|format_date }}</small>
+                            <td style="font-family:'Space Grotesk',monospace; font-weight:700; font-size:12px;">
+                                #ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}
                             </td>
                             <td>
                                 <strong>{{ b['item_title'] }}</strong><br>
-                                <small class="text-muted">{{ b['item_destination'] }}</small>
+                                <small style="color:var(--text-secondary);">{{ b['item_destination'] }}</small>
                             </td>
-                            <td><span class="category-tag">{{ b['booking_type'] }}</span></td>
+                            <td><span class="badge badge-yellow">{{ b['booking_type'] }}</span></td>
                             <td>{{ b['travel_date'] }}</td>
-                            <td><strong>₹{{ "{:,.2f}".format(b['total_price']) }}</strong></td>
+                            <td style="font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:15px;">₹{{ "{:,.2f}".format(b['total_price']) }}</td>
                             <td>
-                                <span class="status-pill status-{{ b['status']|lower }}">{{ b['status'] }}</span>
+                                <span class="badge {% if b['status'] == 'Confirmed' %}badge-mint{% elif b['status'] == 'Cancelled' %}badge-pink{% else %}badge-peach{% endif %}">
+                                    {{ b['status'] }}
+                                </span>
                             </td>
-                            <td class="action-links-cell">
-                                <a href="{{ url_for('dashboard.trip_timeline', booking_id=b['id']) }}" class="btn-link font-bold">Timeline</a>
-                                <span class="text-muted">•</span>
-                                <a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}" class="btn-link">Voucher</a>
-                                <span class="text-muted">•</span>
-                                <a href="{{ url_for('payments.view_invoice', booking_id=b['id']) }}" class="btn-link">Invoice</a>
-                                
-                                {% if b['status'] != 'Cancelled' and b['trip_status'] != 'Completed' %}
-                                    <span class="text-muted">•</span>
-                                    <form action="{{ url_for('dashboard.cancel_booking', booking_id=b['id']) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
-                                        <button type="submit" class="btn-text-danger">Cancel</button>
+                            <td style="text-align:right;">
+                                <div style="display:inline-flex; gap:6px;">
+                                    <a href="{{ url_for('dashboard.trip_timeline', booking_id=b['id']) }}" class="btn btn-outline btn-sm" style="padding:3px 8px; font-size:11px;">Timeline</a>
+                                    <a href="{{ url_for('bookings.booking_summary', booking_id=b['id']) }}" class="btn btn-yellow btn-sm" style="padding:3px 8px; font-size:11px;">Pass</a>
+                                    {% if b['status'] != 'Cancelled' and b['trip_status'] != 'Completed' %}
+                                    <form action="{{ url_for('dashboard.cancel_booking', booking_id=b['id']) }}" method="POST" style="display:inline;" onsubmit="return confirm('Cancel this reservation?');">
+                                        <button type="submit" class="btn btn-outline btn-sm" style="padding:3px 8px; font-size:11px; color:#dc2626; border-color:#dc2626;">Cancel</button>
                                     </form>
-                                {% endif %}
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -277,9 +265,8 @@
                 </table>
             </div>
             {% else %}
-            <div class="dashboard-empty">
-                <h3>No Bookings Recorded</h3>
-                <p>Explore Tamil Nadu holiday packages and start booking your dream vacation.</p>
+            <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                No booking manifests recorded yet.
             </div>
             {% endif %}
         </div>
@@ -288,41 +275,37 @@
 
     <!-- Tab 5: Saved Wishlist -->
     {% if active_tab == 'saved' %}
-    <div class="tab-content">
+    <div class="tab-content reveal-scroll">
         <div class="card">
-            <div class="card-header-flex">
-                <div>
-                    <h3>Saved Destinations & Wishlist</h3>
-                    <p class="section-desc">Your curated list of holiday destinations, resorts, and travel routes.</p>
-                </div>
-            </div>
+            <h3 style="margin-bottom:4px; font-size:18px;">Saved Postcards & Bucket List</h3>
+            <p style="color:var(--text-secondary); margin-bottom:20px; font-size:14px;">Your collection of dream expeditions, heritage stays, and scenic routes.</p>
 
             {% if saved_items %}
-            <div class="saved-grid mt-20">
+            <div class="packages-grid">
                 {% for s in saved_items %}
-                <div class="saved-card">
+                <div class="package-card">
                     {% if s['item_image_url'] %}
-                    <div class="saved-card-img-wrap">
-                        <img src="{{ s['item_image_url'] }}" alt="{{ s['item_title'] }}" class="saved-card-img">
-                        <span class="saved-type-pill">{{ s['item_type']|upper }}</span>
+                    <div class="package-card-img-wrap">
+                        <img src="{{ s['item_image_url'] }}" alt="{{ s['item_title'] }}" class="package-card-img">
+                        <span class="badge badge-yellow" style="position:absolute; top:12px; left:12px;">{{ s['item_type']|upper }}</span>
                     </div>
                     {% endif %}
-                    <div class="saved-card-body">
-                        <span class="location-tag">{{ s['item_location'] }}</span>
-                        <h4 class="saved-title mt-5">{{ s['item_title'] }}</h4>
-                        <p class="price-val mt-10">₹{{ "{:,.0f}".format(s['item_price']) }}</p>
+                    <div class="package-card-body">
+                        <span class="badge badge-blue" style="margin-bottom:8px; width:fit-content;">{{ s['item_location'] }}</span>
+                        <h4 style="font-size:16px; margin-bottom:8px;">{{ s['item_title'] }}</h4>
+                        <div class="package-price" style="margin-bottom:14px;">₹{{ "{:,.0f}".format(s['item_price']) }}</div>
                         
-                        <div class="saved-card-actions mt-15">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:14px; border-top:2px solid #000;">
                             {% if s['item_type'] == 'package' %}
-                                <a href="{{ url_for('packages.package_detail', package_id=s['item_id']) }}" class="btn btn-primary-inline">View Details</a>
+                                <a href="{{ url_for('packages.package_detail', package_id=s['item_id']) }}" class="btn btn-primary btn-sm">Explore</a>
                             {% elif s['item_type'] == 'hotel' %}
-                                <a href="{{ url_for('hotels.hotel_detail', hotel_id=s['item_id']) }}" class="btn btn-primary-inline">View Details</a>
+                                <a href="{{ url_for('hotels.hotel_detail', hotel_id=s['item_id']) }}" class="btn btn-primary btn-sm">Explore</a>
                             {% else %}
-                                <a href="{{ url_for('transports.transport_detail', transport_id=s['item_id']) }}" class="btn btn-primary-inline">View Details</a>
+                                <a href="{{ url_for('transports.transport_detail', transport_id=s['item_id']) }}" class="btn btn-primary btn-sm">Explore</a>
                             {% endif %}
                             
                             <form action="{{ url_for('dashboard.toggle_favorite', item_type=s['item_type'], item_id=s['item_id']) }}" method="POST" style="display:inline;">
-                                <button type="submit" class="btn btn-remove-saved">Remove</button>
+                                <button type="submit" class="btn btn-outline btn-sm">Remove</button>
                             </form>
                         </div>
                     </div>
@@ -330,9 +313,10 @@
                 {% endfor %}
             </div>
             {% else %}
-            <div class="dashboard-empty">
-                <h3>Wishlist is Empty</h3>
-                <p>You can click 'Save Destination' on any package, hotel, or transport route to view it here anytime.</p>
+            <div style="text-align:center; padding:50px 20px;">
+                <h3 style="margin-bottom:6px;">Your Postcard Wishlist is Empty</h3>
+                <p style="color:var(--text-secondary); margin:0 0 20px; font-size:14px;">Click 'Save Destination' on any package or stay to add to your bucket list.</p>
+                <a href="{{ url_for('packages.packages') }}" class="btn btn-primary btn-sm">Browse Postcards →</a>
             </div>
             {% endif %}
         </div>
@@ -341,46 +325,45 @@
 
     <!-- Tab 6: Profile -->
     {% if active_tab == 'profile' %}
-    <div class="tab-content">
-        <div class="card">
-            <h3>User Profile Details</h3>
-            <p class="section-desc">Manage your personal information and contact details.</p>
+    <div class="tab-content reveal-scroll">
+        <div class="card" style="max-width:720px;">
+            <h3 style="margin-bottom:4px; font-size:18px;">Explorer Passport Details</h3>
+            <p style="color:var(--text-secondary); margin-bottom:20px; font-size:14px;">Manage your explorer identity for digital passes and field manifests.</p>
             
-            <form action="{{ url_for('dashboard.profile') }}" method="POST" class="form">
-                <div class="form-row">
-                    <div class="form-group flex-1">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" value="{{ user['username'] }}" disabled class="input-disabled">
-                        <small>Username cannot be changed.</small>
+            <form action="{{ url_for('dashboard.profile') }}" method="POST">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" value="{{ user['username'] }}" disabled class="form-control" style="background:var(--pastel-yellow-light); cursor:not-allowed;">
                     </div>
-                    <div class="form-group flex-1">
-                        <label for="email">Email Address *</label>
-                        <input type="email" id="email" name="email" value="{{ user['email'] or '' }}" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group flex-1">
-                        <label for="full_name">Full Name</label>
-                        <input type="text" id="full_name" name="full_name" value="{{ user['full_name'] or '' }}" placeholder="e.g. Ramesh Kumar">
-                    </div>
-                    <div class="form-group flex-1">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone" value="{{ user['phone'] or '' }}" placeholder="e.g. +91 9876543210">
+                    <div class="form-group">
+                        <label class="form-label">Email Address *</label>
+                        <input type="email" name="email" value="{{ user['email'] or '' }}" class="form-control" required>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="address">Residential Address</label>
-                    <input type="text" id="address" name="address" value="{{ user['address'] or '' }}" placeholder="City, State, Country">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="full_name" value="{{ user['full_name'] or '' }}" class="form-control" placeholder="e.g. Ramesh Kumar">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" name="phone" value="{{ user['phone'] or '' }}" class="form-control" placeholder="e.g. +91 9876543210">
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="bio">Short Bio / About Me</label>
-                    <textarea id="bio" name="bio" rows="3" placeholder="Avid explorer who loves hill stations and heritage temples...">{{ user['bio'] or '' }}</textarea>
+                <div class="form-group mb-15">
+                    <label class="form-label">City & Residential Address</label>
+                    <input type="text" name="address" value="{{ user['address'] or '' }}" class="form-control" placeholder="City, State, Country">
                 </div>
 
-                <button type="submit" class="btn btn-submit">Save Profile Changes</button>
+                <div class="form-group mb-20">
+                    <label class="form-label">Explorer Field Bio</label>
+                    <textarea name="bio" rows="3" class="form-control" placeholder="Avid sketcher, hill station explorer, and tea estate wanderer...">{{ user['bio'] or '' }}</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save Passport Updates</button>
             </form>
         </div>
     </div>
@@ -388,83 +371,32 @@
 
     <!-- Tab 7: Preferences -->
     {% if active_tab == 'preferences' %}
-    <div class="tab-content">
-        <div class="card">
-            <h3>Travel Preferences</h3>
-            <p class="section-desc">Customize your travel style so we can tailor the best packages for you.</p>
+    <div class="tab-content reveal-scroll">
+        <div class="card" style="max-width:720px;">
+            <h3 style="margin-bottom:4px; font-size:18px;">Expedition Vibe Preferences</h3>
+            <p style="color:var(--text-secondary); margin-bottom:20px; font-size:14px;">Personalize your default travel mode and expedition recommendations.</p>
             
-            <form action="{{ url_for('dashboard.preferences') }}" method="POST" class="form">
-                <div class="form-group">
-                    <label>Preferred Mode of Transport</label>
-                    <div class="radio-group">
-                        {% set current_mode = preferences['preferred_travel_mode'] if preferences else 'Train' %}
-                        <label class="radio-label">
-                            <input type="radio" name="preferred_travel_mode" value="Train" {% if current_mode == 'Train' %}checked{% endif %}> Train
+            <form action="{{ url_for('dashboard.preferences') }}" method="POST">
+                <div class="form-group mb-20">
+                    <label class="form-label">Preferred Transit Mode</label>
+                    {% set current_mode = preferences['preferred_travel_mode'] if preferences else 'Train' %}
+                    <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+                        <label class="btn btn-sm {% if current_mode == 'Train' %}btn-primary{% else %}btn-outline{% endif %}" style="cursor:pointer;">
+                            <input type="radio" name="preferred_travel_mode" value="Train" {% if current_mode == 'Train' %}checked{% endif %} style="display:none;" onchange="this.form.submit()">
+                            Scenic Railway
                         </label>
-                        <label class="radio-label">
-                            <input type="radio" name="preferred_travel_mode" value="Flight" {% if current_mode == 'Flight' %}checked{% endif %}> Flight
+                        <label class="btn btn-sm {% if current_mode == 'Flight' %}btn-primary{% else %}btn-outline{% endif %}" style="cursor:pointer;">
+                            <input type="radio" name="preferred_travel_mode" value="Flight" {% if current_mode == 'Flight' %}checked{% endif %} style="display:none;" onchange="this.form.submit()">
+                            Express Flight
                         </label>
-                        <label class="radio-label">
-                            <input type="radio" name="preferred_travel_mode" value="Bus" {% if current_mode == 'Bus' %}checked{% endif %}> Bus / Volvo
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="preferred_travel_mode" value="Private Car" {% if current_mode == 'Private Car' %}checked{% endif %}> Private Cab
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group mt-20">
-                    <label>Dietary Requirement</label>
-                    <div class="radio-group">
-                        {% set current_diet = preferences['dietary_preference'] if preferences else 'Vegetarian' %}
-                        <label class="radio-label">
-                            <input type="radio" name="dietary_preference" value="Vegetarian" {% if current_diet == 'Vegetarian' %}checked{% endif %}> Pure Vegetarian
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="dietary_preference" value="Non-Vegetarian" {% if current_diet == 'Non-Vegetarian' %}checked{% endif %}> Non-Vegetarian
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="dietary_preference" value="Vegan" {% if current_diet == 'Vegan' %}checked{% endif %}> Vegan
+                        <label class="btn btn-sm {% if current_mode in ['Bus', 'Cab'] %}btn-primary{% else %}btn-outline{% endif %}" style="cursor:pointer;">
+                            <input type="radio" name="preferred_travel_mode" value="Cab" {% if current_mode in ['Bus', 'Cab'] %}checked{% endif %} style="display:none;" onchange="this.form.submit()">
+                            Private Cab
                         </label>
                     </div>
                 </div>
 
-                <div class="form-group mt-20">
-                    <label>Budget Tier</label>
-                    <div class="radio-group">
-                        {% set current_budget = preferences['budget_range'] if preferences else 'Moderate' %}
-                        <label class="radio-label">
-                            <input type="radio" name="budget_range" value="Budget" {% if current_budget == 'Budget' %}checked{% endif %}> Budget (Economical)
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="budget_range" value="Moderate" {% if current_budget == 'Moderate' %}checked{% endif %}> Moderate (Comfort)
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="budget_range" value="Luxury" {% if current_budget == 'Luxury' %}checked{% endif %}> Luxury (Premium)
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group mt-20">
-                    <label>Preferred Destination Types</label>
-                    <div class="checkbox-group">
-                        {% set prefs_cat = preferences['preferred_categories'] if preferences else 'Hill Station' %}
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Hill Station" {% if 'Hill Station' in prefs_cat %}checked{% endif %}> Hill Stations
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Heritage & Culture" {% if 'Heritage & Culture' in prefs_cat %}checked{% endif %}> Heritage & Temples
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Coastal & Urban" {% if 'Coastal & Urban' in prefs_cat %}checked{% endif %}> Coastal & Beaches
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="preferred_categories" value="Pilgrimage & Coastal" {% if 'Pilgrimage & Coastal' in prefs_cat %}checked{% endif %}> Pilgrimage Coast
-                        </label>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-submit mt-20">Save Travel Preferences</button>
+                <button type="submit" class="btn btn-primary">Save Preferences</button>
             </form>
         </div>
     </div>

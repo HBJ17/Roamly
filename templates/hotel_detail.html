@@ -4,119 +4,149 @@
 
 {% block content %}
 <div class="package-detail-container">
-    <div class="breadcrumb-bar">
-        <a href="{{ url_for('hotels.hotels') }}" class="btn-breadcrumb">Back to Hotels</a>
-        <div class="breadcrumb-right">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <a href="{{ url_for('hotels.hotels') }}" class="btn btn-outline btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span>
+            <span>Back to Hotels</span>
+        </a>
+        <div style="display:flex; gap:8px;">
             {% if session.get('user_id') %}
             <form action="{{ url_for('dashboard.toggle_favorite', item_type='hotel', item_id=hotel['id']) }}" method="POST" style="display:inline;">
-                <button type="submit" class="btn btn-wishlist {% if is_saved %}saved{% endif %}">
-                    {% if is_saved %}In Saved Wishlist{% else %}Save Property{% endif %}
+                <button type="submit" class="btn btn-yellow btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+                    <span class="material-symbols-outlined" style="font-size:16px;">favorite</span>
+                    <span>{% if is_saved %}Saved in Wishlist{% else %}Save Property{% endif %}</span>
                 </button>
             </form>
             {% endif %}
         </div>
     </div>
 
-    <div class="package-detail-layout">
-        <!-- Main Details Column -->
+    <div class="package-detail-layout" style="display:grid; grid-template-columns: 2fr 1fr; gap:28px;">
+        <!-- Main Details Column (Comic Folio Panel) -->
         <div class="detail-main">
-            <div class="detail-header-card">
-                <div class="detail-header-top">
-                    <span class="category-badge">{{ hotel['city'] }}</span>
-                    {% if hotel['agency_name'] %}
-                        <span class="agency-badge">Managed by {{ hotel['agency_name'] }}</span>
-                    {% endif %}
-                    <span class="rating-badge">Rating: {{ hotel['star_rating'] }} / 5.0</span>
-                </div>
-                <h2>{{ hotel['name'] }}</h2>
-                <p class="detail-location"><strong>Address:</strong> {{ hotel['address'] }}</p>
-            </div>
-
-            {% if hotel['image_url'] %}
-            <div class="detail-hero-image-wrap mt-20">
-                <img src="{{ hotel['image_url'] }}" alt="{{ hotel['name'] }}" class="detail-hero-image">
-            </div>
-            {% endif %}
-
-            <div class="card mt-20">
-                <h3>About the Property</h3>
-                <p class="detail-description">{{ hotel['description'] }}</p>
-            </div>
-
-            <div class="card mt-20">
-                <h3>Room Categories Available</h3>
-                <div class="room-types-grid">
-                    {% for room in (hotel['room_types'] or '').split(',') %}
-                        {% if room.strip() %}
-                        <div class="room-type-card">
-                            <h4>{{ room.strip() }}</h4>
-                            <p class="room-features-text">Max 2-3 Guests • Climate Control AC • En-Suite Bathroom • Scenic View</p>
-                        </div>
+            <div class="card" style="padding:0; overflow:hidden;">
+                <!-- Panel Header -->
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:2px solid #000; background:var(--pastel-yellow-warm);">
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span class="badge badge-mint">{{ hotel['city'] }}</span>
+                        {% if hotel['agency_name'] %}
+                            <span class="badge badge-yellow">Managed by {{ hotel['agency_name'] }}</span>
                         {% endif %}
-                    {% endfor %}
+                    </div>
+                    <span class="badge badge-blue">
+                        <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">star</span> Rating: {{ hotel['star_rating'] }} / 5.0
+                    </span>
+                </div>
+
+                <div style="padding:24px;">
+                    <h2 style="font-size:28px; font-weight:800; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; margin-bottom:10px; color:var(--text-primary);">{{ hotel['name'] }}</h2>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;">
+                        <span class="travel-tag" style="background:var(--pastel-blue-light); border:1.5px solid #000;">
+                            <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">pin_drop</span> {{ hotel['address'] }}
+                        </span>
+                        <span class="badge badge-mint">
+                            <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">verified</span> Verified Property
+                        </span>
+                    </div>
+
+                    {% if hotel['image_url'] %}
+                    <div style="border:2px solid #000; box-shadow:4px 4px 0px #000; border-radius:4px; overflow:hidden; height:360px; width:100%; margin-bottom:24px; position:relative;">
+                        <img src="{{ hotel['image_url'] }}" alt="{{ hotel['name'] }}" style="width:100%; height:100%; object-fit:cover;">
+                        <div class="stamp-box" style="position:absolute; bottom:14px; right:14px; background:var(--pastel-mint); transform:rotate(-3deg); padding:4px 10px;">
+                            <div style="font-size:9px; font-weight:800;">PASSPORT CLEARED</div>
+                            <div style="font-size:11px; font-weight:700;">CHECK-IN READY</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <h3 style="margin-bottom:8px; font-size:18px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">About the Property</h3>
+                    <p style="color:var(--text-secondary); font-size:15px; line-height:1.7; margin-bottom:24px;">{{ hotel['description'] }}</p>
+
+                    <!-- Room Types Grid -->
+                    <div style="margin-bottom:24px;">
+                        <h4 style="margin-bottom:12px; font-size:16px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Available Room Categories</h4>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px;">
+                            {% for room in (hotel['room_types'] or '').split(',') %}
+                                {% if room.strip() %}
+                                <div style="background:var(--pastel-yellow-light); border:2px solid #000; box-shadow:3px 3px 0px #000; border-radius:4px; padding:14px;">
+                                    <h5 style="font-size:15px; font-weight:700; font-family:'Space Grotesk',sans-serif; color:var(--text-primary); margin-bottom:4px; text-transform:uppercase;">{{ room.strip() }}</h5>
+                                    <p style="font-size:12px; color:var(--text-secondary); margin:0;">Climate AC &bull; Scenic Views &bull; En-suite Bathroom</p>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {% if hotel['dining_options'] %}
+                    <div style="background:var(--pastel-peach-light); border:2px solid #000; box-shadow:3px 3px 0px #000; border-radius:4px; padding:18px; margin-bottom:24px;">
+                        <h4 style="color:#000; margin-bottom:6px; font-size:15px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; display:flex; align-items:center; gap:6px;">
+                            <span class="material-symbols-outlined" style="font-size:18px;">restaurant</span> Dining & In-House Cuisine
+                        </h4>
+                        <p style="color:var(--text-primary); font-size:14px; margin:0;">{{ hotel['dining_options'] }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Hotel Amenities -->
+                    <div style="margin-bottom:24px;">
+                        <h4 style="margin-bottom:10px; font-size:16px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Amenities & Privileges</h4>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            {% for item in (hotel['amenities'] or '').split(',') %}
+                                {% if item.strip() %}
+                                <span class="travel-tag" style="background:var(--pastel-mint-light); border:1.5px solid #000; font-size:12px; padding:4px 10px;">
+                                    {{ item.strip() }}
+                                </span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Geolocation & Route Map -->
+                    {% include 'components/map.html' %}
                 </div>
             </div>
 
-            {% if hotel['dining_options'] %}
-            <div class="card mt-20">
-                <h3>Dining & In-House Cuisine</h3>
-                <p class="dining-desc">{{ hotel['dining_options'] }}</p>
-            </div>
-            {% endif %}
-
-            <div class="card mt-20">
-                <h3>Hotel Amenities & Privileges</h3>
-                <ul class="amenities-list">
-                    {% for item in (hotel['amenities'] or '').split(',') %}
-                        {% if item.strip() %}<li><span class="bullet">•</span> {{ item.strip() }}</li>{% endif %}
-                    {% endfor %}
-                </ul>
-            </div>
-
-            <!-- Geolocation & Route Map -->
-            {% include 'components/map.html' %}
-
-            <!-- Reviews & Ratings Section -->
-            <div class="card mt-20 reviews-card">
-                <div class="reviews-header-flex">
+            <!-- Reviews & Ratings Section (Dispatches / Stamps) -->
+            <div class="card mt-25" style="padding:24px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px;">
                     <div>
-                        <h3>Guest Reviews & Ratings</h3>
-                        <p class="section-desc">Verified feedback from guests who stayed at this hotel.</p>
+                        <div class="badge badge-peach" style="margin-bottom:6px;">GUEST DISPATCHES</div>
+                        <h3 style="margin-bottom:3px; font-size:20px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Guest Feedback & Ratings</h3>
+                        <p class="section-desc">Verified feedback from guests who stayed at this property.</p>
                     </div>
-                    <div class="overall-rating-badge">
-                        <span class="score">{{ reviews_data['average_rating'] }}</span>
-                        <span class="out-of">/ 5.0</span>
-                        <small class="total-reviews">({{ reviews_data['total_count'] }} Reviews)</small>
+                    <div style="text-align:right;">
+                        <span style="font-size:32px; font-weight:800; color:#000; font-family:'Space Grotesk',sans-serif;">{{ reviews_data['average_rating'] }}</span>
+                        <span style="color:var(--text-secondary); font-size:14px; font-weight:700;">/ 5.0</span>
+                        <div style="font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">({{ reviews_data['total_count'] }} Reviews)</div>
                     </div>
                 </div>
 
                 <!-- Star Breakdown Bars -->
-                <div class="rating-breakdown-grid mt-15">
+                <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:24px;">
                     {% for star in [5, 4, 3, 2, 1] %}
-                    <div class="breakdown-row">
-                        <span class="star-label">{{ star }} Stars</span>
-                        <div class="progress-bar-wrap">
+                    <div style="display:flex; align-items:center; gap:12px; font-size:13px; font-family:'Space Grotesk',sans-serif; font-weight:600;">
+                        <span style="width:60px;">{{ star }} Stars</span>
+                        <div class="progress-bar-wrap" style="flex:1;">
                             <div class="progress-bar-fill" style="width: {{ reviews_data['breakdown_pct'][star] }}%;"></div>
                         </div>
-                        <span class="star-count">{{ reviews_data['breakdown'][star] }}</span>
+                        <span style="width:35px; text-align:right; color:var(--text-secondary);">{{ reviews_data['breakdown'][star] }}</span>
                     </div>
                     {% endfor %}
                 </div>
 
-                <hr class="divider mt-20">
-
-                <!-- Leave a Review Form -->
+                <!-- Leave Review Form -->
                 {% if session.get('user_id') %}
-                <div class="add-review-section mt-20">
-                    <h4>Review Your Hotel Stay</h4>
-                    <form action="{{ url_for('reviews.add_review') }}" method="POST" class="review-form mt-10">
+                <div style="background:var(--pastel-yellow-light); border:2px solid #000; box-shadow:3px 3px 0px #000; border-radius:4px; padding:20px; margin-top:18px;">
+                    <h4 style="margin-bottom:12px; font-size:16px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; display:flex; align-items:center; gap:6px;">
+                        <span class="material-symbols-outlined" style="font-size:18px;">rate_review</span> Stamp Your Review
+                    </h4>
+                    <form action="{{ url_for('reviews.add_review') }}" method="POST">
                         <input type="hidden" name="item_type" value="hotel">
                         <input type="hidden" name="item_id" value="{{ hotel['id'] }}">
 
-                        <div class="form-row">
-                            <div class="form-group flex-1">
-                                <label for="rating">Star Rating *</label>
-                                <select id="rating" name="rating" required>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+                            <div class="form-group">
+                                <label class="form-label">Rating *</label>
+                                <select name="rating" class="form-control" required>
                                     <option value="5" selected>5 Stars - Exceptional</option>
                                     <option value="4">4 Stars - Very Good</option>
                                     <option value="3">3 Stars - Average</option>
@@ -124,116 +154,121 @@
                                     <option value="1">1 Star - Terrible</option>
                                 </select>
                             </div>
-                            <div class="form-group flex-1">
-                                <label for="travel_type">Travel Type</label>
-                                <select id="travel_type" name="travel_type">
+                            <div class="form-group">
+                                <label class="form-label">Stay Purpose</label>
+                                <select name="travel_type" class="form-control">
                                     <option value="Family" selected>Family Stay</option>
-                                    <option value="Couple">Couple / Honeymoon</option>
-                                    <option value="Solo">Solo Traveler</option>
-                                    <option value="Business">Business Trip</option>
-                                    <option value="Friends">Friends Group</option>
+                                    <option value="Couple">Couple</option>
+                                    <option value="Solo">Solo</option>
+                                    <option value="Business">Business</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="title">Review Headline *</label>
-                            <input type="text" id="title" name="title" placeholder="e.g. Luxurious Colonial Suite and Exceptional Dining!" required>
+                        <div class="form-group mb-10">
+                            <label class="form-label">Review Headline *</label>
+                            <input type="text" name="title" class="form-control" placeholder="e.g. Clean suites and scenic views" required>
                         </div>
 
-                        <div class="form-group">
-                            <label for="comment">Detailed Feedback *</label>
-                            <textarea id="comment" name="comment" rows="3" placeholder="Share your experience regarding cleanliness, staff attentiveness, food quality, and amenities..." required></textarea>
+                        <div class="form-group mb-15">
+                            <label class="form-label">Detailed Comments *</label>
+                            <textarea name="comment" class="form-control" rows="3" placeholder="Share details about room cleanliness, breakfast, staff service..." required></textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-submit">Submit Verified Review</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Submit Review</button>
                     </form>
-                </div>
-                {% else %}
-                <div class="review-login-prompt mt-15">
-                    <p><a href="{{ url_for('auth.login') }}">Log in</a> to submit a guest review for this property.</p>
                 </div>
                 {% endif %}
 
-                <!-- Existing Reviews Feed -->
-                <div class="reviews-feed mt-25">
+                <!-- Existing Reviews List -->
+                <div style="display:flex; flex-direction:column; gap:14px; margin-top:24px;">
                     {% if reviews_data['reviews'] %}
                         {% for r in reviews_data['reviews'] %}
-                        <div class="review-item-card">
-                            <div class="review-item-header">
-                                <div>
-                                    <strong>{{ r['full_name'] or r['username'] }}</strong>
-                                    <span class="verified-tag">Verified Guest</span>
-                                    <span class="travel-type-tag">{{ r['travel_type'] }}</span>
+                        <div style="background:var(--surface-container-lowest); border:2px solid #000; box-shadow:3px 3px 0px #000; border-radius:4px; padding:16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <strong style="font-family:'Space Grotesk',sans-serif;">{{ r['full_name'] or r['username'] }}</strong>
+                                    <span class="badge badge-mint" style="font-size:10px;">Verified Guest</span>
                                 </div>
-                                <div class="review-stars-pill">
-                                    Rating: {{ r['rating'] }}/5
-                                </div>
+                                <span class="badge badge-yellow">Rating: {{ r['rating'] }}/5</span>
                             </div>
-                            <h5 class="review-title mt-5">{{ r['title'] }}</h5>
-                            <p class="review-body">{{ r['comment'] }}</p>
-                            <small class="review-date text-muted">Reviewed on {{ r['created_at']|format_date }}</small>
+                            <h5 style="font-size:15px; font-weight:700; font-family:'Space Grotesk',sans-serif; margin-bottom:4px;">{{ r['title'] }}</h5>
+                            <p style="font-size:13.5px; color:var(--text-secondary); line-height:1.5; margin-bottom:6px;">{{ r['comment'] }}</p>
+                            <small style="color:var(--text-muted); font-size:11.5px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Reviewed on {{ r['created_at']|format_date }}</small>
                         </div>
                         {% endfor %}
                     {% else %}
-                        <p class="text-muted mt-10">No customer reviews yet. Be the first to leave a review for this hotel!</p>
+                        <p style="color:var(--text-muted); text-align:center; padding:16px; font-family:'Space Grotesk',sans-serif;">No reviews yet. Be the first to stamp a review!</p>
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        <!-- Booking Sidebar Column -->
-        <div class="detail-sidebar">
-            <div class="booking-card">
-                <div class="price-box">
-                    <span class="price-tag">₹{{ "{:,.0f}".format(hotel['price_per_night']) }}</span>
-                    <span class="price-sub">/ night</span>
+        <!-- Booking Sidebar Column (Boarding Pass Voucher) -->
+        <div>
+            <div class="boarding-card" style="position:sticky; top:80px;">
+                <div class="boarding-card-header">
+                    <div>
+                        <small style="text-transform:uppercase; letter-spacing:0.08em; opacity:0.85; font-size:11px; font-family:'Space Grotesk',sans-serif;">Price Per Night</small>
+                        <div style="font-size:28px; font-weight:800; font-family:'Space Grotesk',sans-serif; color:#000;">
+                            {{ hotel['price_per_night']|currency }}
+                        </div>
+                    </div>
+                    <span class="badge badge-mint" style="font-size:11px;">Best Rate</span>
                 </div>
 
-                {% if session.get('user_id') %}
-                <form action="{{ url_for('payments.checkout', booking_type='hotel', item_id=hotel['id']) }}" method="GET" class="booking-form">
-                    <div class="form-group">
-                        <label for="check_in_date">Check-in Date *</label>
-                        <input type="date" id="check_in_date" name="travel_date" required onchange="calculateHotelPrice({{ hotel['price_per_night'] }})">
-                    </div>
+                <div class="boarding-card-body">
+                    {% if session.get('user_id') %}
+                    <form action="{{ url_for('payments.checkout', booking_type='hotel', item_id=hotel['id']) }}" method="GET">
+                        <div class="form-group mb-15">
+                            <label class="form-label">Check-in Date *</label>
+                            <input type="date" id="check_in_date" name="travel_date" class="form-control" required onchange="calculateHotelPrice({{ hotel['price_per_night'] }})">
+                        </div>
 
-                    <div class="form-group">
-                        <label for="check_out_date">Check-out Date *</label>
-                        <input type="date" id="check_out_date" name="check_out_date" required onchange="calculateHotelPrice({{ hotel['price_per_night'] }})">
-                    </div>
+                        <div class="form-group mb-15">
+                            <label class="form-label">Check-out Date *</label>
+                            <input type="date" id="check_out_date" name="check_out_date" class="form-control" required onchange="calculateHotelPrice({{ hotel['price_per_night'] }})">
+                        </div>
 
-                    <div class="form-group">
-                        <label for="room_type">Select Room Type *</label>
-                        <select id="room_type" name="room_type" required>
-                            {% for room in hotel['room_types'].split(',') %}
-                                <option value="{{ room.strip() }}">{{ room.strip() }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                        <div class="form-group mb-15">
+                            <label class="form-label">Room Category *</label>
+                            <select name="room_type" class="form-control" required>
+                                {% for room in hotel['room_types'].split(',') %}
+                                    <option value="{{ room.strip() }}">{{ room.strip() }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="num_travelers">Number of Guests *</label>
-                        <select id="num_travelers" name="num_travelers" required>
-                            <option value="1">1 Guest</option>
-                            <option value="2" selected>2 Guests</option>
-                            <option value="3">3 Guests</option>
-                            <option value="4">4 Guests</option>
-                        </select>
-                    </div>
+                        <div class="form-group mb-15">
+                            <label class="form-label">Number of Guests *</label>
+                            <select name="num_travelers" class="form-control" required>
+                                <option value="1">1 Guest</option>
+                                <option value="2" selected>2 Guests</option>
+                                <option value="3">3 Guests</option>
+                                <option value="4">4 Guests</option>
+                            </select>
+                        </div>
 
-                    <div class="total-calc-box">
-                        <span>Estimated Total (<span id="nights_count_display">1</span> Night):</span>
-                        <strong id="hotel_total_display">₹{{ "{:,.0f}".format(hotel['price_per_night']) }}</strong>
-                    </div>
+                        <div style="background:var(--pastel-yellow-light); border:2px solid #000; box-shadow:2px 2px 0px #000; border-radius:4px; padding:14px; margin-bottom:18px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; font-size:13.5px; margin-bottom:4px;">
+                                <span style="font-family:'Space Grotesk',sans-serif; font-weight:600; text-transform:uppercase;">Stay (<span id="nights_count_display">1</span> Night):</span>
+                                <strong id="hotel_total_display" style="font-size:18px; font-family:'Space Grotesk',sans-serif; color:#000;">₹{{ "{:,.0f}".format(hotel['price_per_night']) }}</strong>
+                            </div>
+                            <small style="color:var(--text-secondary); font-size:11px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Includes all stay taxes &amp; WiFi</small>
+                        </div>
 
-                    <button type="submit" class="btn btn-book-now">Proceed to Secure Checkout</button>
-                </form>
-                {% else %}
-                <div class="login-prompt-box">
-                    <p>Please log in to reserve your stay and manage your bookings.</p>
-                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary-inline mt-10">Log In to Reserve</a>
+                        <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:15px; display:flex; justify-content:center; align-items:center; gap:6px;">
+                            <span>Reserve Room</span>
+                            <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+                        </button>
+                    </form>
+                    {% else %}
+                    <div style="text-align:center; padding:15px 0;">
+                        <p style="font-size:13.5px; color:var(--text-secondary); margin-bottom:15px;">Please log in to reserve your stay.</p>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="width:100%;">Log In to Reserve</a>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
             </div>
         </div>
     </div>

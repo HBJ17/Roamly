@@ -1,118 +1,152 @@
 {% extends 'base.html' %}
 
-{% block title %}Transport & Cab Services - Roamly{% endblock %}
+{% block title %}Transports & Transit Services - Roamly{% endblock %}
 
 {% block content %}
-<div class="packages-container">
-    <div class="page-header">
-        <h2>Transport & Transit Services</h2>
-        <p>Private cabs, luxury Volvo liners, UNESCO heritage mountain toy trains, and express direct flights across Tamil Nadu.</p>
+<!-- Section Hero Header -->
+<div class="travel-hero">
+    <div style="display:inline-flex; align-items:center; gap:8px; border:2px solid #000; background:var(--pastel-blue-light); padding:4px 12px; transform:rotate(1deg); box-shadow:2px 2px 0px #000; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; margin-bottom:12px;">
+        <span class="material-symbols-outlined" style="font-size:16px;">commute</span>
+        <span>SECTION 04: TRANSIT MANIFEST & TICKETING</span>
+    </div>
+    <h2>Private Cabs, Volvo Coaches, Mountain Rail & Air Transfers</h2>
+    <p>Door-to-door transit between Tamil Nadu cities, airport connections, and Nilgiri mountain railway transfers.</p>
+    
+    <div class="quick-destination-pills">
+        <span class="quick-destination-pill"><span class="material-symbols-outlined" style="font-size:15px;">local_taxi</span> Sedan & SUV Cabs</span>
+        <span class="quick-destination-pill"><span class="material-symbols-outlined" style="font-size:15px;">directions_bus</span> Multi-Axle Volvo Sleepers</span>
+        <span class="quick-destination-pill"><span class="material-symbols-outlined" style="font-size:15px;">train</span> Heritage Mountain Railway</span>
+        <span class="quick-destination-pill"><span class="material-symbols-outlined" style="font-size:15px;">flight</span> Regional Flights</span>
+    </div>
+</div>
+
+<!-- Search & Filter Bar (Boarding Pass Expeditor Style) -->
+<form method="GET" action="{{ url_for('transports.transports') }}" class="filter-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <span class="material-symbols-outlined" style="font-size:22px;">route</span>
+            <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:0.04em;">Search Transit Waypoints</span>
+        </div>
+        <span class="badge badge-peach" style="font-size:10px;">TRANSIT-DISPATCH-2024</span>
     </div>
 
-    <!-- Search and Filter Bar -->
-    <div class="search-filter-section">
-        <form method="GET" action="{{ url_for('transports.transports') }}" class="filter-card">
-            <div class="filter-row">
-                <div class="filter-group flex-1">
-                    <label for="transport-type-select">Transport Mode</label>
-                    <select id="transport-type-select" name="type">
-                        <option value="">All Modes</option>
-                        <option value="Cab" {% if selected_type == 'Cab' %}selected{% endif %}>Private Cab</option>
-                        <option value="Bus" {% if selected_type == 'Bus' %}selected{% endif %}>Luxury Bus / Volvo</option>
-                        <option value="Train" {% if selected_type == 'Train' %}selected{% endif %}>Train / Toy Train</option>
-                        <option value="Flight" {% if selected_type == 'Flight' %}selected{% endif %}>Flight</option>
-                    </select>
-                </div>
+    <div class="filter-row">
+        <div class="filter-group" style="flex:1; min-width:150px;">
+            <label for="transport-type-select">Transit Mode</label>
+            <select id="transport-type-select" name="type">
+                <option value="">All Modes</option>
+                <option value="Cab" {% if selected_type == 'Cab' %}selected{% endif %}>Private AC Cab</option>
+                <option value="Bus" {% if selected_type == 'Bus' %}selected{% endif %}>Luxury Coach</option>
+                <option value="Train" {% if selected_type == 'Train' %}selected{% endif %}>Mountain Train</option>
+                <option value="Flight" {% if selected_type == 'Flight' %}selected{% endif %}>Express Flight</option>
+            </select>
+        </div>
 
-                <div class="filter-group flex-1">
-                    <label for="source-select">From (Origin)</label>
-                    <select id="source-select" name="source">
-                        <option value="">All Origins</option>
-                        {% for s in sources %}
-                            <option value="{{ s }}" {% if selected_source == s %}selected{% endif %}>{{ s }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+        <div class="filter-group" style="flex:1; min-width:160px;">
+            <label for="source-select">Origin City</label>
+            <select id="source-select" name="source">
+                <option value="">All Origins</option>
+                {% for s in sources %}
+                    <option value="{{ s }}" {% if selected_source == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-                <div class="filter-group flex-1">
-                    <label for="dest-select">To (Destination)</label>
-                    <select id="dest-select" name="destination">
-                        <option value="">All Destinations</option>
-                        {% for d in destinations %}
-                            <option value="{{ d }}" {% if selected_dest == d %}selected{% endif %}>{{ d }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+        <div class="filter-group" style="flex:1; min-width:160px;">
+            <label for="dest-select">Destination City</label>
+            <select id="dest-select" name="destination">
+                <option value="">All Destinations</option>
+                {% for d in destinations %}
+                    <option value="{{ d }}" {% if selected_dest == d %}selected{% endif %}>{{ d }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-                <div class="filter-group flex-1">
-                    <label for="sort-select">Sort By</label>
-                    <select id="sort-select" name="sort_by">
-                        <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
-                        <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
-                        <option value="duration_asc" {% if sort_by == 'duration_asc' %}selected{% endif %}>Fastest Duration</option>
-                    </select>
-                </div>
+        <div class="filter-group" style="flex:1; min-width:150px;">
+            <label for="sort-select">Sort By</label>
+            <select id="sort-select" name="sort_by">
+                <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                <option value="duration_asc" {% if sort_by == 'duration_asc' %}selected{% endif %}>Fastest Duration</option>
+            </select>
+        </div>
 
-                <div class="filter-actions">
-                    <button type="submit" class="btn btn-search">Find Transport</button>
-                    {% if selected_type or selected_source or selected_dest or query or max_price or sort_by != 'price_asc' %}
-                        <a href="{{ url_for('transports.transports') }}" class="btn-reset">Reset</a>
-                    {% endif %}
-                </div>
-            </div>
-        </form>
+        <div style="display:flex; gap:8px; align-items:flex-end;">
+            <button type="submit" class="btn btn-primary" style="padding:10px 20px;">Search</button>
+            <a href="{{ url_for('transports.transports') }}" class="btn btn-outline" style="padding:10px 16px;">Reset</a>
+        </div>
     </div>
+</form>
 
-    <!-- Transport Cards List -->
-    {% if transports %}
-    <div class="packages-grid mt-25">
-        {% for t in transports %}
-        <div class="package-card">
-            {% if t['image_url'] %}
-            <div class="package-card-img-wrap">
-                <img src="{{ t['image_url'] }}" alt="{{ t['title'] }}" class="package-card-img">
-                <span class="category-badge">{{ t['transport_type'] }}</span>
+<!-- Transport Cards Grid (Boarding Pass / Transit Ticket Inked Style) -->
+<div class="packages-grid">
+    {% for t in transports %}
+    <div class="boarding-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+            <!-- Ticket Header Bar -->
+            <div class="boarding-card-header">
+                <div>
+                    <h4 style="color:#000; margin:0; font-size:17px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; font-weight:800;">{{ t['title'] }}</h4>
+                    <small style="opacity:0.85; color:var(--text-secondary); font-family:'Space Grotesk',sans-serif; text-transform:uppercase; font-size:11px; font-weight:700;">
+                        {{ t['departure_time'] }} Departure &bull; {{ t['duration_hours'] }} hrs
+                    </small>
+                </div>
+                <span class="badge badge-mint" style="font-size:11px;">
+                    {{ t['transport_type'] }}
+                </span>
             </div>
-            {% endif %}
 
-            <div class="package-card-body">
-                <div class="package-meta-top">
-                    <span class="duration-badge">{{ t['duration_hours'] }} Hours</span>
-                    {% if t['agency_name'] %}
-                        <span class="agency-mini-tag">{{ t['agency_name'] }}</span>
-                    {% endif %}
+            <div class="boarding-card-body">
+                <!-- Route Waypoint Line -->
+                <div style="display:flex; align-items:center; justify-content:space-between; margin:14px 0; background:var(--pastel-blue-light); padding:14px 18px; border-radius:4px; border:2px solid #000; box-shadow:2px 2px 0px #000;">
+                    <div style="text-align:left;">
+                        <div style="font-size:10px; color:var(--text-secondary); font-weight:700; text-transform:uppercase; font-family:'Space Grotesk',sans-serif;">ORIGIN</div>
+                        <strong style="font-size:15px; color:var(--text-primary); font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">{{ t['source_city'] }}</strong>
+                    </div>
+
+                    <div style="flex:1; text-align:center; padding:0 14px; position:relative;">
+                        <div style="height:2px; background:#000; border-top:1px dashed #000;"></div>
+                        <span style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:var(--pastel-yellow); padding:1px 8px; border-radius:4px; font-size:10px; font-weight:700; color:#000; border:1.5px solid #000; font-family:'Space Grotesk',sans-serif;">
+                            {{ t['duration_hours'] }}h
+                        </span>
+                    </div>
+
+                    <div style="text-align:right;">
+                        <div style="font-size:10px; color:var(--text-secondary); font-weight:700; text-transform:uppercase; font-family:'Space Grotesk',sans-serif;">DESTINATION</div>
+                        <strong style="font-size:15px; color:var(--text-primary); font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">{{ t['destination_city'] }}</strong>
+                    </div>
                 </div>
 
-                <h3 class="package-title mt-5">{{ t['title'] }}</h3>
-                <p class="route-badge"><strong>Route:</strong> {{ t['source_city'] }} to {{ t['destination_city'] }}</p>
-                <p class="departure-time-text"><small class="text-muted">Departure: {{ t['departure_time'] }}</small></p>
-
-                <div class="amenities-tags mt-10">
-                    {% for feat in (t['features'] or '').split(',')[:2] %}
-                        {% if feat.strip() %}<span class="amenity-chip">• {{ feat.strip() }}</span>{% endif %}
+                <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;">
+                    {% for feat in (t['features'] or '').split(',')[:3] %}
+                        <span class="travel-tag" style="font-size:11px; padding:2px 8px; background:var(--pastel-yellow-light); border:1.5px solid #000;">
+                            {{ feat.strip() }}
+                        </span>
                     {% endfor %}
                 </div>
             </div>
-
-            <div class="package-card-footer">
-                <div class="package-price">
-                    <span class="price-label">Fare</span>
-                    <span class="price-amount">₹{{ "{:,.0f}".format(t['price']) }}</span>
-                    <span class="price-unit">/ {% if t['transport_type'] == 'Cab' %}vehicle{% else %}seat{% endif %}</span>
-                </div>
-                <div class="package-card-actions">
-                    <a href="{{ url_for('transports.transport_detail', transport_id=t['id']) }}" class="btn btn-view-pkg">Details & Book</a>
-                </div>
-            </div>
         </div>
-        {% endfor %}
+
+        <!-- Ticket Footer Perforation -->
+        <div style="padding:12px 16px; border-top:2px dashed #000; background:var(--surface-container-low); display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <span style="font-size:10px; color:var(--text-secondary); font-weight:700; text-transform:uppercase; font-family:'Space Grotesk',sans-serif; display:block;">TRANSIT FARE</span>
+                <div class="package-price">{{ t['price']|currency }}<small style="font-size:11px; font-weight:500; color:var(--text-secondary);">/ seat</small></div>
+            </div>
+
+            <a href="{{ url_for('transports.transport_detail', transport_id=t['id']) }}" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:4px;">
+                <span>Book Transit</span>
+                <span class="material-symbols-outlined" style="font-size:15px;">arrow_forward</span>
+            </a>
+        </div>
     </div>
     {% else %}
-    <div class="no-results-card">
-        <h3>No Transport Routes Found</h3>
-        <p>No transport options matched your origin or destination filters. Try choosing different cities or clearing filters.</p>
-        <a href="{{ url_for('transports.transports') }}" class="btn btn-primary-inline mt-15">View All Transports</a>
+    <div class="card" style="grid-column: 1 / -1; text-align:center; padding:48px 20px;">
+        <span class="material-symbols-outlined" style="font-size:48px; margin-bottom:12px;">directions_bus</span>
+        <h3 style="font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">No Transport Routes Found</h3>
+        <p style="color:var(--text-secondary); margin:8px 0 20px; font-size:14px;">Try modifying your origin or destination filters.</p>
+        <a href="{{ url_for('transports.transports') }}" class="btn btn-primary">Show All Routes</a>
     </div>
-    {% endif %}
+    {% endfor %}
 </div>
 {% endblock %}

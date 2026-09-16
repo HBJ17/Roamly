@@ -1,33 +1,36 @@
 {% extends 'base.html' %}
 
-{% block title %}Travel Agency Partner Login - Roamly{% endblock %}
+{% block title %}Agency Partner Console - Roamly{% endblock %}
 
 {% block content %}
-<div class="auth-container">
-    <div class="auth-card agency-auth-card">
-        <div class="agency-auth-header">
-            <span class="agency-badge-pill">Partner Network</span>
-            <h2>Agency Portal Access</h2>
-            <p class="section-desc">Sign in with agency credentials provisioned by Roamly main administration to manage travel packages, cab fleets, hotel stays, and dynamic pricing.</p>
+<div class="card reveal-scroll" style="max-width: 480px; margin: 40px auto; padding:36px; border: 3px solid #000; box-shadow: 8px 8px 0px #000;">
+    <div style="text-align:center; margin-bottom:24px;">
+        <span class="badge badge-mint" style="margin-bottom:8px; transform:rotate(-1.5deg);">PARTNER NETWORK</span>
+        <h2 style="font-size:24px; margin:4px 0 6px;">Agency Partner Console</h2>
+        <p style="color:var(--text-secondary); font-size:13.5px; margin:0;">Sign in with agency credentials to manage inventory, cab fleets, dynamic pricing, and guest messages.</p>
+    </div>
+
+    <form action="{{ url_for('agency.login') }}" method="POST">
+        <div class="form-group mb-15">
+            <label class="form-label" for="username">Agency Username *</label>
+            <input type="text" id="username" name="username" class="form-control" placeholder="e.g. nilgiri_cabs / heritage_hotels / tamil_tours" required autofocus>
         </div>
 
-        <form action="{{ url_for('agency.login') }}" method="POST" class="auth-form">
-            <div class="form-group">
-                <label for="username">Agency Username *</label>
-                <input type="text" id="username" name="username" placeholder="e.g. nilgiri_cabs / heritage_hotels / tamil_tours" required autofocus>
-            </div>
-
-            <div class="form-group">
-                <label for="password">Agency Password *</label>
-                <input type="password" id="password" name="password" placeholder="Enter password" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary block-btn agency-btn-login mt-20">Log In to Agency Console</button>
-        </form>
-
-        <div class="admin-login-hint mt-20">
-            <small class="text-muted">Sample Partner Logins: <code>nilgiri_cabs</code> / <code>agency123</code> | <code>heritage_hotels</code> / <code>agency123</code> | <code>tamil_tours</code> / <code>agency123</code></small>
+        <div class="form-group mb-20">
+            <label class="form-label" for="password">Security Password *</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Enter partner password" required>
         </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:14px;">
+            Sign In to Partner Portal →
+        </button>
+    </form>
+
+    <div style="background:var(--pastel-yellow-light); border:2px solid #000; border-radius:var(--radius-sm); padding:14px; margin-top:20px; font-size:12px; box-shadow:2px 2px 0px #000;">
+        <strong style="font-family:'Space Grotesk',sans-serif;">Sample Partner Credentials:</strong><br>
+        <code>nilgiri_cabs</code> / <code>agency123</code><br>
+        <code>heritage_hotels</code> / <code>agency123</code><br>
+        <code>tamil_tours</code> / <code>agency123</code>
     </div>
 </div>
 {% endblock %}

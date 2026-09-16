@@ -98,6 +98,8 @@ def hotel_detail(hotel_id):
         flash('Hotel not found.', 'danger')
         return redirect(url_for('hotels.hotels'))
 
+    reviews_data = get_item_reviews_summary('hotel', hotel_id)
+
     from utils.geo import get_coordinates_for_location
     map_lat, map_lng, map_title = get_coordinates_for_location(hotel['city'])
 

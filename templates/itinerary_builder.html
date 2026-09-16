@@ -1,49 +1,65 @@
 {% extends 'base.html' %}
 
-{% block title %}Custom Multi-Day Trip Builder - Roamly{% endblock %}
+{% block title %}Expedition Quick-Planner - Roamly{% endblock %}
 
 {% block content %}
-<div class="travel-hero">
-    <h2>Custom Multi-Day Trip Planner</h2>
-    <p>Design your tailor-made South India holiday by combining private transport, luxury stays, and curated excursions.</p>
+<!-- Stitch Boarding Pass Expeditor Hero -->
+<div class="travel-hero reveal-scroll">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:12px; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:38px; height:38px; border:2px solid #000; background:var(--pastel-yellow); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; box-shadow:2px 2px 0px #000;">
+                <span class="material-symbols-outlined" style="font-size:22px;">confirmation_number</span>
+            </div>
+            <div>
+                <h2 style="font-size:20px; margin:0;">Boarding Pass Expeditor</h2>
+                <p style="margin:0; font-size:13px; color:var(--text-secondary);">Select your coordinates &amp; stamp your travel manifest</p>
+            </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+            <span class="badge badge-yellow" style="transform:rotate(1deg);">DOC: PASS-9921</span>
+            <span class="badge badge-neutral" style="background:#000; color:#fff;">PRIORITY CLASS</span>
+        </div>
+    </div>
 </div>
 
-<div class="package-detail-layout" style="display:grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+<div style="display:grid; grid-template-columns: 2fr 1fr; gap: 24px;">
     <!-- Builder Configuration Form -->
     <div>
         <form action="{{ url_for('itinerary.save_itinerary') }}" method="POST" id="itineraryForm">
-            <!-- Step 1: Destination & Dates -->
-            <div class="card mb-20">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3>1. Destination & Vacation Schedule</h3>
-                    <span class="travel-tag travel-tag-accent">Step 1</span>
+            <!-- Step 1: Destination & Schedule -->
+            <div class="card mb-20 reveal-scroll">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h3 style="font-size:16px; margin:0; display:flex; align-items:center; gap:6px;">
+                        <span class="material-symbols-outlined" style="font-size:18px;">pin_drop</span> 1. Where to wander?
+                    </h3>
+                    <span class="badge badge-yellow">Step 1</span>
                 </div>
                 
-                <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                     <div class="form-group">
-                        <label class="form-label">Destination</label>
+                        <label class="form-label">Destination Coordinate</label>
                         <select name="destination" class="form-control" onchange="window.location.href='/itinerary/builder?destination=' + this.value">
                             <option value="Ooty" {% if destination == 'Ooty' %}selected{% endif %}>Ooty & Nilgiris</option>
                             <option value="Kodaikanal" {% if destination == 'Kodaikanal' %}selected{% endif %}>Kodaikanal Valley</option>
                             <option value="Madurai" {% if destination == 'Madurai' %}selected{% endif %}>Madurai Temple City</option>
                             <option value="Thanjavur" {% if destination == 'Thanjavur' %}selected{% endif %}>Thanjavur & Chola Heritage</option>
-                            <option value="Rameswaram" {% if destination == 'Rameswaram' %}selected{% endif %}>Rameswaram Island & Pamban</option>
+                            <option value="Rameswaram" {% if destination == 'Rameswaram' %}selected{% endif %}>Rameswaram Island</option>
                             <option value="Chennai" {% if destination == 'Chennai' %}selected{% endif %}>Chennai Coastal City</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Trip Title / Custom Label</label>
-                        <input type="text" name="title" class="form-control" value="Exclusive {{ destination }} Getaway" required>
+                        <label class="form-label">Manifest Title</label>
+                        <input type="text" name="title" class="form-control" value="Expedition {{ destination }} Field Tour" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Departure / Start Date</label>
+                        <label class="form-label">Start Date</label>
                         <input type="date" name="start_date" id="startDate" class="form-control" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Trip Duration</label>
+                        <label class="form-label">Duration</label>
                         <select name="duration_days" id="durationDays" class="form-control" onchange="recalculateCost()">
                             <option value="2">2 Days / 1 Night</option>
                             <option value="3" selected>3 Days / 2 Nights</option>
@@ -55,16 +71,18 @@
             </div>
 
             <!-- Step 2: Transport Mode -->
-            <div class="card mb-20">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3>2. Choose Travel & Transit Service</h3>
-                    <span class="travel-tag travel-tag-accent">Step 2</span>
+            <div class="card mb-20 reveal-scroll">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h3 style="font-size:16px; margin:0; display:flex; align-items:center; gap:6px;">
+                        <span class="material-symbols-outlined" style="font-size:18px;">commute</span> 2. Transit & Vehicle Selection
+                    </h3>
+                    <span class="badge badge-mint">Step 2</span>
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">Available Transit Options</label>
+                    <label class="form-label">Transit Fleet Options</label>
                     <select name="transport_id" id="transportSelect" class="form-control" onchange="recalculateCost()">
-                        <option value="" data-price="0">-- No Transport (Self-Drive / Direct) --</option>
+                        <option value="" data-price="0">-- Self-Drive / Direct Walking Nomad --</option>
                         {% for t in transports %}
                         <option value="{{ t['id'] }}" data-price="{{ t['price'] }}">
                             {{ t['title'] }} ({{ t['transport_type'] }}) - {{ t['source_city'] }} to {{ t['destination_city'] }} [₹{{ t['price'] }}]
@@ -75,10 +93,12 @@
             </div>
 
             <!-- Step 3: Hotel & Stay Selection -->
-            <div class="card mb-20">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3>3. Select Luxury Hotel & Lodging</h3>
-                    <span class="travel-tag travel-tag-accent">Step 3</span>
+            <div class="card mb-20 reveal-scroll">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h3 style="font-size:16px; margin:0; display:flex; align-items:center; gap:6px;">
+                        <span class="material-symbols-outlined" style="font-size:18px;">hotel</span> 3. Lodging & Mountain Retreat
+                    </h3>
+                    <span class="badge badge-peach">Step 3</span>
                 </div>
                 
                 <div class="form-group">
@@ -87,7 +107,7 @@
                         <option value="" data-price="0">-- No Hotel Booking Required --</option>
                         {% for h in hotels %}
                         <option value="{{ h['id'] }}" data-price="{{ h['price_per_night'] }}">
-                            {{ h['name'] }} ({{ h['city'] }}) - ⭐ {{ h['star_rating'] }} [₹{{ h['price_per_night'] }}/night]
+                            {{ h['name'] }} ({{ h['city'] }}) - Rating: {{ h['star_rating'] }} [₹{{ h['price_per_night'] }}/night]
                         </option>
                         {% endfor %}
                     </select>
@@ -95,23 +115,25 @@
             </div>
 
             <!-- Step 4: Day-by-Day Activities -->
-            <div class="card mb-20">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3>4. Add Curated Excursions & Sightseeing</h3>
-                    <span class="travel-tag travel-tag-accent">Step 4</span>
+            <div class="card mb-20 reveal-scroll">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h3 style="font-size:16px; margin:0; display:flex; align-items:center; gap:6px;">
+                        <span class="material-symbols-outlined" style="font-size:18px;">hiking</span> 4. Field Excursions & Sightseeing
+                    </h3>
+                    <span class="badge badge-blue">Step 4</span>
                 </div>
                 
-                <p style="color:var(--text-muted); font-size:13.5px; margin-bottom:12px;">Select activities to include in your customized schedule.</p>
+                <p style="color:var(--text-secondary); font-size:13.5px; margin-bottom:12px;">Select activities to schedule in your personalized manifest.</p>
                 <div class="activities-checklist">
                     {% for act in activities %}
-                    <div style="display:flex; align-items:flex-start; gap:12px; padding:12px; background:var(--bg-page); border-radius:var(--radius-md); margin-bottom:10px; border:1px solid var(--border-color);">
-                        <input type="checkbox" class="activity-checkbox" value="{{ act['title'] }}" data-price="{{ act['cost'] }}" data-time="{{ act['time'] }}" data-desc="{{ act['desc'] }}" onchange="recalculateCost()" checked style="margin-top:4px; transform:scale(1.2);">
+                    <div style="display:flex; align-items:flex-start; gap:12px; padding:12px; background:var(--pastel-yellow-light); border-radius:var(--radius-sm); margin-bottom:8px; border:2px solid #000; box-shadow:2px 2px 0px #000;">
+                        <input type="checkbox" class="activity-checkbox" value="{{ act['title'] }}" data-price="{{ act['cost'] }}" data-time="{{ act['time'] }}" data-desc="{{ act['desc'] }}" onchange="recalculateCost()" checked style="margin-top:4px; transform:scale(1.2); accent-color:#000; cursor:pointer;">
                         <div style="flex:1;">
-                            <div style="display:flex; justify-content:space-between;">
-                                <strong>{{ act['title'] }}</strong>
-                                <span class="travel-card-price" style="font-size:14px;">₹{{ act['cost'] }}</span>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <strong style="font-size:14px; font-family:'Space Grotesk',sans-serif;">{{ act['title'] }}</strong>
+                                <span class="badge badge-mint" style="font-size:11px;">₹{{ act['cost'] }}</span>
                             </div>
-                            <small style="color:var(--accent); font-weight:600;">{{ act['time'] }} Slot</small> • <small style="color:var(--text-muted);">{{ act['desc'] }}</small>
+                            <small style="font-weight:700;">{{ act['time'] }} Slot</small> &bull; <small style="color:var(--text-secondary);">{{ act['desc'] }}</small>
                         </div>
                     </div>
                     {% endfor %}
@@ -124,14 +146,14 @@
             <!-- Map Visualization -->
             {% include 'components/map.html' %}
 
-            <div style="margin-top:25px;">
+            <div style="margin-top:24px;">
                 {% if session.get('user_id') %}
-                <button type="submit" class="btn btn-accent btn-lg" style="width:100%;">
-                    Save & Proceed to Checkout
+                <button type="submit" class="btn btn-primary btn-lg" style="width:100%; padding:14px; font-size:15px;">
+                    Stamp Ticket &amp; Proceed to Booking Manifest →
                 </button>
                 {% else %}
-                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg" style="width:100%;">
-                    Log in to Save & Book This Itinerary
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg" style="width:100%; padding:14px; font-size:15px;">
+                    Sign in to Stamp &amp; Book Manifest →
                 </a>
                 {% endif %}
             </div>
@@ -140,46 +162,46 @@
 
     <!-- Live Cost Calculator Sidebar -->
     <div>
-        <div class="boarding-card" style="position:sticky; top:90px;">
+        <div class="boarding-card" style="position:sticky; top:80px; box-shadow:6px 6px 0px #000;">
             <div class="boarding-card-header">
                 <div>
-                    <h4 style="color:white; margin:0;">Estimated Trip Cost</h4>
-                    <small style="opacity:0.8;">Live composite price</small>
+                    <h4 style="margin:0; font-size:16px;">Estimated Manifest Cost</h4>
+                    <small style="color:var(--text-secondary);">Live Composite Fare</small>
                 </div>
-                <span class="travel-tag travel-tag-accent" style="background:white; color:var(--primary);">Custom Plan</span>
+                <span class="badge badge-yellow">Cart Manifest</span>
             </div>
             
             <div class="boarding-card-body">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
-                    <span style="color:var(--text-muted);">Transit Base:</span>
-                    <strong id="sidebarTransitPrice">₹0</strong>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13.5px;">
+                    <span style="color:var(--text-secondary);">Transit Fare:</span>
+                    <strong id="sidebarTransitPrice" style="font-family:'Space Grotesk',sans-serif;">₹0</strong>
                 </div>
                 
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
-                    <span style="color:var(--text-muted);">Stay (<span id="sidebarNights">2</span> Nights):</span>
-                    <strong id="sidebarHotelPrice">₹0</strong>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13.5px;">
+                    <span style="color:var(--text-secondary);">Stay (<span id="sidebarNights">2</span> Nights):</span>
+                    <strong id="sidebarHotelPrice" style="font-family:'Space Grotesk',sans-serif;">₹0</strong>
                 </div>
 
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
-                    <span style="color:var(--text-muted);">Curated Excursions:</span>
-                    <strong id="sidebarActivitiesPrice">₹0</strong>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13.5px;">
+                    <span style="color:var(--text-secondary);">Field Excursions:</span>
+                    <strong id="sidebarActivitiesPrice" style="font-family:'Space Grotesk',sans-serif;">₹0</strong>
                 </div>
 
-                <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:14px;">
-                    <span style="color:var(--text-muted);">Taxes & Service (12%):</span>
-                    <strong id="sidebarTaxPrice">₹0</strong>
+                <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:13.5px;">
+                    <span style="color:var(--text-secondary);">Taxes &amp; Permits (12%):</span>
+                    <strong id="sidebarTaxPrice" style="font-family:'Space Grotesk',sans-serif;">₹0</strong>
                 </div>
 
-                <hr style="border:none; border-top:1px dashed var(--border-color); margin:15px 0;">
+                <hr style="border:none; border-top:2px dashed #000; margin:14px 0;">
 
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:16px; font-weight:700;">Grand Total:</span>
-                    <span class="travel-card-price" id="sidebarTotalPrice" style="font-size:26px;">₹0</span>
+                    <span style="font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:800; text-transform:uppercase;">Grand Total:</span>
+                    <span class="package-price" id="sidebarTotalPrice" style="font-size:24px;">₹0</span>
                 </div>
                 
-                <p style="font-size:11.5px; color:var(--text-muted); margin-top:12px; line-height:1.4;">
-                    Instant confirmation voucher with QR pass generated immediately upon checkout.
-                </p>
+                <div style="background:var(--pastel-yellow-light); border:1.5px solid #000; padding:10px; border-radius:var(--radius-sm); margin-top:14px; font-size:12px; color:var(--text-secondary); line-height:1.4;">
+                    Instant verified boarding token generated upon manifest confirmation.
+                </div>
             </div>
         </div>
     </div>

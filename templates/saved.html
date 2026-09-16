@@ -3,72 +3,78 @@
 {% block title %}Saved Destinations & Wishlist - Roamly{% endblock %}
 
 {% block content %}
-<div class="saved-container">
-    <div class="saved-header-box">
+<div class="travel-hero">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
         <div>
-            <h2>Saved Destinations & Wishlist</h2>
-            <p class="subtitle">Access your favorite Tamil Nadu holiday packages, heritage hotels, and transit routes.</p>
+            <div style="display:inline-flex; align-items:center; gap:8px; border:2px solid #000; background:var(--pastel-pink-light); padding:4px 12px; transform:rotate(1deg); box-shadow:2px 2px 0px #000; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; margin-bottom:12px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">favorite</span>
+                <span>WANDERLUST WISHLIST DOSSIER</span>
+            </div>
+            <h2>Saved Destinations &amp; Wishlist</h2>
+            <p>Your handpicked collection of vacation packages, heritage resorts, and scenic transit routes.</p>
         </div>
-        <div class="saved-counter-badge">
-            {{ saved_items|length }} Saved Item(s)
-        </div>
+        <span class="badge badge-yellow" style="font-size:12px; padding:6px 14px;">
+            {{ saved_items|length }} Saved Items
+        </span>
     </div>
+</div>
 
-    {% if saved_items %}
-    <div class="saved-grid mt-20">
-        {% for s in saved_items %}
-        <div class="saved-card">
+{% if saved_items %}
+<div class="packages-grid">
+    {% for s in saved_items %}
+    <div class="package-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
             {% if s['item_image_url'] %}
-            <div class="saved-card-img-wrap">
-                <img src="{{ s['item_image_url'] }}" alt="{{ s['item_title'] }}" class="saved-card-img">
-                <span class="saved-type-pill">{{ s['item_type']|upper }}</span>
+            <div class="package-card-img-wrap" style="position:relative; height:200px; border-bottom:2px solid #000; overflow:hidden;">
+                <img src="{{ s['item_image_url'] }}" alt="{{ s['item_title'] }}" class="package-card-img">
+                <span class="badge badge-mint" style="position:absolute; top:12px; left:12px; z-index:2;">{{ s['item_type']|upper }}</span>
+                {% if s['item_rating'] %}
+                <span class="badge badge-yellow" style="position:absolute; top:12px; right:12px; z-index:2;">Rating: {{ s['item_rating'] }}</span>
+                {% endif %}
             </div>
             {% endif %}
 
-            <div class="saved-card-body">
-                <div class="saved-card-header">
-                    <span class="location-tag">{{ s['item_location'] }}</span>
-                    {% if s['item_rating'] %}
-                        <span class="rating-badge">Rating: {{ s['item_rating'] }}</span>
-                    {% endif %}
-                </div>
+            <div class="package-card-body" style="padding:16px;">
+                <div style="font-size:11px; color:var(--text-secondary); margin-bottom:6px; font-weight:700; text-transform:uppercase; font-family:'Space Grotesk',sans-serif;">{{ s['item_location'] }}</div>
+                <h3 class="package-card-title">{{ s['item_title'] }}</h3>
 
-                <h3 class="saved-title mt-5">{{ s['item_title'] }}</h3>
-
-                <div class="saved-price-row mt-15">
-                    <span class="price-val">₹{{ "{:,.0f}".format(s['item_price']) }}</span>
-                    <span class="price-unit">
+                <div class="package-price" style="margin: 10px 0 16px;">
+                    ₹{{ "{:,.0f}".format(s['item_price']) }}
+                    <small style="font-size:12px; font-weight:500; color:var(--text-secondary);">
                         {% if s['item_type'] == 'package' %}/ person{% elif s['item_type'] == 'hotel' %}/ night{% else %}/ seat{% endif %}
-                    </span>
-                </div>
-
-                <div class="saved-card-actions mt-20">
-                    {% if s['item_type'] == 'package' %}
-                        <a href="{{ url_for('packages.package_detail', package_id=s['item_id']) }}" class="btn btn-primary-inline">View Package</a>
-                    {% elif s['item_type'] == 'hotel' %}
-                        <a href="{{ url_for('hotels.hotel_detail', hotel_id=s['item_id']) }}" class="btn btn-primary-inline">View Hotel</a>
-                    {% else %}
-                        <a href="{{ url_for('transports.transport_detail', transport_id=s['item_id']) }}" class="btn btn-primary-inline">View Transport</a>
-                    {% endif %}
-
-                    <form action="{{ url_for('dashboard.toggle_favorite', item_type=s['item_type'], item_id=s['item_id']) }}" method="POST" style="display: inline;">
-                        <button type="submit" class="btn btn-remove-saved" title="Remove from wishlist">Remove</button>
-                    </form>
+                    </small>
                 </div>
             </div>
         </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="card empty-saved-card mt-20">
-        <h3>Your Wishlist is Empty</h3>
-        <p>You haven't saved any travel packages, hotels, or transport routes yet. Browse our handpicked Tamil Nadu catalog and click "Save Destination" on any item to keep track of your travel ideas.</p>
-        <div class="mt-20">
-            <a href="{{ url_for('packages.packages') }}" class="btn btn-primary-inline">Browse Packages</a>
-            <a href="{{ url_for('hotels.hotels') }}" class="btn btn-secondary-inline">Browse Hotels</a>
-            <a href="{{ url_for('transports.transports') }}" class="btn btn-secondary-inline">Browse Transports</a>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-top:2px solid #000; background:var(--surface-container-low);">
+            {% if s['item_type'] == 'package' %}
+                <a href="{{ url_for('packages.package_detail', package_id=s['item_id']) }}" class="btn btn-primary btn-sm">Explore Plan</a>
+            {% elif s['item_type'] == 'hotel' %}
+                <a href="{{ url_for('hotels.hotel_detail', hotel_id=s['item_id']) }}" class="btn btn-primary btn-sm">Explore Stay</a>
+            {% else %}
+                <a href="{{ url_for('transports.transport_detail', transport_id=s['item_id']) }}" class="btn btn-primary btn-sm">Explore Transit</a>
+            {% endif %}
+
+            <form action="{{ url_for('dashboard.toggle_favorite', item_type=s['item_type'], item_id=s['item_id']) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-outline btn-sm" title="Remove from wishlist">Remove</button>
+            </form>
         </div>
     </div>
-    {% endif %}
+    {% endfor %}
 </div>
+{% else %}
+<div class="card" style="text-align:center; padding:60px 20px;">
+    <span class="material-symbols-outlined" style="font-size:48px; margin-bottom:12px;">bookmark_border</span>
+    <h3 style="margin-bottom:8px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Your Travel Wishlist is Empty</h3>
+    <p style="color:var(--text-secondary); max-width:480px; margin:0 auto 24px; font-size:14px;">
+        Browse our catalog and save any package, stay, or transit route to keep track of your travel plans.
+    </p>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <a href="{{ url_for('packages.packages') }}" class="btn btn-primary">Browse Packages</a>
+        <a href="{{ url_for('hotels.hotels') }}" class="btn btn-yellow">Browse Hotels</a>
+        <a href="{{ url_for('transports.transports') }}" class="btn btn-mint">Browse Transports</a>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

@@ -1,107 +1,142 @@
 {% extends 'base.html' %}
 
-{% block title %}Hotels & Resorts in Tamil Nadu - Roamly{% endblock %}
+{% block title %}Hotels, Resorts & Heritage Stays - Roamly{% endblock %}
 
 {% block content %}
-<div class="packages-container">
-    <div class="page-header">
-        <h2>Hotels & Heritage Resorts</h2>
-        <p>Handpicked luxury stays, heritage palaces, and hill station chalets across Tamil Nadu.</p>
+<!-- Section Pill & Hero Header -->
+<div class="travel-hero">
+    <div style="display:inline-flex; align-items:center; gap:8px; border:2px solid #000; background:var(--pastel-mint-light); padding:4px 12px; transform:rotate(-1deg); box-shadow:2px 2px 0px #000; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; margin-bottom:12px;">
+        <span class="material-symbols-outlined" style="font-size:16px;">hotel</span>
+        <span>SECTION 03: VERIFIED EXPEDITION LODGINGS</span>
+    </div>
+    <h2>Luxury Stays, Heritage Mansions & Hill Chalets</h2>
+    <p>Handcrafted heritage properties in Chettinad, tea bungalow retreats in Nilgiris, and coastal villas along the Bay of Bengal.</p>
+    
+    <div class="quick-destination-pills">
+        <span class="quick-destination-pill"><span class="material-symbols-outlined" style="font-size:15px;">verified</span> Star Rated Properties</span>
+        <span class="quick-destination-pill"><span class="material-symbols-outlined" style="font-size:15px;">pool</span> Swimming Pools & Spas</span>
+        <span class="quick-destination-pill"><span class="material-symbols-outlined" style="font-size:15px;">bakery_dining</span> Complimentary Breakfast</span>
+        <span class="quick-destination-pill"><span class="material-symbols-outlined" style="font-size:15px;">landscape</span> Mountain Views</span>
+    </div>
+</div>
+
+<!-- Search & Filter Bar (Boarding Pass Expeditor Style) -->
+<form method="GET" action="{{ url_for('hotels.hotels') }}" class="filter-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <span class="material-symbols-outlined" style="font-size:22px;">filter_alt</span>
+            <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:0.04em;">Filter Lodging Manifest</span>
+        </div>
+        <span class="badge badge-yellow" style="font-size:10px;">LODGE-REG-2024</span>
     </div>
 
-    <!-- Search and Filter Bar -->
-    <div class="search-filter-section">
-        <form method="GET" action="{{ url_for('hotels.hotels') }}" class="filter-card">
-            <div class="filter-row">
-                <div class="filter-group flex-2">
-                    <label for="search-input">Search Hotels</label>
-                    <input type="text" id="search-input" name="q" value="{{ query }}" placeholder="Hotel name, city, amenities...">
-                </div>
+    <div class="filter-row">
+        <div class="filter-group" style="flex:2; min-width:240px;">
+            <label for="search-input">Search Hotel Name or Keyword</label>
+            <input type="text" id="search-input" name="q" value="{{ query }}" placeholder="Search luxury resorts, chalets, homestays...">
+        </div>
 
-                <div class="filter-group flex-1">
-                    <label for="city-select">City / Destination</label>
-                    <select id="city-select" name="city">
-                        <option value="">All Destinations</option>
-                        {% for c in cities %}
-                            <option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+        <div class="filter-group" style="flex:1; min-width:160px;">
+            <label for="city-select">Destination City</label>
+            <select id="city-select" name="city">
+                <option value="">All Cities</option>
+                {% for c in cities %}
+                    <option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-                <div class="filter-group flex-1">
-                    <label for="max-price">Max Rate / Night (₹)</label>
-                    <input type="number" id="max-price" name="max_price" value="{{ max_price }}" placeholder="Max Price" min="1000" step="500">
-                </div>
+        <div class="filter-group" style="flex:1; min-width:130px;">
+            <label for="max-price">Max Rate / Night (INR)</label>
+            <input type="number" id="max-price" name="max_price" value="{{ max_price }}" placeholder="Max Rate" min="1000" step="500">
+        </div>
 
-                <div class="filter-group flex-1">
-                    <label for="sort-select">Sort By</label>
-                    <select id="sort-select" name="sort_by">
-                        <option value="rating_desc" {% if sort_by == 'rating_desc' %}selected{% endif %}>Highest Rated</option>
-                        <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
-                        <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
-                    </select>
-                </div>
+        <div class="filter-group" style="flex:1; min-width:160px;">
+            <label for="sort-select">Sort By</label>
+            <select id="sort-select" name="sort_by">
+                <option value="rating_desc" {% if sort_by == 'rating_desc' %}selected{% endif %}>Highest Rated</option>
+                <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+            </select>
+        </div>
 
-                <div class="filter-actions">
-                    <button type="submit" class="btn btn-search">Apply Filters</button>
-                    {% if query or selected_city or max_price or sort_by != 'rating_desc' %}
-                        <a href="{{ url_for('hotels.hotels') }}" class="btn-reset">Reset</a>
-                    {% endif %}
-                </div>
-            </div>
-        </form>
+        <div style="display:flex; gap:8px; align-items:flex-end;">
+            <button type="submit" class="btn btn-primary" style="padding:10px 20px;">Filter</button>
+            <a href="{{ url_for('hotels.hotels') }}" class="btn btn-outline" style="padding:10px 16px;">Reset</a>
+        </div>
     </div>
+</form>
 
-    <!-- Hotel Cards Grid -->
-    {% if hotels %}
-    <div class="packages-grid mt-25">
-        {% for h in hotels %}
-        <div class="package-card">
-            {% if h['image_url'] %}
-            <div class="package-card-img-wrap">
-                <img src="{{ h['image_url'] }}" alt="{{ h['name'] }}" class="package-card-img">
-                <span class="category-badge">{{ h['city'] }}</span>
-            </div>
-            {% endif %}
-
-            <div class="package-card-body">
-                <div class="package-meta-top">
-                    <span class="rating-badge">Rating: {{ h['star_rating'] }}</span>
-                    {% if h['agency_name'] %}
-                        <span class="agency-mini-tag">{{ h['agency_name'] }}</span>
-                    {% endif %}
+<!-- Hotel Cards Grid (Postcard Inked Style) -->
+<div class="packages-grid">
+    {% for h in hotels %}
+    <div class="package-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+            <!-- Postcard Top Header -->
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:12px 14px; border-bottom:2px solid #000; background:var(--pastel-yellow-warm);">
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span class="badge badge-mint" style="font-size:10px;">LODGE #{{ h['id'] }}</span>
+                    <span style="font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700; text-transform:uppercase; color:var(--text-secondary);">{{ h['city'] }}</span>
                 </div>
+                <!-- Postage Stamp Mockup -->
+                <div class="stamp-box" style="padding:2px 6px; font-size:9px;">
+                    <div style="font-weight:800;">STAY</div>
+                    <div style="font-weight:700; font-size:10px;">{{ h['star_rating'] }} STAR</div>
+                </div>
+            </div>
 
-                <h3 class="package-title mt-5">{{ h['name'] }}</h3>
-                <p class="hotel-address-text"><small class="text-muted">{{ h['address'] }}</small></p>
-                <p class="package-snippet">{{ (h['description'] or '')[:100] }}...</p>
+            <!-- Image Wrap with Stamped Overlays -->
+            <div class="package-card-img-wrap" style="position:relative; height:200px; border-bottom:2px solid #000; overflow:hidden;">
+                <img src="{{ h['image_url'] or 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80' }}" alt="{{ h['name'] }}" class="package-card-img" loading="lazy">
                 
-                <div class="amenities-tags mt-10">
-                    {% for am in (h['amenities'] or '').split(',')[:2] %}
-                        {% if am.strip() %}<span class="amenity-chip">• {{ am.strip() }}</span>{% endif %}
+                <span class="badge badge-blue" style="position:absolute; top:12px; left:12px; transform:rotate(-2deg); z-index:2;">
+                    <span class="material-symbols-outlined" style="font-size:13px; vertical-align:middle;">pin_drop</span> {{ h['city'] }}
+                </span>
+                
+                <span class="badge badge-yellow" style="position:absolute; bottom:12px; right:12px; z-index:2;">
+                    Rating: {{ h['star_rating'] }} / 5.0
+                </span>
+            </div>
+
+            <!-- Card Body Content -->
+            <div class="package-card-body" style="padding:16px;">
+                <h3 class="package-card-title" style="margin-bottom:6px;">{{ h['name'] }}</h3>
+                
+                <p style="color:var(--text-secondary); font-size:13px; margin-bottom:12px; display:flex; align-items:center; gap:4px;">
+                    <span class="material-symbols-outlined" style="font-size:15px; color:#000;">location_on</span>
+                    <span>{{ h['address'] }}</span>
+                </p>
+
+                <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;">
+                    {% for amenity in (h['amenities'] or '').split(',')[:3] %}
+                        <span class="travel-tag" style="font-size:11px; padding:2px 8px; background:var(--pastel-yellow-light);">
+                            {{ amenity.strip() }}
+                        </span>
                     {% endfor %}
                 </div>
             </div>
-
-            <div class="package-card-footer">
-                <div class="package-price">
-                    <span class="price-label">Tariff</span>
-                    <span class="price-amount">₹{{ "{:,.0f}".format(h['price_per_night']) }}</span>
-                    <span class="price-unit">/ night</span>
-                </div>
-                <div class="package-card-actions">
-                    <a href="{{ url_for('hotels.hotel_detail', hotel_id=h['id']) }}" class="btn btn-view-pkg">Details & Book</a>
-                </div>
-            </div>
         </div>
-        {% endfor %}
+
+        <!-- Card Footer -->
+        <div style="padding:12px 16px; border-top:2px solid #000; background:var(--surface-container-low); display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <span style="font-size:10px; color:var(--text-secondary); font-weight:700; text-transform:uppercase; font-family:'Space Grotesk',sans-serif; display:block;">EXPEDITION FARE</span>
+                <div class="package-price">{{ h['price_per_night']|currency }}<small style="font-size:11px; font-weight:500; color:var(--text-secondary);">/ night</small></div>
+            </div>
+
+            <a href="{{ url_for('hotels.hotel_detail', hotel_id=h['id']) }}" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:4px;">
+                <span>Book Room</span>
+                <span class="material-symbols-outlined" style="font-size:15px;">arrow_forward</span>
+            </a>
+        </div>
     </div>
     {% else %}
-    <div class="no-results-card">
-        <h3>No Hotels Found</h3>
-        <p>We could not find any hotels matching your search criteria. Try modifying your filters or clearing search terms.</p>
-        <a href="{{ url_for('hotels.hotels') }}" class="btn btn-primary-inline mt-15">Show All Hotels</a>
+    <div class="card" style="grid-column: 1 / -1; text-align:center; padding:48px 20px;">
+        <span class="material-symbols-outlined" style="font-size:48px; margin-bottom:12px;">hotel_class</span>
+        <h3 style="font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">No Properties Found</h3>
+        <p style="color:var(--text-secondary); margin:8px 0 20px; font-size:14px;">Try modifying your search criteria or price limits.</p>
+        <a href="{{ url_for('hotels.hotels') }}" class="btn btn-primary">Show All Properties</a>
     </div>
-    {% endif %}
+    {% endfor %}
 </div>
 {% endblock %}

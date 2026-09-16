@@ -4,92 +4,96 @@
 
 {% block content %}
 <div class="travel-hero">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
         <div>
-            <h2>Platform Commission & Financial Settlements</h2>
+            <div style="display:inline-flex; align-items:center; gap:8px; border:2px solid #000; background:var(--pastel-yellow); padding:4px 12px; transform:rotate(-1deg); box-shadow:2px 2px 0px #000; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; margin-bottom:12px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">receipt_long</span>
+                <span>FINANCIAL RECONCILIATION LEDGER</span>
+            </div>
+            <h2>Platform Commission &amp; Settlements</h2>
             <p>Supervise platform commission fees ({{ commission_rate }}%), track agency earnings, and reconcile partner payout requests.</p>
         </div>
-        <a href="/admin/dashboard" class="btn btn-outline btn-sm" style="color:white; border-color:white;">Back to Admin Dashboard</a>
+        <a href="/admin/dashboard" class="btn btn-outline btn-sm">Back to Dashboard</a>
     </div>
 </div>
 
 <!-- Financial Overview Metrics Grid -->
-<div class="grid-3 mb-30">
-    <div class="card" style="border-left: 4px solid #3b82f6;">
-        <span style="color:var(--text-muted); font-size:13px; text-transform:uppercase; font-weight:700;">Gross Platform Volume</span>
-        <div class="travel-card-price" style="font-size:28px; color:var(--primary); margin-top:8px;">₹{{ "{:,.2f}".format(total_sales) }}</div>
-        <small style="color:var(--text-muted);">From confirmed customer reservations</small>
+<div class="overview-grid" style="margin-bottom:24px;">
+    <div class="stat-card" style="border-left: 6px solid #000;">
+        <div class="stat-card-label">GROSS PLATFORM VOLUME</div>
+        <div class="stat-card-val" style="color:#000;">₹{{ "{:,.2f}".format(total_sales) }}</div>
+        <div class="stat-card-change">Confirmed customer bookings</div>
     </div>
 
-    <div class="card" style="border-left: 4px solid #10b981;">
-        <span style="color:var(--text-muted); font-size:13px; text-transform:uppercase; font-weight:700;">Platform Commission ({{ commission_rate }}%)</span>
-        <div class="travel-card-price" style="font-size:28px; color:#10b981; margin-top:8px;">₹{{ "{:,.2f}".format(platform_earnings) }}</div>
-        <small style="color:var(--text-muted);">Retained Roamly service revenue</small>
+    <div class="stat-card" style="border-left: 6px solid #15803d;">
+        <div class="stat-card-label">PLATFORM COMMISSION ({{ commission_rate }}%)</div>
+        <div class="stat-card-val" style="color:#15803d;">₹{{ "{:,.2f}".format(platform_earnings) }}</div>
+        <div class="stat-card-change">Retained service revenue</div>
     </div>
 
-    <div class="card" style="border-left: 4px solid var(--accent);">
-        <span style="color:var(--text-muted); font-size:13px; text-transform:uppercase; font-weight:700;">Net Partner Pool ({{ 100 - commission_rate }}%)</span>
-        <div class="travel-card-price" style="font-size:28px; color:var(--accent); margin-top:8px;">₹{{ "{:,.2f}".format(net_agency_pool) }}</div>
-        <small style="color:var(--text-muted);">Payable to hotels, cab fleets & agencies</small>
+    <div class="stat-card" style="border-left: 6px solid #000;">
+        <div class="stat-card-label">NET PARTNER POOL ({{ 100 - commission_rate }}%)</div>
+        <div class="stat-card-val" style="color:#000;">₹{{ "{:,.2f}".format(net_agency_pool) }}</div>
+        <div class="stat-card-change">Payable to hotels, cab fleets &amp; agencies</div>
     </div>
 </div>
 
 <!-- Payout Settlement Ledger -->
-<div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3>Agency Settlement Requests</h3>
-        <span class="travel-tag">{{ payouts|length }} Settlement Records</span>
+<div class="card" style="padding:24px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid #000; padding-bottom:12px; flex-wrap:wrap; gap:10px;">
+        <h3 style="margin:0; font-size:18px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Agency Settlement Requests</h3>
+        <span class="badge badge-mint">{{ payouts|length }} Settlement Records</span>
     </div>
 
     <div style="overflow-x:auto;">
-        <table class="table" style="width:100%; border-collapse:collapse;">
+        <table class="table-executive">
             <thead>
-                <tr style="border-bottom:2px solid var(--border-color); text-align:left;">
-                    <th style="padding:12px 10px;">ID</th>
-                    <th style="padding:12px 10px;">Agency Partner</th>
-                    <th style="padding:12px 10px;">Requested Amount</th>
-                    <th style="padding:12px 10px;">Commission (10%)</th>
-                    <th style="padding:12px 10px;">Net Payable</th>
-                    <th style="padding:12px 10px;">Bank Account / IFSC</th>
-                    <th style="padding:12px 10px;">Status</th>
-                    <th style="padding:12px 10px; text-align:right;">Actions</th>
+                <tr>
+                    <th>ID</th>
+                    <th>AGENCY PARTNER</th>
+                    <th>REQUESTED AMOUNT</th>
+                    <th>COMMISSION (10%)</th>
+                    <th>NET PAYABLE</th>
+                    <th>BANK ACCOUNT / IFSC</th>
+                    <th>STATUS</th>
+                    <th style="text-align:right;">ACTIONS</th>
                 </tr>
             </thead>
             <tbody>
                 {% for p in payouts %}
-                <tr style="border-bottom:1px solid var(--border-soft);">
-                    <td style="padding:12px 10px; font-weight:700;">#PAY-{{ p['id'] }}</td>
-                    <td style="padding:12px 10px;">
-                        <strong>{{ p['agency_name'] }}</strong>
-                        <br><small style="color:var(--text-muted);">{{ p['agency_type'] }}</small>
+                <tr>
+                    <td style="font-family:'Space Grotesk',monospace; font-weight:700; font-size:12px;">#PAY-{{ p['id'] }}</td>
+                    <td>
+                        <strong style="color:var(--text-primary); font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">{{ p['agency_name'] }}</strong>
+                        <br><small style="color:var(--text-secondary); font-family:'Space Grotesk',sans-serif; font-weight:700; text-transform:uppercase;">{{ p['agency_type'] }}</small>
                     </td>
-                    <td style="padding:12px 10px;">₹{{ "{:,.2f}".format(p['amount']) }}</td>
-                    <td style="padding:12px 10px; color:#10b981;">₹{{ "{:,.2f}".format(p['commission_amount']) }}</td>
-                    <td style="padding:12px 10px; font-weight:700; color:var(--accent);">₹{{ "{:,.2f}".format(p['net_payout']) }}</td>
-                    <td style="padding:12px 10px; font-size:12.5px; color:var(--text-main);">{{ p['bank_account_info'] }}</td>
-                    <td style="padding:12px 10px;">
-                        <span class="travel-tag {% if p['status'] in ['Approved', 'Processed'] %}travel-tag-accent{% endif %}">
+                    <td style="font-weight:700; font-family:'Space Grotesk',sans-serif;">₹{{ "{:,.2f}".format(p['amount']) }}</td>
+                    <td style="color:#15803d; font-weight:700; font-family:'Space Grotesk',sans-serif;">₹{{ "{:,.2f}".format(p['commission_amount']) }}</td>
+                    <td style="font-weight:800; font-family:'Space Grotesk',sans-serif; color:#000;">₹{{ "{:,.2f}".format(p['net_payout']) }}</td>
+                    <td style="font-size:12px; color:var(--text-secondary);">{{ p['bank_account_info'] }}</td>
+                    <td>
+                        <span class="badge {% if p['status'] in ['Approved', 'Processed'] %}badge-mint{% elif p['status'] == 'Pending' %}badge-yellow{% else %}badge-pink{% endif %}">
                             {{ p['status'] }}
                         </span>
                     </td>
-                    <td style="padding:12px 10px; text-align:right;">
+                    <td style="text-align:right;">
                         {% if p['status'] == 'Pending' %}
                         <div style="display:inline-flex; gap:6px;">
                             <form action="{{ url_for('admin.approve_payout', payout_id=p['id']) }}" method="POST" style="display:inline;">
-                                <button type="submit" class="btn btn-primary btn-sm" style="background:#10b981; border:none; padding:4px 10px;">Approve</button>
+                                <button type="submit" class="btn btn-primary btn-sm" style="padding:4px 10px; font-size:11.5px;">Approve</button>
                             </form>
                             <form action="{{ url_for('admin.reject_payout', payout_id=p['id']) }}" method="POST" style="display:inline;">
-                                <button type="submit" class="btn btn-outline btn-sm" style="color:#ef4444; border-color:#ef4444; padding:4px 10px;">Reject</button>
+                                <button type="submit" class="btn btn-outline btn-sm" style="color:#b91c1c; border-color:#000; padding:4px 10px; font-size:11.5px;">Reject</button>
                             </form>
                         </div>
                         {% else %}
-                        <small style="color:var(--text-muted);">Processed on {{ p['processed_at'] or 'Recent' }}</small>
+                        <small style="color:var(--text-secondary); font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; text-transform:uppercase;">Processed on {{ p['processed_at'] or 'Recent' }}</small>
                         {% endif %}
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="8" style="text-align:center; padding:30px; color:var(--text-muted);">No payout requests recorded.</td>
+                    <td colspan="8" style="text-align:center; padding:30px; color:var(--text-secondary); font-family:'Space Grotesk',sans-serif;">No payout requests recorded.</td>
                 </tr>
                 {% endfor %}
             </tbody>

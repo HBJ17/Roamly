@@ -5,159 +5,128 @@
 {% block content %}
 <div class="invoice-container">
     <!-- Action Bar (Hidden in Print) -->
-    <div class="invoice-actions no-print">
-        <a href="{{ url_for('bookings.booking_summary', booking_id=booking['id']) }}" class="btn btn-secondary-inline">
-            Back to Booking Voucher
+    <div class="invoice-actions no-print" style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <a href="{{ url_for('bookings.booking_summary', booking_id=booking['id']) }}" class="btn btn-outline btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span>
+            <span>Back to Booking Voucher</span>
         </a>
-        <div class="right-buttons">
-            <a href="{{ url_for('payments.view_email_confirmation', booking_id=booking['id']) }}" class="btn btn-secondary-inline">
-                View Email Confirmation
+        <div style="display:flex; gap:10px;">
+            <a href="{{ url_for('payments.view_email_confirmation', booking_id=booking['id']) }}" class="btn btn-yellow btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">mail</span>
+                <span>View Email Dispatch</span>
             </a>
-            <button onclick="window.print()" class="btn btn-print">
-                Print / Save PDF Invoice
+            <button onclick="window.print()" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">print</span>
+                <span>Print / Save PDF</span>
             </button>
         </div>
     </div>
 
-    <!-- Official Tax Invoice Document -->
-    <div class="invoice-sheet">
+    <!-- Official Tax Invoice Document (Inked Neo-Brutalist Folio) -->
+    <div class="card" style="padding:36px; border:3px solid #000; box-shadow:8px 8px 0px #000; background:white;">
         <!-- Top Header -->
-        <div class="invoice-header">
-            <div class="invoice-brand">
-                <h1>Roamly Travel Technologies Pvt Ltd</h1>
-                <p class="company-sub">Discover Tamil Nadu & South India Destination Network</p>
-                <p class="company-address">45 Mount Road, Guindy, Chennai, Tamil Nadu 600032, India</p>
-                <p class="company-tax"><strong>GSTIN:</strong> 33AAECR0492P1Z5 | <strong>PAN:</strong> AAECR0492P | <strong>State:</strong> Tamil Nadu (33)</p>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #000; padding-bottom:20px; margin-bottom:20px; flex-wrap:wrap; gap:16px;">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                    <span class="text-headline-md font-headline-md uppercase text-primary border-2 border-primary px-2.5 py-0.5 shadow-[2px_2px_0px_#000000] bg-pastel-yellow" style="font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:20px; border:2px solid #000; padding:2px 8px;">ROAMLY</span>
+                    <span class="badge badge-mint" style="font-size:10px;">EST. 1924</span>
+                </div>
+                <p style="font-size:13px; color:var(--text-secondary); margin:4px 0 0; font-family:'Space Grotesk',sans-serif; font-weight:600;">ROAMLY TRAVEL TECHNOLOGIES PVT LTD</p>
+                <p style="font-size:12px; color:var(--text-secondary); margin:2px 0 0;">45 Mount Road, Guindy, Chennai, Tamil Nadu 600032, India</p>
+                <p style="font-size:11px; color:var(--text-secondary); margin:2px 0 0; font-family:'Space Grotesk',sans-serif; font-weight:700;">GSTIN: 33AAECR0492P1Z5 &bull; PAN: AAECR0492P &bull; State: Tamil Nadu (33)</p>
             </div>
-            <div class="invoice-meta-box">
-                <div class="invoice-type-tag">TAX INVOICE</div>
-                <div class="meta-line"><strong>Invoice No:</strong> {{ invoice_number }}</div>
-                <div class="meta-line"><strong>Date of Issue:</strong> {{ booking['created_at']|format_date }}</div>
-                <div class="meta-line"><strong>Booking Ref:</strong> #ROAM-{{ booking['booking_type'][:3]|upper }}-{{ "%04d"|format(booking['id']) }}</div>
-                <div class="meta-line"><strong>Payment Status:</strong> <span class="badge-paid">PAID IN FULL</span></div>
+            <div style="text-align:right;">
+                <div class="badge badge-mint" style="font-size:12px; margin-bottom:8px;">OFFICIAL TAX INVOICE</div>
+                <div style="font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:700; color:var(--text-primary);">INVOICE NO: {{ invoice_number }}</div>
+                <div style="font-family:'Space Grotesk',sans-serif; font-size:12px; color:var(--text-secondary);">DATE: {{ booking['created_at']|format_date }}</div>
+                <div style="font-family:'Space Grotesk',sans-serif; font-size:12px; color:var(--text-secondary);">BOOKING REF: #ROAM-{{ booking['booking_type'][:3]|upper }}-{{ "%04d"|format(booking['id']) }}</div>
+                <div style="margin-top:6px;"><span class="badge badge-yellow" style="font-size:11px;">PAID IN FULL</span></div>
             </div>
         </div>
 
-        <hr class="invoice-hr">
-
         <!-- Party Information Columns -->
-        <div class="invoice-parties-grid">
-            <!-- Billed To -->
-            <div class="party-card">
-                <h4>Billed To (Customer):</h4>
-                <p class="party-name"><strong>{{ booking['user_full_name'] or booking['username'] }}</strong></p>
-                <p class="party-text">Email: {{ booking['user_email'] or booking['contact_email'] or 'N/A' }}</p>
-                <p class="party-text">Phone: {{ booking['contact_phone'] or booking['user_phone'] or 'N/A' }}</p>
-                <p class="party-text">Address: {{ booking['user_address'] or 'Tamil Nadu, India' }}</p>
-                <p class="party-text">Place of Supply: Tamil Nadu (33)</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom:24px;">
+            <div style="background:var(--pastel-yellow-light); border:2px solid #000; box-shadow:3px 3px 0px #000; border-radius:4px; padding:16px;">
+                <h4 style="font-family:'Space Grotesk',sans-serif; text-transform:uppercase; font-size:14px; margin-bottom:6px;">Billed To (Explorer):</h4>
+                <p style="font-weight:800; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; margin-bottom:4px;">{{ booking['user_full_name'] or booking['username'] }}</p>
+                <p style="font-size:12.5px; color:var(--text-secondary); margin:2px 0;">Email: {{ booking['user_email'] or booking['contact_email'] or 'N/A' }}</p>
+                <p style="font-size:12.5px; color:var(--text-secondary); margin:2px 0;">Phone: {{ booking['contact_phone'] or booking['user_phone'] or 'N/A' }}</p>
+                <p style="font-size:12.5px; color:var(--text-secondary); margin:2px 0;">Address: {{ booking['user_address'] or 'Tamil Nadu, India' }}</p>
             </div>
 
-            <!-- Fulfillment Agency Partner -->
-            <div class="party-card">
-                <h4>Fulfillment Partner Agency:</h4>
+            <div style="background:var(--pastel-blue-light); border:2px solid #000; box-shadow:3px 3px 0px #000; border-radius:4px; padding:16px;">
+                <h4 style="font-family:'Space Grotesk',sans-serif; text-transform:uppercase; font-size:14px; margin-bottom:6px;">Fulfillment Partner:</h4>
                 {% if item and item['agency_name'] %}
-                    <p class="party-name"><strong>{{ item['agency_name'] }}</strong></p>
-                    <p class="party-text">Partner Contact: {{ item['agency_phone'] or '+91 9444001122' }}</p>
-                    <p class="party-text">Support Email: {{ item['agency_email'] or 'support@agency.roamly.com' }}</p>
-                    <p class="party-text">Address: {{ item['agency_address'] or 'Tamil Nadu, India' }}</p>
+                    <p style="font-weight:800; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; margin-bottom:4px;">{{ item['agency_name'] }}</p>
+                    <p style="font-size:12.5px; color:var(--text-secondary); margin:2px 0;">Partner Contact: {{ item['agency_phone'] or '+91 9444001122' }}</p>
+                    <p style="font-size:12.5px; color:var(--text-secondary); margin:2px 0;">Support Email: {{ item['agency_email'] or 'support@agency.roamly.com' }}</p>
                 {% else %}
-                    <p class="party-name"><strong>Roamly Direct Operations Network</strong></p>
-                    <p class="party-text">Support Email: operations@roamly.com</p>
-                    <p class="party-text">Helpline: +91 44 2840 9000</p>
+                    <p style="font-weight:800; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; margin-bottom:4px;">Roamly Direct Operations Network</p>
+                    <p style="font-size:12.5px; color:var(--text-secondary); margin:2px 0;">Support Email: operations@roamly.com</p>
+                    <p style="font-size:12.5px; color:var(--text-secondary); margin:2px 0;">Helpline: +91 44 2840 9000</p>
                 {% endif %}
             </div>
         </div>
 
         <!-- Service & Itemized Charges Table -->
-        <div class="invoice-table-wrap mt-20">
-            <table class="invoice-table">
+        <div style="overflow-x:auto; margin-bottom:24px;">
+            <table class="table-executive">
                 <thead>
                     <tr>
-                        <th style="width: 5%;">#</th>
-                        <th style="width: 45%;">Service Description / SAC Code</th>
-                        <th style="width: 15%; text-align: right;">Unit Rate</th>
-                        <th style="width: 15%; text-align: center;">Qty / Travelers</th>
-                        <th style="width: 20%; text-align: right;">Amount (INR)</th>
+                        <th style="width:5%;">#</th>
+                        <th style="width:50%;">SERVICE DESCRIPTION / SAC CODE</th>
+                        <th style="width:15%; text-align:right;">UNIT RATE</th>
+                        <th style="width:15%; text-align:center;">QTY</th>
+                        <th style="width:15%; text-align:right;">AMOUNT (INR)</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>1</td>
                         <td>
-                            <strong>{{ item.get('title') or item.get('name') or 'Travel Service' }}</strong><br>
-                            <span class="text-muted">Category: {{ booking['booking_type'] }} Booking | SAC Code: 998553 (Tour Operator & Travel Agency Services)</span>
+                            <strong style="font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">{{ item.get('title') or item.get('name') or 'Travel Service' }}</strong><br>
+                            <span style="font-size:11px; color:var(--text-secondary);">Category: {{ booking['booking_type'] }} Booking &bull; SAC: 998553 (Tour Operator &amp; Travel Agency Services)</span>
                             <br>
-                            <span class="text-muted">Scheduled Service Date: {{ booking['travel_date'] }}{% if booking['check_out_date'] %} to {{ booking['check_out_date'] }}{% endif %}</span>
+                            <span style="font-size:11px; color:var(--text-secondary);">Service Date: {{ booking['travel_date'] }}{% if booking['check_out_date'] %} to {{ booking['check_out_date'] }}{% endif %}</span>
                         </td>
-                        <td style="text-align: right;">₹{{ "{:,.2f}".format(subtotal / booking['num_travelers']) if booking['num_travelers'] > 0 else "{:,.2f}".format(subtotal) }}</td>
-                        <td style="text-align: center;">{{ booking['num_travelers'] }}</td>
-                        <td style="text-align: right;">₹{{ "{:,.2f}".format(subtotal) }}</td>
+                        <td style="text-align:right; font-family:'Space Grotesk',sans-serif; font-weight:700;">₹{{ "{:,.2f}".format(subtotal / booking['num_travelers']) if booking['num_travelers'] > 0 else "{:,.2f}".format(subtotal) }}</td>
+                        <td style="text-align:center; font-family:'Space Grotesk',sans-serif; font-weight:700;">{{ booking['num_travelers'] }}</td>
+                        <td style="text-align:right; font-family:'Space Grotesk',sans-serif; font-weight:800;">₹{{ "{:,.2f}".format(subtotal) }}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- Totals & Taxes Grid -->
-        <div class="invoice-calculation-grid">
-            <div class="payment-details-box">
-                <h4>Payment & Settlement Details</h4>
-                <div class="payment-record-line"><strong>Payment Mode:</strong> {{ payment['payment_method'] if payment else 'Credit / Debit Card' }}</div>
-                <div class="payment-record-line"><strong>Gateway Ref / TXN ID:</strong> {{ payment['transaction_id'] if payment else 'TXN-ROAM-8839210' }}</div>
-                <div class="payment-record-line"><strong>Card / Account:</strong> •••• •••• •••• {{ payment['card_last4'] if payment else '8821' }}</div>
-                <div class="payment-record-line"><strong>Payer Reference:</strong> {{ payment['payer_name'] if payment else booking['username'] }}</div>
-                <div class="payment-record-line"><strong>Transaction Timestamp:</strong> {{ payment['created_at'] if payment else booking['created_at'] }}</div>
-                <div class="tax-note mt-10">
-                    * GST is levied at 5% (2.5% CGST + 2.5% SGST) under composition scheme for tour operator services without input tax credit.
+        <!-- Total Breakdown & Stamped Signature -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; border-top:2px solid #000; padding-top:20px; flex-wrap:wrap; gap:20px;">
+            <div style="display:flex; align-items:center; gap:16px;">
+                <div class="stamp-box" style="padding:10px 18px; background:var(--pastel-yellow); transform:rotate(-4deg);">
+                    <div style="font-size:11px; font-weight:800;">SEAL OF SETTLEMENT</div>
+                    <div style="font-size:13px; font-weight:800;">OFFICIALLY PAID</div>
+                </div>
+                <div>
+                    <span style="font-size:10px; font-family:'Space Grotesk',sans-serif; font-weight:700; text-transform:uppercase; color:var(--text-secondary); display:block;">AUTHORIZED SIGNATORY</span>
+                    <div class="font-marker" style="font-size:22px; color:#000;">Roamly Accounts &amp; Treasury &bull;</div>
                 </div>
             </div>
 
-            <div class="totals-table-box">
-                <table class="totals-table">
-                    <tr>
-                        <td>Subtotal (Taxable Value):</td>
-                        <td style="text-align: right;">₹{{ "{:,.2f}".format(subtotal) }}</td>
-                    </tr>
-                    {% if discount_amount > 0 %}
-                    <tr class="discount-tr">
-                        <td>Promotional Discount:</td>
-                        <td style="text-align: right;">- ₹{{ "{:,.2f}".format(discount_amount) }}</td>
-                    </tr>
-                    {% endif %}
-                    <tr>
-                        <td>CGST (2.5%):</td>
-                        <td style="text-align: right;">₹{{ "{:,.2f}".format(tax_amount / 2.0) }}</td>
-                    </tr>
-                    <tr>
-                        <td>SGST (2.5%):</td>
-                        <td style="text-align: right;">₹{{ "{:,.2f}".format(tax_amount / 2.0) }}</td>
-                    </tr>
-                    <tr class="grand-total-tr">
-                        <td><strong>Total Invoice Value (INR):</strong></td>
-                        <td style="text-align: right;"><strong>₹{{ "{:,.2f}".format(total_amount) }}</strong></td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-
-        <!-- Signatory & Terms -->
-        <div class="invoice-footer-section">
-            <div class="terms-column">
-                <h5>Terms & Conditions:</h5>
-                <ol>
-                    <li>This is a computer-generated tax invoice and requires no physical signature under IT Act provisions.</li>
-                    <li>All cancellations and rescheduling are governed by Roamly and partner agency policies.</li>
-                    <li>For GST claiming or invoice queries, contact invoicing@roamly.com within 30 days of issue.</li>
-                </ol>
-            </div>
-            <div class="signatory-column">
-                <div class="digital-stamp">
-                    <div class="stamp-circle">
-                        <span class="stamp-org">ROAMLY TRAVEL</span>
-                        <span class="stamp-verified">DIGITALLY VERIFIED</span>
-                        <span class="stamp-loc">CHENNAI</span>
-                    </div>
+            <div style="min-width:240px; font-family:'Space Grotesk',sans-serif; font-size:14px; display:flex; flex-direction:column; gap:6px;">
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--text-secondary);">Taxable Subtotal:</span>
+                    <strong>₹{{ "{:,.2f}".format(subtotal) }}</strong>
                 </div>
-                <p class="signatory-text">Authorized Signatory<br>Roamly Travel Technologies</p>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--text-secondary);">CGST (2.5%):</span>
+                    <strong>₹{{ "{:,.2f}".format(tax_amount / 2) }}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--text-secondary);">SGST (2.5%):</span>
+                    <strong>₹{{ "{:,.2f}".format(tax_amount / 2) }}</strong>
+                </div>
+                <div style="border-top:2px solid #000; padding-top:6px; display:flex; justify-content:space-between; font-size:18px; font-weight:800;">
+                    <span>Grand Total:</span>
+                    <span class="package-price" style="font-size:20px;">₹{{ "{:,.2f}".format(booking['total_price']) }}</span>
+                </div>
             </div>
         </div>
     </div>
