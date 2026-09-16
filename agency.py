@@ -361,3 +361,28 @@ def delete_transport(transport_id):
     conn.close()
     flash('Transport service removed.', 'success')
     return redirect(url_for('agency.dashboard'))
+
+# agency reviews & guest feedback
+@agency_bp.route('/reviews')
+@agency_required
+def reviews():
+    agency_id = session['agency_id']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # fetch reviews across all agency listings
+    cursor.execute('''
+        SELECT r.*, u.username, u.full_name,
+               COALESCE(p.title, h.name, t.title) as item_title
+        FROM reviews r
+        JOIN users u ON r.user_id = u.id
+        LEFT JOIN packages p ON r.item_type = 'package' AND r.item_id = p.id AND p.agency_id = %s
+        LEFT JOIN hotels h ON r.item_type = 'hotel' AND r.item_id = h.id AND h.agency_id = %s
+        LEFT JOIN transports t ON r.item_type = 'transport' AND r.item_id = t.id AND t.agency_id = %s
+        WHERE p.id IS NOT NULL OR h.id IS NOT NULL OR t.id IS NOT NULL
+        ORDER BY r.created_at DESC
+    ''', (agency_id, agency_id, agency_id))
+    reviews_list = cursor.fetchall()
+    conn.close()
+
+    return render_template('agency/reviews.html', reviews=reviews_list)

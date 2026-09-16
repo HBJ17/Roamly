@@ -239,14 +239,34 @@ def init_db():
             item_type VARCHAR(50) NOT NULL,
             item_id INT NOT NULL,
             rating INT NOT NULL,
+            cleanliness_rating INT DEFAULT 5,
+            service_rating INT DEFAULT 5,
+            location_rating INT DEFAULT 5,
+            value_rating INT DEFAULT 5,
             title VARCHAR(200) NOT NULL,
             comment TEXT NOT NULL,
             travel_type VARCHAR(50) DEFAULT 'Solo',
             verified_booking INT DEFAULT 1,
+            agency_reply TEXT,
+            agency_replied_at DATETIME,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
+
+    # safe column migrations for reviews
+    for col, ctype in [
+        ('cleanliness_rating', 'INT DEFAULT 5'),
+        ('service_rating', 'INT DEFAULT 5'),
+        ('location_rating', 'INT DEFAULT 5'),
+        ('value_rating', 'INT DEFAULT 5'),
+        ('agency_reply', 'TEXT'),
+        ('agency_replied_at', 'DATETIME')
+    ]:
+        try:
+            cursor.execute(f'ALTER TABLE reviews ADD COLUMN {col} {ctype}')
+        except Exception:
+            pass
 
     # saved items table
     cursor.execute('''
