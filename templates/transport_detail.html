@@ -52,8 +52,8 @@
             <div class="card mt-20">
                 <h3>Included Service Features & Comfort</h3>
                 <ul class="amenities-list">
-                    {% for feat in transport['features'].split(',') %}
-                        <li><span class="bullet">•</span> {{ feat.strip() }}</li>
+                    {% for feat in (transport['features'] or '').split(',') %}
+                        {% if feat.strip() %}<li><span class="bullet">•</span> {{ feat.strip() }}</li>{% endif %}
                     {% endfor %}
                 </ul>
             </div>
@@ -80,7 +80,7 @@
                 <div class="reviews-header-flex">
                     <div>
                         <h3>Passenger Reviews & Ratings</h3>
-                        <p class="section-desc">Verified feedback from travelers who commuted on this route.</p>
+                        <p class="section-desc">Verified feedback from travelers who booked this transport service.</p>
                     </div>
                     <div class="overall-rating-badge">
                         <span class="score">{{ reviews_data['average_rating'] }}</span>
@@ -116,36 +116,36 @@
                             <div class="form-group flex-1">
                                 <label for="rating">Star Rating *</label>
                                 <select id="rating" name="rating" required>
-                                    <option value="5" selected>5 Stars - Smooth & Punctual</option>
+                                    <option value="5" selected>5 Stars - Exceptional Service</option>
                                     <option value="4">4 Stars - Very Good</option>
                                     <option value="3">3 Stars - Average</option>
-                                    <option value="2">2 Stars - Delayed / Poor</option>
-                                    <option value="1">1 Star - Unsatisfactory</option>
+                                    <option value="2">2 Stars - Poor</option>
+                                    <option value="1">1 Star - Terrible</option>
                                 </select>
                             </div>
                             <div class="form-group flex-1">
                                 <label for="travel_type">Travel Type</label>
                                 <select id="travel_type" name="travel_type">
-                                    <option value="Solo" selected>Solo Commute</option>
+                                    <option value="Solo" selected>Solo Passenger</option>
                                     <option value="Family">Family Travel</option>
                                     <option value="Couple">Couple</option>
+                                    <option value="Business">Business Trip</option>
                                     <option value="Friends">Friends Group</option>
-                                    <option value="Business">Business</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="title">Review Headline *</label>
-                            <input type="text" id="title" name="title" placeholder="e.g. Excellent chauffeur, smooth ghat road driving to Ooty!" required>
+                            <input type="text" id="title" name="title" placeholder="e.g. Prompt cab arrival, polite driver, and smooth ghat ride!" required>
                         </div>
 
                         <div class="form-group">
                             <label for="comment">Detailed Feedback *</label>
-                            <textarea id="comment" name="comment" rows="3" placeholder="Share your experience regarding driver punctuality, vehicle cleanliness, AC comfort, and rest stops..." required></textarea>
+                            <textarea id="comment" name="comment" rows="3" placeholder="Share your experience regarding punctuality, vehicle cleanliness, driving safety, and comfort..." required></textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-submit">Submit Passenger Review</button>
+                        <button type="submit" class="btn btn-submit">Submit Verified Review</button>
                     </form>
                 </div>
                 {% else %}
@@ -171,7 +171,7 @@
                             </div>
                             <h5 class="review-title mt-5">{{ r['title'] }}</h5>
                             <p class="review-body">{{ r['comment'] }}</p>
-                            <small class="review-date text-muted">Reviewed on {{ r['created_at'][:10] }}</small>
+                            <small class="review-date text-muted">Reviewed on {{ r['created_at']|format_date }}</small>
                         </div>
                         {% endfor %}
                     {% else %}

@@ -88,7 +88,7 @@
                     <tr>
                         <td>
                             <strong>#ROAM-{{ b['booking_type'][:3]|upper }}-{{ "%04d"|format(b['id']) }}</strong><br>
-                            <small class="text-muted">{{ b['created_at'][:10] }}</small>
+                            <small class="text-muted">{{ b['created_at']|format_date }}</small>
                         </td>
                         <td>
                             <strong>{{ b['user_full_name'] or b['username'] }}</strong><br>

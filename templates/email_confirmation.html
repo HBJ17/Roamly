@@ -30,11 +30,11 @@
             </div>
             <div class="meta-row">
                 <span class="meta-label">Subject:</span>
-                <span class="meta-val"><strong>Booking Confirmed: {{ item['title'] if item and item['title'] else (item['name'] if item else 'Travel Service') }} [#ROAM-{{ "%04d"|format(booking['id']) }}]</strong></span>
+                <span class="meta-val"><strong>Booking Confirmed: {{ (item.get('title') or item.get('name') if item else 'Travel Service') }} [#ROAM-{{ "%04d"|format(booking['id']) }}]</strong></span>
             </div>
             <div class="meta-row">
                 <span class="meta-label">Date:</span>
-                <span class="meta-val">{{ booking['created_at'] }} (Delivered to Primary Inbox)</span>
+                <span class="meta-val">{{ booking['created_at']|format_datetime }} (Delivered to Primary Inbox)</span>
             </div>
         </div>
 
@@ -71,7 +71,7 @@
                     <table class="email-summary-table">
                         <tr>
                             <td class="tbl-lbl">Service:</td>
-                            <td><strong>{{ item['title'] if item and item['title'] else (item['name'] if item else 'Travel Itinerary') }}</strong></td>
+                            <td><strong>{{ (item.get('title') or item.get('name') if item else 'Travel Itinerary') }}</strong></td>
                         </tr>
                         <tr>
                             <td class="tbl-lbl">Category:</td>

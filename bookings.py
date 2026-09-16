@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database.connection import get_db_connection
 from utils.decorators import login_required
@@ -139,9 +140,18 @@ def booking_summary(booking_id):
         ''', (booking['transport_id'],))
         item = cursor.fetchone()
 
+    nights = 1
+    if booking['booking_type'] == 'Hotel' and booking.get('travel_date') and booking.get('check_out_date'):
+        try:
+            d1 = datetime.strptime(booking['travel_date'], '%Y-%m-%d')
+            d2 = datetime.strptime(booking['check_out_date'], '%Y-%m-%d')
+            nights = max(1, (d2 - d1).days)
+        except Exception:
+            nights = 1
+
     conn.close()
 
-    return render_template('booking_summary.html', booking=booking, item=item)
+    return render_template('booking_summary.html', booking=booking, item=item, nights=nights)
 
 # modify booking
 @bookings_bp.route('/bookings/modify/<int:booking_id>', methods=['GET', 'POST'])
@@ -177,6 +187,15 @@ def modify_booking(booking_id):
         cursor.execute('SELECT * FROM transports WHERE id = %s', (booking['transport_id'],))
         item = cursor.fetchone()
 
+    nights = 1
+    if booking['booking_type'] == 'Hotel' and booking.get('travel_date') and booking.get('check_out_date'):
+        try:
+            d1 = datetime.strptime(booking['travel_date'], '%Y-%m-%d')
+            d2 = datetime.strptime(booking['check_out_date'], '%Y-%m-%d')
+            nights = max(1, (d2 - d1).days)
+        except Exception:
+            nights = 1
+
     if request.method == 'POST':
         travel_date = request.form.get('travel_date', booking['travel_date'])
         check_out_date = request.form.get('check_out_date', booking['check_out_date'])
@@ -191,16 +210,24 @@ def modify_booking(booking_id):
             num_travelers = booking['num_travelers']
 
         # recompute price
-        total_price = booking['total_price']
+        total_price = float(booking['total_price'])
         if booking['booking_type'] == 'Package' and item:
-            total_price = item['price'] * num_travelers
+            total_price = float(item['price']) * num_travelers
         elif booking['booking_type'] == 'Hotel' and item:
-            total_price = item['price_per_night']
+            calc_nights = 1
+            if travel_date and check_out_date:
+                try:
+                    d1 = datetime.strptime(travel_date, '%Y-%m-%d')
+                    d2 = datetime.strptime(check_out_date, '%Y-%m-%d')
+                    calc_nights = max(1, (d2 - d1).days)
+                except Exception:
+                    calc_nights = 1
+            total_price = float(item['price_per_night']) * calc_nights
         elif booking['booking_type'] == 'Transport' and item:
             if item['transport_type'] == 'Cab':
-                total_price = item['price']
+                total_price = float(item['price'])
             else:
-                total_price = item['price'] * num_travelers
+                total_price = float(item['price']) * num_travelers
 
         # update booking
         cursor.execute('''
@@ -222,4 +249,4 @@ def modify_booking(booking_id):
         return redirect(url_for('bookings.booking_summary', booking_id=booking_id))
 
     conn.close()
-    return render_template('booking_modify.html', booking=booking, item=item)
+    return render_template('booking_modify.html', booking=booking, item=item, nights=nights)

@@ -32,7 +32,7 @@
             <div class="invoice-meta-box">
                 <div class="invoice-type-tag">TAX INVOICE</div>
                 <div class="meta-line"><strong>Invoice No:</strong> {{ invoice_number }}</div>
-                <div class="meta-line"><strong>Date of Issue:</strong> {{ booking['created_at'][:10] }}</div>
+                <div class="meta-line"><strong>Date of Issue:</strong> {{ booking['created_at']|format_date }}</div>
                 <div class="meta-line"><strong>Booking Ref:</strong> #ROAM-{{ booking['booking_type'][:3]|upper }}-{{ "%04d"|format(booking['id']) }}</div>
                 <div class="meta-line"><strong>Payment Status:</strong> <span class="badge-paid">PAID IN FULL</span></div>
             </div>
@@ -84,7 +84,7 @@
                     <tr>
                         <td>1</td>
                         <td>
-                            <strong>{{ item['title'] if item and item['title'] else (item['name'] if item else 'Travel Service') }}</strong><br>
+                            <strong>{{ item.get('title') or item.get('name') or 'Travel Service' }}</strong><br>
                             <span class="text-muted">Category: {{ booking['booking_type'] }} Booking | SAC Code: 998553 (Tour Operator & Travel Agency Services)</span>
                             <br>
                             <span class="text-muted">Scheduled Service Date: {{ booking['travel_date'] }}{% if booking['check_out_date'] %} to {{ booking['check_out_date'] }}{% endif %}</span>

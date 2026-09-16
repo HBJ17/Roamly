@@ -85,15 +85,15 @@
 
                     <h3 class="package-title mt-5">{{ pkg['title'] }}</h3>
                     <p class="package-duration"><strong>Duration:</strong> {{ pkg['duration_days'] }} Days / {{ pkg['duration_nights'] }} Nights</p>
-                    <p class="package-snippet">{{ pkg['description'][:100] }}...</p>
+                    <p class="package-snippet">{{ (pkg['description'] or '')[:100] }}...</p>
 
                     {% if pkg['food_highlights'] %}
-                    <p class="package-dining-snippet"><strong>Dining:</strong> {{ pkg['food_highlights'][:75] }}...</p>
+                    <p class="package-dining-snippet"><strong>Dining:</strong> {{ (pkg['food_highlights'] or '')[:75] }}...</p>
                     {% endif %}
 
                     <div class="package-highlights-tags mt-10">
-                        {% for hl in pkg['highlights'].split(',')[:2] %}
-                            <span class="hl-tag">• {{ hl.strip() }}</span>
+                        {% for hl in (pkg['highlights'] or '').split(',')[:2] %}
+                            {% if hl.strip() %}<span class="hl-tag">• {{ hl.strip() }}</span>{% endif %}
                         {% endfor %}
                     </div>
                 </div>

@@ -74,11 +74,11 @@
 
                 <h3 class="package-title mt-5">{{ h['name'] }}</h3>
                 <p class="hotel-address-text"><small class="text-muted">{{ h['address'] }}</small></p>
-                <p class="package-snippet">{{ h['description'][:100] }}...</p>
+                <p class="package-snippet">{{ (h['description'] or '')[:100] }}...</p>
                 
                 <div class="amenities-tags mt-10">
-                    {% for am in h['amenities'].split(',')[:2] %}
-                        <span class="amenity-chip">• {{ am.strip() }}</span>
+                    {% for am in (h['amenities'] or '').split(',')[:2] %}
+                        {% if am.strip() %}<span class="amenity-chip">• {{ am.strip() }}</span>{% endif %}
                     {% endfor %}
                 </div>
             </div>

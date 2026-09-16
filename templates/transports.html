@@ -88,8 +88,8 @@
                 <p class="departure-time-text"><small class="text-muted">Departure: {{ t['departure_time'] }}</small></p>
 
                 <div class="amenities-tags mt-10">
-                    {% for feat in t['features'].split(',')[:2] %}
-                        <span class="amenity-chip">• {{ feat.strip() }}</span>
+                    {% for feat in (t['features'] or '').split(',')[:2] %}
+                        {% if feat.strip() %}<span class="amenity-chip">• {{ feat.strip() }}</span>{% endif %}
                     {% endfor %}
                 </div>
             </div>

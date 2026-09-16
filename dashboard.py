@@ -85,6 +85,9 @@ def dashboard():
 @login_required
 def profile():
     user_id = session['user_id']
+    if request.method == 'GET':
+        return redirect(url_for('dashboard.dashboard', tab='profile'))
+
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -119,16 +122,17 @@ def profile():
         flash('Profile updated successfully!', 'success')
         return redirect(url_for('dashboard.dashboard', tab='profile'))
 
-    cursor.execute('SELECT * FROM users WHERE id = %s', (user_id,))
-    user = cursor.fetchone()
     conn.close()
-    return render_template('dashboard.html', user=user, active_tab='profile', username=session.get('username'))
+    return redirect(url_for('dashboard.dashboard', tab='profile'))
 
 # update preferences
 @dashboard_bp.route('/preferences', methods=['GET', 'POST'])
 @login_required
 def preferences():
     user_id = session['user_id']
+    if request.method == 'GET':
+        return redirect(url_for('dashboard.dashboard', tab='preferences'))
+
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -155,10 +159,8 @@ def preferences():
         flash('Travel preferences saved successfully!', 'success')
         return redirect(url_for('dashboard.dashboard', tab='preferences'))
 
-    cursor.execute('SELECT * FROM user_preferences WHERE user_id = %s', (user_id,))
-    preferences_data = cursor.fetchone()
     conn.close()
-    return render_template('dashboard.html', preferences=preferences_data, active_tab='preferences', username=session.get('username'))
+    return redirect(url_for('dashboard.dashboard', tab='preferences'))
 
 # cancel booking
 @dashboard_bp.route('/bookings/cancel/<int:booking_id>', methods=['POST'])

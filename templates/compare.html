@@ -64,8 +64,8 @@
                     {% for pkg in packages %}
                     <td>
                         <ul class="compare-list-bullet">
-                            {% for hl in pkg['highlights'].split(',') %}
-                                <li>• {{ hl.strip() }}</li>
+                            {% for hl in (pkg['highlights'] or '').split(',') %}
+                                {% if hl.strip() %}<li>• {{ hl.strip() }}</li>{% endif %}
                             {% endfor %}
                         </ul>
                     </td>
@@ -76,8 +76,8 @@
                     {% for pkg in packages %}
                     <td>
                         <ul class="compare-list-bullet">
-                            {% for item in pkg['included_amenities'].split(',') %}
-                                <li>• {{ item.strip() }}</li>
+                            {% for item in (pkg['included_amenities'] or '').split(',') %}
+                                {% if item.strip() %}<li>• {{ item.strip() }}</li>{% endif %}
                             {% endfor %}
                         </ul>
                     </td>

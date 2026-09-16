@@ -20,11 +20,11 @@
         <div class="current-booking-summary-box mb-20">
             <strong>Current Service:</strong>
             {% if booking['booking_type'] == 'Package' %}
-                {{ item['title'] }} ({{ item['destination'] }})
+                {{ item.get('title') if item else 'Package' }} ({{ item.get('destination', '') if item else '' }})
             {% elif booking['booking_type'] == 'Hotel' %}
-                {{ item['name'] }} ({{ item['city'] }})
+                {{ item.get('name') if item else 'Hotel' }} ({{ item.get('city', '') if item else '' }})
             {% else %}
-                {{ item['title'] }} ({{ item['source_city'] }} to {{ item['destination_city'] }})
+                {{ item.get('title') if item else 'Transport' }} ({{ item.get('source_city', '') if item else '' }} to {{ item.get('destination_city', '') if item else '' }})
             {% endif %}
             • Current Fare: <strong>₹{{ "{:,.2f}".format(booking['total_price']) }}</strong>
         </div>
@@ -46,7 +46,7 @@
                     <div class="form-group flex-1">
                         <label for="room_type">Room Category</label>
                         <select id="room_type" name="room_type">
-                            {% for r in item['room_types'].split(',') %}
+                            {% for r in (item.get('room_types') or 'Deluxe Room, Standard Room').split(',') %}
                                 <option value="{{ r.strip() }}" {% if booking['room_type'] == r.strip() %}selected{% endif %}>{{ r.strip() }}</option>
                             {% endfor %}
                         </select>
@@ -75,7 +75,7 @@
                             <option value="2" {% if booking['num_travelers'] == 2 %}selected{% endif %}>2 Seats/Passengers</option>
                             <option value="3" {% if booking['num_travelers'] == 3 %}selected{% endif %}>3 Seats/Passengers</option>
                             <option value="4" {% if booking['num_travelers'] == 4 %}selected{% endif %}>4 Seats/Passengers</option>
-                            {% if item['transport_type'] != 'Cab' %}
+                            {% if item and item.get('transport_type') != 'Cab' %}
                             <option value="5" {% if booking['num_travelers'] == 5 %}selected{% endif %}>5 Seats</option>
                             <option value="6" {% if booking['num_travelers'] == 6 %}selected{% endif %}>6 Seats</option>
                             {% endif %}
