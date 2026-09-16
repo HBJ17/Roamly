@@ -3,291 +3,285 @@
 {% block title %}Checkout & Secure Payment - Roamly{% endblock %}
 
 {% block content %}
-<div class="checkout-wrapper">
-    <div class="checkout-header">
-        <h2>Secure Checkout</h2>
-        <p class="subtitle">Review your itinerary specifications and complete payment via our encrypted gateway.</p>
-    </div>
+<div class="travel-hero">
+    <h2>Secure Traveler Checkout</h2>
+    <p>Review your booking details, apply promotional discount coupons, and complete your reservation securely.</p>
+</div>
 
-    <div class="checkout-grid">
-        <!-- Left: Itinerary & Price Summary -->
-        <div class="checkout-summary-column">
-            <div class="card checkout-item-card">
-                <div class="item-preview-header">
-                    <span class="category-tag">{{ booking_type }}</span>
-                    {% if item['agency_name'] %}
-                        <span class="agency-badge">{{ item['agency_name'] }}</span>
-                    {% endif %}
+<div class="package-detail-layout" style="display:grid; grid-template-columns: 1fr 1.6fr; gap: 30px;">
+    <!-- Left Column: Summary & Pricing Breakdown -->
+    <div>
+        <div class="boarding-card">
+            <div class="boarding-card-header">
+                <div>
+                    <h4 style="color:white; margin:0;">{{ item.get('title') or item.get('name') or 'Travel Booking' }}</h4>
+                    <small style="opacity:0.8;">{{ booking_type }} Reservation</small>
                 </div>
-
-                <h3 class="checkout-item-title">{{ item['title'] if item['title'] else item['name'] }}</h3>
-
+                <span class="travel-tag" style="background:white; color:var(--primary);">{{ item.get('city') or item.get('destination') or 'Tamil Nadu' }}</span>
+            </div>
+            
+            <div class="boarding-card-body">
                 {% if booking_type == 'Package' %}
-                    <p class="checkout-item-meta"><strong>Destination:</strong> {{ item['destination'] }}</p>
-                    <p class="checkout-item-meta"><strong>Duration:</strong> {{ item['duration_days'] }} Days / {{ item['duration_nights'] }} Nights</p>
+                    <p style="font-size:14px; margin-bottom:6px;"><strong>Duration:</strong> {{ item['duration_days'] }} Days / {{ item['duration_nights'] }} Nights</p>
+                    <p style="font-size:14px; margin-bottom:6px;"><strong>Category:</strong> {{ item['category'] }}</p>
                 {% elif booking_type == 'Hotel' %}
-                    <p class="checkout-item-meta"><strong>City / Location:</strong> {{ item['city'] }}, Tamil Nadu</p>
-                    <p class="checkout-item-meta"><strong>Selected Room:</strong> {{ room_type or 'Deluxe Room' }}</p>
-                    <p class="checkout-item-meta"><strong>Length of Stay:</strong> {{ nights }} Night(s)</p>
+                    <p style="font-size:14px; margin-bottom:6px;"><strong>Room Category:</strong> {{ room_type }}</p>
+                    <p style="font-size:14px; margin-bottom:6px;"><strong>Stay Duration:</strong> {{ nights }} Night(s)</p>
                 {% elif booking_type == 'Transport' %}
-                    <p class="checkout-item-meta"><strong>Route:</strong> {{ item['source_city'] }} to {{ item['destination_city'] }}</p>
-                    <p class="checkout-item-meta"><strong>Vehicle / Mode:</strong> {{ item['transport_type'] }} ({{ item['departure_time'] }})</p>
+                    <p style="font-size:14px; margin-bottom:6px;"><strong>Vehicle / Mode:</strong> {{ item['transport_type'] }}</p>
+                    <p style="font-size:14px; margin-bottom:6px;"><strong>Route:</strong> {{ item['source_city'] }} to {{ item['destination_city'] }}</p>
                 {% endif %}
 
-                <div class="schedule-badge-box mt-15">
-                    <div><strong>Travel / Check-in Date:</strong> {{ travel_date or 'To be confirmed' }}</div>
-                    {% if check_out_date %}
-                        <div><strong>Check-out Date:</strong> {{ check_out_date }}</div>
-                    {% endif %}
-                    <div><strong>Travelers / Units:</strong> {{ num_travelers }} Person(s)</div>
+                <div style="background:var(--bg-page); padding:12px; border-radius:var(--radius-md); border:1px solid var(--border-color); margin:15px 0; font-size:13.5px;">
+                    <div><strong>Travel Date:</strong> {{ travel_date }}</div>
+                    {% if check_out_date %}<div><strong>Check-out Date:</strong> {{ check_out_date }}</div>{% endif %}
+                    <div><strong>Guests / Travelers:</strong> {{ num_travelers }} Person(s)</div>
                 </div>
 
-                <hr class="divider">
-
-                <!-- Promo Coupon Form -->
-                <form action="{{ url_for('payments.checkout', booking_type=booking_type|lower, item_id=item['id']) }}" method="GET" class="coupon-form">
-                    <input type="hidden" name="travel_date" value="{{ travel_date }}">
-                    <input type="hidden" name="check_out_date" value="{{ check_out_date }}">
-                    <input type="hidden" name="num_travelers" value="{{ num_travelers }}">
-                    <input type="hidden" name="room_type" value="{{ room_type }}">
-                    <input type="hidden" name="pickup_location" value="{{ pickup_location }}">
-                    <input type="hidden" name="drop_location" value="{{ drop_location }}">
+                <!-- Live Promo Coupon Input -->
+                <div style="margin: 20px 0 15px;">
+                    <label class="form-label">Apply Promo / Coupon Code</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="couponCodeInput" class="form-control" placeholder="e.g. ROAMFIRST, SUMMER20" style="text-transform:uppercase;">
+                        <button type="button" class="btn btn-outline btn-sm" onclick="applyCouponCode()">Apply</button>
+                    </div>
+                    <div id="couponStatusMessage" style="font-size:12.5px; margin-top:6px; font-weight:600;"></div>
                     
-                    <label for="promo_code">Have a Promotion Code?</label>
-                    <div class="coupon-input-group">
-                        <input type="text" id="promo_code" name="promo_code" value="{{ promo_code }}" placeholder="e.g. ROAMLY10, DISCOVER" class="form-control">
-                        <button type="submit" class="btn btn-apply-coupon">Apply</button>
-                    </div>
-                    {% if discount_msg %}
-                        <p class="coupon-msg {% if discount > 0 %}coupon-success{% else %}coupon-error{% endif %}">
-                            {{ discount_msg }}
-                        </p>
-                    {% endif %}
-                </form>
-
-                <hr class="divider">
-
-                <!-- Fare Breakdown -->
-                <div class="fare-breakdown">
-                    <h4>Price Breakdown</h4>
-                    <div class="fare-row">
-                        <span>Base Fare / Subtotal</span>
-                        <strong>₹{{ "{:,.2f}".format(subtotal) }}</strong>
-                    </div>
-                    {% if discount > 0 %}
-                    <div class="fare-row discount-row">
-                        <span>Promotional Discount ({{ promo_code }})</span>
-                        <strong>- ₹{{ "{:,.2f}".format(discount) }}</strong>
-                    </div>
-                    {% endif %}
-                    <div class="fare-row">
-                        <span>Taxes & GST (5%)</span>
-                        <strong>₹{{ "{:,.2f}".format(tax_amount) }}</strong>
-                    </div>
-                    <hr class="divider-sm">
-                    <div class="fare-row total-row">
-                        <span>Total Payable Amount</span>
-                        <strong class="total-price-text">₹{{ "{:,.2f}".format(total_amount) }}</strong>
+                    <!-- Quick Coupon Suggestions -->
+                    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
+                        <span class="coupon-chip" onclick="applyQuickCoupon('ROAMFIRST')">ROAMFIRST (15% OFF)</span>
+                        <span class="coupon-chip" onclick="applyQuickCoupon('SUMMER20')">SUMMER20 (20% OFF)</span>
+                        <span class="coupon-chip" onclick="applyQuickCoupon('TAMIL15')">TAMIL15 (15% OFF)</span>
                     </div>
                 </div>
 
-                <div class="trust-features mt-20">
-                    <div class="trust-item"><span class="bullet">•</span> 256-Bit SSL Encrypted Checkout</div>
-                    <div class="trust-item"><span class="bullet">•</span> Official GST Tax Invoice Provided</div>
-                    <div class="trust-item"><span class="bullet">•</span> Verified Agency Partner Reservation</div>
+                <hr style="border:none; border-top:1px dashed var(--border-color); margin:15px 0;">
+
+                <!-- Fare Calculation Table -->
+                <div style="display:flex; flex-direction:column; gap:8px; font-size:14px;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-muted);">Base Subtotal:</span>
+                        <strong id="displaySubtotal">₹{{ "{:,.2f}".format(subtotal) }}</strong>
+                    </div>
+                    <div id="discountRow" style="display:none; justify-content:space-between; color:#10b981;">
+                        <span>Promotional Discount:</span>
+                        <strong id="displayDiscount">-₹0.00</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-muted);">Taxes & GST (5%):</span>
+                        <strong id="displayTax">₹{{ "{:,.2f}".format(tax_amount) }}</strong>
+                    </div>
+                    <hr style="border:none; border-top:1px solid var(--border-soft); margin:6px 0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:16px; font-weight:700;">Total Payable:</span>
+                        <span class="travel-card-price" id="displayGrandTotal" style="font-size:24px;">₹{{ "{:,.2f}".format(total_estimated) }}</span>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Right: Traveler Info & Payment Gateway -->
-        <div class="checkout-form-column">
-            <form action="{{ url_for('payments.process_payment') }}" method="POST" id="checkout-payment-form">
-                <input type="hidden" name="booking_type" value="{{ booking_type }}">
-                <input type="hidden" name="item_id" value="{{ item['id'] }}">
-                <input type="hidden" name="travel_date" value="{{ travel_date }}">
-                <input type="hidden" name="check_out_date" value="{{ check_out_date }}">
-                <input type="hidden" name="num_travelers" value="{{ num_travelers }}">
-                <input type="hidden" name="room_type" value="{{ room_type }}">
-                <input type="hidden" name="pickup_location" value="{{ pickup_location }}">
-                <input type="hidden" name="drop_location" value="{{ drop_location }}">
-                <input type="hidden" name="promo_code" value="{{ promo_code }}">
+    <!-- Right Column: Traveler Details & Multi-Gateway Payment -->
+    <div>
+        <form action="{{ url_for('payments.process_payment') }}" method="POST" id="checkoutPaymentForm">
+            <input type="hidden" name="booking_type" value="{{ booking_type }}">
+            <input type="hidden" name="item_id" value="{{ item['id'] }}">
+            <input type="hidden" name="travel_date" value="{{ travel_date }}">
+            <input type="hidden" name="check_out_date" value="{{ check_out_date }}">
+            <input type="hidden" name="num_travelers" value="{{ num_travelers }}">
+            <input type="hidden" name="room_type" value="{{ room_type }}">
+            <input type="hidden" name="pickup_location" value="{{ pickup_location }}">
+            <input type="hidden" name="promo_code" id="appliedPromoCodeHidden" value="">
+            <input type="hidden" name="payment_method" id="selectedPaymentMethod" value="Roamly Wallet">
 
-                <!-- Traveler Contact Info Card -->
-                <div class="card mb-20">
-                    <h3>1. Primary Traveler & Contact Information</h3>
-                    <p class="section-desc">Booking voucher, SMS updates, and official tax invoice will be sent to these details.</p>
-
-                    <div class="form-row">
-                        <div class="form-group flex-1">
-                            <label for="contact_name">Full Name *</label>
-                            <input type="text" id="contact_name" name="contact_name" value="{{ user['full_name'] or user['username'] }}" required>
-                        </div>
-                        <div class="form-group flex-1">
-                            <label for="contact_email">Email Address *</label>
-                            <input type="email" id="contact_email" name="contact_email" value="{{ user['email'] or '' }}" required>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group flex-1">
-                            <label for="contact_phone">Contact Mobile Number *</label>
-                            <input type="tel" id="contact_phone" name="contact_phone" value="{{ user['phone'] or '' }}" placeholder="+91 9876543210" required>
-                        </div>
-                        <div class="form-group flex-1">
-                            <label for="passengers_names">All Passenger / Guest Names</label>
-                            <input type="text" id="passengers_names" name="passengers_names" placeholder="e.g. Ramesh K., Priya K.">
-                        </div>
-                    </div>
-
+            <!-- Primary Traveler Details -->
+            <div class="card mb-20">
+                <h3 style="margin-bottom:12px;">1. Primary Traveler Information</h3>
+                <div class="form-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
                     <div class="form-group">
-                        <label for="special_requests">Special Instructions / Preferences (Optional)</label>
-                        <textarea id="special_requests" name="special_requests" rows="2" placeholder="e.g. Late check-in, ground floor room, airport pickup timing..."></textarea>
+                        <label class="form-label">Full Name *</label>
+                        <input type="text" name="contact_name" class="form-control" value="{{ user['full_name'] or user['username'] }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address *</label>
+                        <input type="email" name="contact_email" class="form-control" value="{{ user['email'] }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number *</label>
+                        <input type="tel" name="contact_phone" class="form-control" value="{{ user['phone'] or '+91 9840112233' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Pickup Address / Station</label>
+                        <input type="text" name="pickup_location_custom" class="form-control" value="{{ pickup_location or user['address'] or 'Chennai Central' }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Special Requests / Dietary Notes</label>
+                    <textarea name="special_requests" class="form-control" rows="2" placeholder="e.g. Early check-in requested, ground floor room preferred, vegetarian food..."></textarea>
+                </div>
+            </div>
+
+            <!-- Multi-Gateway Payment Selector -->
+            <div class="card mb-20">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3>2. Select Payment Channel</h3>
+                    <span class="travel-tag travel-tag-accent">256-Bit SSL Secured</span>
+                </div>
+
+                <!-- Payment Options Grid -->
+                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
+                    <button type="button" class="btn btn-outline payment-tab-btn active" onclick="selectPaymentTab('wallet', this)">Roamly Wallet</button>
+                    <button type="button" class="btn btn-outline payment-tab-btn" onclick="selectPaymentTab('card', this)">Card (Stripe)</button>
+                    <button type="button" class="btn btn-outline payment-tab-btn" onclick="selectPaymentTab('upi', this)">UPI (Razorpay)</button>
+                    <button type="button" class="btn btn-outline payment-tab-btn" onclick="selectPaymentTab('netbanking', this)">Net Banking</button>
+                </div>
+
+                <!-- Panel: Wallet -->
+                <div id="tab-wallet" class="payment-panel">
+                    <div class="wallet-card" style="padding:20px; border-radius:var(--radius-md);">
+                        <div style="display:flex; justify-content:space-between;">
+                            <span>ROAMLY TRAVEL WALLET</span>
+                            <span class="travel-tag" style="background:rgba(255,255,255,0.2); color:white; border:none;">FastPay</span>
+                        </div>
+                        <div class="wallet-balance" style="font-size:28px; margin:8px 0 12px;">₹{{ wallet_balance|int }}</div>
+                        <p style="font-size:12.5px; opacity:0.85; margin:0;">
+                            Instant zero-fee payment authentication. Deducted straight from your active travel balance.
+                        </p>
                     </div>
                 </div>
 
-                <!-- Payment Method Card -->
-                <div class="card mb-20">
-                    <div class="card-header-flex">
-                        <div>
-                            <h3>2. Select Payment Method</h3>
-                            <p class="section-desc">Choose your preferred transaction channel. All payments are processed securely.</p>
-                        </div>
-                        <div class="gateway-badge">Roamly FastPay Secure</div>
+                <!-- Panel: Card -->
+                <div id="tab-card" class="payment-panel" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label">Card Number</label>
+                        <input type="text" class="form-control" placeholder="4532 •••• •••• 8821" value="4532 8891 0023 8821">
                     </div>
-
-                    <!-- Payment Method Tabs -->
-                    <div class="payment-tabs">
-                        <button type="button" class="payment-tab-btn active" onclick="switchPaymentTab('card')">Credit / Debit Card</button>
-                        <button type="button" class="payment-tab-btn" onclick="switchPaymentTab('upi')">UPI / QR Code</button>
-                        <button type="button" class="payment-tab-btn" onclick="switchPaymentTab('netbanking')">Net Banking</button>
-                        <button type="button" class="payment-tab-btn" onclick="switchPaymentTab('wallet')">FastPay Wallet</button>
-                    </div>
-
-                    <input type="hidden" name="payment_method" id="selected_payment_method" value="Credit / Debit Card">
-
-                    <!-- Tab Content: Cards -->
-                    <div id="payment-panel-card" class="payment-panel">
-                        <div class="accepted-cards-row">
-                            <span class="card-chip">Visa</span>
-                            <span class="card-chip">Mastercard</span>
-                            <span class="card-chip">RuPay</span>
-                            <span class="card-chip">American Express</span>
+                    <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:12px;">
+                        <div class="form-group">
+                            <label class="form-label">Cardholder Name</label>
+                            <input type="text" class="form-control" value="{{ user['full_name'] or 'Ramesh Kumar' }}">
                         </div>
-
-                        <div class="form-group mt-15">
-                            <label for="card_number">Card Number</label>
-                            <input type="text" id="card_number" name="card_number" placeholder="4532 •••• •••• 8821" maxlength="19" value="4532 8891 0023 8821">
+                        <div class="form-group">
+                            <label class="form-label">Expiry</label>
+                            <input type="text" class="form-control" placeholder="08/29" value="08/29">
                         </div>
-
-                        <div class="form-row">
-                            <div class="form-group flex-1">
-                                <label for="card_name">Name on Card</label>
-                                <input type="text" id="card_name" name="card_name" value="{{ user['full_name'] or 'Ramesh Kumar' }}">
-                            </div>
-                            <div class="form-group" style="width: 120px;">
-                                <label for="card_exp">Expiry (MM/YY)</label>
-                                <input type="text" id="card_exp" name="card_exp" placeholder="12/28" value="08/29">
-                            </div>
-                            <div class="form-group" style="width: 100px;">
-                                <label for="card_cvv">CVV</label>
-                                <input type="password" id="card_cvv" name="card_cvv" placeholder="•••" maxlength="4" value="789">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tab Content: UPI -->
-                    <div id="payment-panel-upi" class="payment-panel" style="display: none;">
-                        <div class="upi-box">
-                            <div class="upi-qr-placeholder">
-                                <div class="mock-qr-code">
-                                    <div class="qr-pattern"></div>
-                                    <span class="qr-text">Scan & Pay via UPI</span>
-                                </div>
-                                <p class="qr-sub">Scan with Google Pay, PhonePe, Paytm, or BHIM</p>
-                            </div>
-                            <div class="upi-or-divider">OR</div>
-                            <div class="form-group upi-id-group">
-                                <label for="upi_id">Enter UPI ID / VPA</label>
-                                <div class="upi-input-wrap">
-                                    <input type="text" id="upi_id" name="upi_id" placeholder="username@okhdfcbank" value="traveler@upi">
-                                </div>
-                                <small class="text-muted">You will receive a payment request notification on your UPI app.</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tab Content: Net Banking -->
-                    <div id="payment-panel-netbanking" class="payment-panel" style="display: none;">
-                        <label>Select Your Bank</label>
-                        <div class="banks-grid mt-10">
-                            <label class="bank-card">
-                                <input type="radio" name="bank_choice" value="State Bank of India" checked>
-                                <span>State Bank of India</span>
-                            </label>
-                            <label class="bank-card">
-                                <input type="radio" name="bank_choice" value="HDFC Bank">
-                                <span>HDFC Bank</span>
-                            </label>
-                            <label class="bank-card">
-                                <input type="radio" name="bank_choice" value="ICICI Bank">
-                                <span>ICICI Bank</span>
-                            </label>
-                            <label class="bank-card">
-                                <input type="radio" name="bank_choice" value="Axis Bank">
-                                <span>Axis Bank</span>
-                            </label>
-                            <label class="bank-card">
-                                <input type="radio" name="bank_choice" value="Kotak Mahindra Bank">
-                                <span>Kotak Mahindra</span>
-                            </label>
-                            <label class="bank-card">
-                                <input type="radio" name="bank_choice" value="Canara Bank">
-                                <span>Canara Bank</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Tab Content: Wallet -->
-                    <div id="payment-panel-wallet" class="payment-panel" style="display: none;">
-                        <div class="wallet-status-box">
-                            <div class="wallet-balance-info">
-                                <span class="wallet-title">Roamly FastPay Digital Balance</span>
-                                <strong class="wallet-balance">₹25,000.00 Available</strong>
-                            </div>
-                            <p class="wallet-note">Instant one-click authentication. Zero gateway surcharge applied.</p>
+                        <div class="form-group">
+                            <label class="form-label">CVV</label>
+                            <input type="password" class="form-control" placeholder="•••" value="882">
                         </div>
                     </div>
                 </div>
 
-                <!-- Submit Button -->
-                <button type="submit" class="btn btn-pay-now" id="pay-button">
-                    Complete Payment (₹{{ "{:,.2f}".format(total_amount) }})
-                </button>
-            </form>
-        </div>
+                <!-- Panel: UPI QR -->
+                <div id="tab-upi" class="payment-panel" style="display:none;">
+                    <div style="display:flex; align-items:center; gap:20px; padding:15px; background:var(--bg-page); border-radius:var(--radius-md); border:1px solid var(--border-color);">
+                        <div style="background:white; padding:10px; border-radius:var(--radius-sm); border:1px solid var(--border-color); text-align:center;">
+                            <div style="width:100px; height:100px; background: repeating-conic-gradient(#0b192c 0% 25%, #ffffff 0% 50%) 50% / 20px 20px; border-radius:4px;"></div>
+                            <small style="font-size:10px; color:var(--text-muted); display:block; margin-top:4px;">Scan & Pay</small>
+                        </div>
+                        <div style="flex:1;">
+                            <label class="form-label">Or Pay via UPI VPA ID</label>
+                            <input type="text" class="form-control" value="traveler@okhdfcbank" placeholder="yourname@upi">
+                            <small style="color:var(--text-muted); display:block; margin-top:6px;">Supported: Google Pay, PhonePe, Paytm, BHIM</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel: Net Banking -->
+                <div id="tab-netbanking" class="payment-panel" style="display:none;">
+                    <label class="form-label">Select Registered Bank</label>
+                    <select class="form-control">
+                        <option>State Bank of India (SBI)</option>
+                        <option>HDFC Bank</option>
+                        <option>ICICI Bank</option>
+                        <option>Axis Bank</option>
+                        <option>Kotak Mahindra Bank</option>
+                        <option>Canara Bank</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Authorize Payment Button -->
+            <button type="submit" class="btn btn-accent btn-lg" id="submitPaymentBtn" style="width:100%;">
+                Authorize Payment & Confirm Reservation
+            </button>
+        </form>
     </div>
 </div>
 
 <script>
-function switchPaymentTab(type) {
-    const panels = ['card', 'upi', 'netbanking', 'wallet'];
-    const buttons = document.querySelectorAll('.payment-tab-btn');
+    var baseSubtotal = {{ subtotal }};
+    var currentDiscount = 0;
     
-    panels.forEach((p, idx) => {
-        const el = document.getElementById('payment-panel-' + p);
-        if (el) {
-            el.style.display = (p === type) ? 'block' : 'none';
+    function updatePricingDisplay() {
+        var discountedSubtotal = Math.max(0, baseSubtotal - currentDiscount);
+        var tax = Math.round(discountedSubtotal * 0.05);
+        var grandTotal = discountedSubtotal + tax;
+        
+        document.getElementById('displayTax').innerText = '₹' + tax.toLocaleString();
+        document.getElementById('displayGrandTotal').innerText = '₹' + grandTotal.toLocaleString();
+        
+        if (currentDiscount > 0) {
+            document.getElementById('discountRow').style.display = 'flex';
+            document.getElementById('displayDiscount').innerText = '-₹' + currentDiscount.toLocaleString();
+        } else {
+            document.getElementById('discountRow').style.display = 'none';
         }
-    });
-
-    buttons.forEach(btn => btn.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-
-    const methodInput = document.getElementById('selected_payment_method');
-    if (type === 'card') methodInput.value = 'Credit / Debit Card';
-    else if (type === 'upi') methodInput.value = 'UPI / QR Code';
-    else if (type === 'netbanking') methodInput.value = 'Net Banking';
-    else if (type === 'wallet') methodInput.value = 'Roamly FastPay Wallet';
-}
+    }
+    
+    function applyCouponCode() {
+        var code = document.getElementById('couponCodeInput').value.trim().toUpperCase();
+        var msgEl = document.getElementById('couponStatusMessage');
+        if (!code) {
+            msgEl.innerText = 'Please enter a coupon code.';
+            msgEl.style.color = '#ef4444';
+            return;
+        }
+        
+        fetch('/api/validate-coupon', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({code: code, subtotal: baseSubtotal})
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data.valid) {
+                currentDiscount = data.discount;
+                document.getElementById('appliedPromoCodeHidden').value = data.code;
+                msgEl.innerText = data.message;
+                msgEl.style.color = '#10b981';
+                updatePricingDisplay();
+            } else {
+                currentDiscount = 0;
+                document.getElementById('appliedPromoCodeHidden').value = '';
+                msgEl.innerText = data.message;
+                msgEl.style.color = '#ef4444';
+                updatePricingDisplay();
+            }
+        })
+        .catch(function(err) {
+            msgEl.innerText = 'Error validating coupon code.';
+            msgEl.style.color = '#ef4444';
+        });
+    }
+    
+    function applyQuickCoupon(code) {
+        document.getElementById('couponCodeInput').value = code;
+        applyCouponCode();
+    }
+    
+    function selectPaymentTab(type, btn) {
+        document.querySelectorAll('.payment-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        
+        document.querySelectorAll('.payment-panel').forEach(function(p) { p.style.display = 'none'; });
+        document.getElementById('tab-' + type).style.display = 'block';
+        
+        var methodInput = document.getElementById('selectedPaymentMethod');
+        if (type === 'wallet') methodInput.value = 'Roamly Wallet';
+        else if (type === 'card') methodInput.value = 'Credit / Debit Card (Stripe)';
+        else if (type === 'upi') methodInput.value = 'UPI / QR (Razorpay)';
+        else if (type === 'netbanking') methodInput.value = 'Net Banking';
+    }
 </script>
 {% endblock %}

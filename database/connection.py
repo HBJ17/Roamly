@@ -24,6 +24,10 @@ class SQLiteDictCursor:
             return self.cursor.execute(converted_sql, params)
         return self.cursor.execute(cleaned_sql)
 
+    def executemany(self, sql, seq_of_params):
+        cleaned_sql = re.sub(r'%s', '?', sql)
+        return self.cursor.executemany(cleaned_sql, seq_of_params)
+
     def fetchone(self):
         row = self.cursor.fetchone()
         return dict(row) if row is not None else None

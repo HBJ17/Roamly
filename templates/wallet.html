@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Roamly Traveler Digital Wallet{% endblock %}
+
+{% block content %}
+<div class="travel-hero">
+    <h2>Roamly Traveler Digital Wallet</h2>
+    <p>Manage your travel credits, instant refund balances, and promotional coupons for seamless zero-click booking.</p>
+</div>
+
+<div class="package-detail-layout" style="display:grid; grid-template-columns: 1fr 2fr; gap: 30px;">
+    <!-- Wallet Card & Top-Up -->
+    <div>
+        <div class="wallet-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13px; letter-spacing:0.05em; opacity:0.8;">ROAMLY DIGITAL WALLET</span>
+                <span class="travel-tag" style="background:rgba(255,255,255,0.2); color:white; border:none;">Active</span>
+            </div>
+            
+            <div class="wallet-balance">₹{{ wallet['balance']|int }}</div>
+            <div style="font-size:12px; opacity:0.8;">Linked Account: {{ session.get('username') }}</div>
+        </div>
+
+        <div class="card mt-20">
+            <h3 style="margin-bottom:12px;">Quick Wallet Top-Up</h3>
+            <p style="color:var(--text-muted); font-size:13px; margin-bottom:15px;">Add funds instantly via Cards, UPI QR, or Net Banking.</p>
+            
+            <form action="{{ url_for('payments.add_funds') }}" method="POST">
+                <div class="form-group">
+                    <label class="form-label">Select Top-Up Amount</label>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                        <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('topupAmount').value = 1000">+₹1,000</button>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('topupAmount').value = 2500">+₹2,500</button>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('topupAmount').value = 5000">+₹5,000</button>
+                    </div>
+                    <input type="number" name="amount" id="topupAmount" class="form-control" value="1000" min="100" step="100" required>
+                </div>
+                
+                <button type="submit" class="btn btn-accent" style="width:100%;">
+                    Add Funds to Wallet
+                </button>
+            </form>
+        </div>
+
+        <!-- Available Coupons Widget -->
+        <div class="card mt-20">
+            <h3 style="margin-bottom:12px;">Active Travel Coupons</h3>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                {% for coupon in coupons %}
+                <div style="padding:10px; background:var(--bg-page); border:1px dashed var(--accent); border-radius:var(--radius-md);">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong style="color:var(--accent);">{{ coupon['code'] }}</strong>
+                        <span class="travel-tag">{{ coupon['discount_value']|int }}{% if coupon['discount_type'] == 'percentage' %}% OFF{% else %}₹ OFF{% endif %}</span>
+                    </div>
+                    <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">{{ coupon['description'] }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Ledger -->
+    <div>
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3>Wallet Activity Ledger</h3>
+                <span class="travel-tag">All Transactions</span>
+            </div>
+
+            <div style="overflow-x:auto;">
+                <table class="table" style="width:100%; border-collapse:collapse;">
+                    <thead>
+                        <tr style="border-bottom:2px solid var(--border-color); text-align:left;">
+                            <th style="padding:10px;">Date & Time</th>
+                            <th style="padding:10px;">Type</th>
+                            <th style="padding:10px;">Description</th>
+                            <th style="padding:10px; text-align:right;">Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in transactions %}
+                        <tr style="border-bottom:1px solid var(--border-soft);">
+                            <td style="padding:12px 10px; font-size:13px; color:var(--text-muted);">{{ tx['created_at'] }}</td>
+                            <td style="padding:12px 10px;">
+                                <span class="travel-tag {% if tx['transaction_type'] in ['Credit', 'Topup', 'Refund'] %}travel-tag-accent{% endif %}">
+                                    {{ tx['transaction_type'] }}
+                                </span>
+                            </td>
+                            <td style="padding:12px 10px; font-size:13.5px;">
+                                <strong>{{ tx['description'] }}</strong>
+                                {% if tx['reference_id'] %}<br><small style="color:var(--text-muted);">Ref: {{ tx['reference_id'] }}</small>{% endif %}
+                            </td>
+                            <td style="padding:12px 10px; text-align:right; font-weight:700; font-size:14px; {% if tx['transaction_type'] in ['Credit', 'Topup', 'Refund'] %}color:#10b981;{% else %}color:#ef4444;{% endif %}">
+                                {% if tx['transaction_type'] in ['Credit', 'Topup', 'Refund'] %}+{% else %}-{% endif %}₹{{ tx['amount']|int }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" style="text-align:center; padding:30px; color:var(--text-muted);">No wallet activity logged yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

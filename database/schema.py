@@ -8,7 +8,9 @@ from database.seed import (
     seed_transports,
     seed_reviews,
     seed_notifications,
-    seed_saved_items
+    seed_saved_items,
+    seed_coupons,
+    seed_wallets
 )
 
 # initialize database schema
@@ -280,6 +282,47 @@ def init_db():
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
+    # wallets table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS wallets (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT UNIQUE NOT NULL,
+            balance DECIMAL(10,2) DEFAULT 5000.00,
+            currency VARCHAR(10) DEFAULT 'INR',
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ''')
+
+    # wallet transactions table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS wallet_transactions (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            transaction_type VARCHAR(50) NOT NULL,
+            description VARCHAR(255) NOT NULL,
+            reference_id VARCHAR(100) DEFAULT '',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ''')
+
+    # coupons table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS coupons (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            code VARCHAR(50) UNIQUE NOT NULL,
+            discount_type VARCHAR(20) DEFAULT 'percentage',
+            discount_value DECIMAL(10,2) NOT NULL,
+            min_purchase DECIMAL(10,2) DEFAULT 0.00,
+            max_discount DECIMAL(10,2) DEFAULT 2000.00,
+            description VARCHAR(255) NOT NULL,
+            is_active INT DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ''')
+
     # seed data
     seed_admin(cursor)
     seed_users(cursor)
@@ -290,6 +333,8 @@ def init_db():
     seed_reviews(cursor)
     seed_notifications(cursor)
     seed_saved_items(cursor)
+    seed_coupons(cursor)
+    seed_wallets(cursor)
 
     conn.commit()
     conn.close()

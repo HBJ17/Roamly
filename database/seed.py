@@ -750,3 +750,43 @@ def seed_saved_items(cursor):
             INSERT INTO saved_items (user_id, item_type, item_id)
             VALUES (%s, %s, %s)
         ''', saved_data)
+
+# seed promo coupons
+def seed_coupons(cursor):
+    cursor.execute('SELECT COUNT(*) as count FROM coupons')
+    count = cursor.fetchone()['count']
+    if count == 0:
+        coupons_data = [
+            ('ROAMFIRST', 'percentage', 15.00, 2000.00, 1500.00, 'Flat 15% discount for first-time bookings', 1),
+            ('SUMMER20', 'percentage', 20.00, 3000.00, 2000.00, '20% Summer holiday discount across hill stations', 1),
+            ('TAMIL15', 'percentage', 15.00, 1500.00, 1000.00, '15% savings on Tamil Nadu heritage packages', 1),
+            ('EXPLORE10', 'percentage', 10.00, 1000.00, 800.00, '10% instant discount on hotels and transports', 1),
+            ('FLAT500', 'flat', 500.00, 2500.00, 500.00, 'Flat ₹500 discount on cart value above ₹2500', 1)
+        ]
+        cursor.executemany('''
+            INSERT INTO coupons (code, discount_type, discount_value, min_purchase, max_discount, description, is_active)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        ''', coupons_data)
+
+# seed user wallets
+def seed_wallets(cursor):
+    cursor.execute('SELECT COUNT(*) as count FROM wallets')
+    count = cursor.fetchone()['count']
+    if count == 0:
+        cursor.execute('''
+            INSERT INTO wallets (user_id, balance, currency)
+            VALUES (1, 5000.00, 'INR')
+        ''')
+        cursor.execute('''
+            INSERT INTO wallets (user_id, balance, currency)
+            VALUES (2, 7500.00, 'INR')
+        ''')
+        cursor.execute('''
+            INSERT INTO wallet_transactions (user_id, amount, transaction_type, description, reference_id)
+            VALUES (1, 5000.00, 'Credit', 'Welcome promotional travel credits', 'CREDIT-WELCOME-01')
+        ''')
+        cursor.execute('''
+            INSERT INTO wallet_transactions (user_id, amount, transaction_type, description, reference_id)
+            VALUES (2, 7500.00, 'Credit', 'Welcome promotional travel credits', 'CREDIT-WELCOME-02')
+        ''')
+
