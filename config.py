@@ -43,6 +43,11 @@ class Config:
     TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', 'AC_sample_placeholder_twilio_sid')
     TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', 'auth_sample_placeholder_twilio_token')
     TWILIO_WHATSAPP_NUMBER = os.environ.get('TWILIO_WHATSAPP_NUMBER', '+14155238886')
+
+    # n8n Automation (outbound event webhooks)
+    N8N_WEBHOOK_URL = os.environ.get('N8N_WEBHOOK_URL', '')
+    N8N_WEBHOOK_SECRET = os.environ.get('N8N_WEBHOOK_SECRET', '')
+    N8N_WEBHOOK_TIMEOUT = float(os.environ.get('N8N_WEBHOOK_TIMEOUT', 3.0))
     
     # Business & Financial Rules
     DEFAULT_COMMISSION_PERCENT = float(os.environ.get('DEFAULT_COMMISSION_PERCENT', 10.0)) # 10% platform fee

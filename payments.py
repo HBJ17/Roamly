@@ -4,6 +4,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 from database.connection import get_db_connection
 from utils.decorators import login_required
+from utils.webhooks import send_event
 from config import Config
 
 payments_bp = Blueprint('payments', __name__)
@@ -312,6 +313,28 @@ def process_payment():
         notification_type='booking',
         link_url=url_for('bookings.booking_summary', booking_id=booking_id)
     )
+
+    # notify n8n automation (real confirmation email / SMS / WhatsApp fan-out)
+    send_event('booking.confirmed', {
+        'booking_id': booking_id,
+        'booking_reference': f"ROAM-{booking_type[:3].upper()}-{booking_id:04d}",
+        'booking_type': booking_type,
+        'item_title': item_title,
+        'travel_date': travel_date,
+        'check_out_date': check_out_date,
+        'num_travelers': num_travelers,
+        'total_price': total_price,
+        'payment_method': payment_method,
+        'transaction_id': txn_id,
+        'invoice_number': invoice_number,
+        'user': {
+            'id': user_id,
+            'username': user['username'],
+            'full_name': user['full_name'],
+            'email': user['email'],
+            'phone': user['phone']
+        }
+    })
 
     flash(f"Payment successful! Booking #ROAM-{booking_type[:3].upper()}-{booking_id:04d} is confirmed.", 'success')
     return redirect(url_for('bookings.booking_summary', booking_id=booking_id))

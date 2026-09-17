@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database.connection import get_db_connection
 from utils.decorators import agency_required
+from utils.webhooks import send_event
 
 agency_bp = Blueprint('agency', __name__, url_prefix='/agency')
 
@@ -464,8 +465,24 @@ def request_payout():
         INSERT INTO agency_payouts (agency_id, amount, commission_amount, net_payout, bank_account_info, status)
         VALUES (%s, %s, %s, %s, %s, 'Pending')
     ''', (agency_id, req_amount, commission_amount, net_payout, bank_info))
+    payout_id = cursor.lastrowid
+
+    cursor.execute('SELECT name, email FROM agencies WHERE id = %s', (agency_id,))
+    agency_row = cursor.fetchone()
     conn.commit()
     conn.close()
+
+    # notify n8n automation (instant admin alert instead of relying on manual dashboard checks)
+    send_event('payout.requested', {
+        'payout_id': payout_id,
+        'agency_id': agency_id,
+        'agency_name': agency_row['name'] if agency_row else session.get('agency_name'),
+        'agency_email': agency_row['email'] if agency_row else None,
+        'requested_amount': req_amount,
+        'commission_amount': commission_amount,
+        'net_payout': net_payout,
+        'bank_account_info': bank_info
+    })
 
     flash(f'Settlement request for ₹{net_payout:,.2f} submitted to Roamly Admin for processing.', 'success')
     return redirect(url_for('agency.payouts'))
