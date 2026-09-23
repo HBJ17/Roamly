@@ -375,6 +375,32 @@ def init_db():
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ''')
 
+    # audit logs table for sensitive administrative and financial actions
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS audit_logs (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            actor_type VARCHAR(50) NOT NULL,
+            actor_id INT,
+            actor_name VARCHAR(150),
+            action VARCHAR(100) NOT NULL,
+            details TEXT,
+            ip_address VARCHAR(50) DEFAULT '',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ''')
+
+    # password reset tokens table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS password_resets (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            email VARCHAR(191) NOT NULL,
+            token VARCHAR(255) UNIQUE NOT NULL,
+            expires_at DATETIME NOT NULL,
+            used INT DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ''')
+
     # seed data
     seed_admin(cursor)
     seed_users(cursor)
@@ -389,5 +415,30 @@ def init_db():
     seed_wallets(cursor)
     seed_payouts(cursor)
 
+    # auto-migrate any legacy plaintext passwords to secure pbkdf2 hashes
+    from utils.security import hash_password
+
+    # check & upgrade admins
+    cursor.execute('SELECT id, password FROM admins')
+    for row in cursor.fetchall():
+        pwd = row['password']
+        if pwd and not pwd.startswith(('pbkdf2:', 'scrypt:', 'argon2:')):
+            cursor.execute('UPDATE admins SET password = %s WHERE id = %s', (hash_password(pwd), row['id']))
+
+    # check & upgrade users
+    cursor.execute('SELECT id, password FROM users')
+    for row in cursor.fetchall():
+        pwd = row['password']
+        if pwd and not pwd.startswith(('pbkdf2:', 'scrypt:', 'argon2:')):
+            cursor.execute('UPDATE users SET password = %s WHERE id = %s', (hash_password(pwd), row['id']))
+
+    # check & upgrade agencies
+    cursor.execute('SELECT id, password FROM agencies')
+    for row in cursor.fetchall():
+        pwd = row['password']
+        if pwd and not pwd.startswith(('pbkdf2:', 'scrypt:', 'argon2:')):
+            cursor.execute('UPDATE agencies SET password = %s WHERE id = %s', (hash_password(pwd), row['id']))
+
     conn.commit()
     conn.close()
+
