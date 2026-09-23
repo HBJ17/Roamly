@@ -201,8 +201,16 @@ def process_payment():
     payment_method = request.form.get('payment_method', 'Credit Card')
     promo_code = request.form.get('promo_code', '').strip().upper()
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    if travel_date and travel_date < today_str:
+        conn.close()
+        flash('Travel date cannot be in the past. Please select a valid future date.', 'danger')
+        return redirect(url_for('payments.checkout', booking_type=booking_type, item_id=item_id))
+
+    if check_out_date and check_out_date < travel_date:
+        conn.close()
+        flash('Check-out date cannot precede check-in date.', 'danger')
+        return redirect(url_for('payments.checkout', booking_type=booking_type, item_id=item_id))
 
     # fetch item
     item = None
@@ -442,9 +450,28 @@ def clear_notifications():
     flash('Read notifications cleared.', 'info')
     return redirect(url_for('payments.notifications'))
 
+# helper to check access authorization for booking details
+def user_can_access_booking(booking, item=None):
+    """Verify that current session has permission to view this booking."""
+    user_id = session.get('user_id')
+    admin_id = session.get('admin_id')
+    agency_id = session.get('agency_id')
+
+    if admin_id:
+        return True
+    if user_id and booking.get('user_id') == user_id:
+        return True
+    if agency_id and item and item.get('agency_id') == agency_id:
+        return True
+    return False
+
 # view official tax invoice
 @payments_bp.route('/invoice/<int:booking_id>')
 def view_invoice(booking_id):
+    if not (session.get('user_id') or session.get('admin_id') or session.get('agency_id')):
+        flash('Please sign in to view invoice documentation.', 'danger')
+        return redirect(url_for('auth.login'))
+
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
@@ -493,6 +520,15 @@ def view_invoice(booking_id):
 
     conn.close()
 
+    # IDOR ownership & authorization check
+    if not user_can_access_booking(booking, item):
+        flash('Access denied: You do not have permission to inspect this invoice.', 'danger')
+        if session.get('admin_id'):
+            return redirect(url_for('admin.dashboard'))
+        elif session.get('agency_id'):
+            return redirect(url_for('agency.dashboard'))
+        return redirect(url_for('dashboard.dashboard'))
+
     total = float(booking['total_price'])
     subtotal = total / 1.05
     tax_amount = total - subtotal
@@ -509,6 +545,10 @@ def view_invoice(booking_id):
 # view email confirmation simulation
 @payments_bp.route('/email-confirmation/<int:booking_id>')
 def view_email_confirmation(booking_id):
+    if not (session.get('user_id') or session.get('admin_id') or session.get('agency_id')):
+        flash('Please sign in to view confirmation documentation.', 'danger')
+        return redirect(url_for('auth.login'))
+
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
@@ -541,10 +581,20 @@ def view_email_confirmation(booking_id):
 
     conn.close()
 
+    # IDOR authorization check
+    if not user_can_access_booking(booking, item):
+        flash('Access denied: You do not have permission to view this reservation confirmation.', 'danger')
+        if session.get('admin_id'):
+            return redirect(url_for('admin.dashboard'))
+        elif session.get('agency_id'):
+            return redirect(url_for('agency.dashboard'))
+        return redirect(url_for('dashboard.dashboard'))
+
     return render_template(
         'email_confirmation.html',
         booking=booking,
         item=item or {},
         payment=payment
     )
+
 

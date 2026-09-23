@@ -16,6 +16,11 @@ def book_package(package_id):
         flash('Please select a valid travel date.', 'danger')
         return redirect(url_for('packages.package_detail', package_id=package_id))
 
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    if travel_date < today_str:
+        flash('Travel date cannot be in the past. Please choose a future travel date.', 'danger')
+        return redirect(url_for('packages.package_detail', package_id=package_id))
+
     try:
         num_travelers = max(1, int(num_travelers))
     except ValueError:
@@ -48,6 +53,15 @@ def book_hotel(hotel_id):
         flash('Please select check-in and check-out dates.', 'danger')
         return redirect(url_for('hotels.hotel_detail', hotel_id=hotel_id))
 
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    if travel_date < today_str:
+        flash('Check-in date cannot be in the past. Please select a valid future date.', 'danger')
+        return redirect(url_for('hotels.hotel_detail', hotel_id=hotel_id))
+
+    if check_out_date < travel_date:
+        flash('Check-out date cannot precede check-in date.', 'danger')
+        return redirect(url_for('hotels.hotel_detail', hotel_id=hotel_id))
+
     try:
         num_travelers = max(1, int(num_travelers))
     except ValueError:
@@ -75,6 +89,11 @@ def book_transport(transport_id):
         flash('Please select a travel date.', 'danger')
         return redirect(url_for('transports.transport_detail', transport_id=transport_id))
 
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    if travel_date < today_str:
+        flash('Travel date cannot be in the past. Please select a valid future date.', 'danger')
+        return redirect(url_for('transports.transport_detail', transport_id=transport_id))
+
     try:
         num_travelers = max(1, int(num_travelers))
     except ValueError:
@@ -88,6 +107,7 @@ def book_transport(transport_id):
         num_travelers=num_travelers,
         pickup_location=pickup_location
     ))
+
 
 # booking voucher summary
 @bookings_bp.route('/bookings/summary/<int:booking_id>')

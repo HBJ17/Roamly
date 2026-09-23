@@ -162,7 +162,7 @@ def preferences():
     conn.close()
     return redirect(url_for('dashboard.dashboard', tab='preferences'))
 
-# cancel booking
+# cancel booking with instant wallet refund
 @dashboard_bp.route('/bookings/cancel/<int:booking_id>', methods=['POST'])
 @login_required
 def cancel_booking(booking_id):
@@ -173,17 +173,54 @@ def cancel_booking(booking_id):
     cursor.execute('SELECT * FROM bookings WHERE id = %s AND user_id = %s', (booking_id, user_id))
     booking = cursor.fetchone()
 
-    if booking:
-        cursor.execute("UPDATE bookings SET status = 'Cancelled', trip_status = 'Cancelled' WHERE id = %s", (booking_id,))
-        conn.commit()
-        flash('Booking has been cancelled.', 'success')
-    else:
+    if not booking:
+        conn.close()
         flash('Booking record not found.', 'danger')
+        return redirect(url_for('dashboard.dashboard', tab='bookings'))
 
+    if booking['status'] == 'Cancelled':
+        conn.close()
+        flash('This booking has already been cancelled and refunded.', 'warning')
+        return redirect(url_for('dashboard.dashboard', tab='bookings'))
+
+    total_refund = float(booking['total_price'])
+
+    # Update booking status
+    cursor.execute("UPDATE bookings SET status = 'Cancelled', trip_status = 'Cancelled' WHERE id = %s", (booking_id,))
+
+    # Credit refund to user's wallet
+    cursor.execute('SELECT * FROM wallets WHERE user_id = %s', (user_id,))
+    wallet = cursor.fetchone()
+    current_bal = float(wallet['balance']) if wallet else 0.0
+    new_bal = current_bal + total_refund
+
+    if wallet:
+        cursor.execute('UPDATE wallets SET balance = %s, updated_at = CURRENT_TIMESTAMP WHERE user_id = %s', (new_bal, user_id))
+    else:
+        cursor.execute('INSERT INTO wallets (user_id, balance, currency) VALUES (%s, %s, "INR")', (user_id, new_bal))
+
+    # Record wallet transaction
+    cursor.execute('''
+        INSERT INTO wallet_transactions (user_id, amount, transaction_type, description, reference_id)
+        VALUES (%s, %s, 'Refund', %s, %s)
+    ''', (user_id, total_refund, f"Refund for cancelled booking #ROAM-{booking['booking_type'][:3].upper()}-{booking_id:04d}", f"REFUND-USR-{booking_id}"))
+
+    conn.commit()
     conn.close()
+
+    # Send in-app notification
+    create_notification(
+        user_id=user_id,
+        title="Booking Cancelled & Refund Processed",
+        message=f"Your booking #{booking_id:04d} was cancelled. A full refund of ₹{total_refund:,.2f} has been deposited to your Roamly Wallet.",
+        notification_type='booking',
+        link_url=url_for('payments.wallet')
+    )
+
+    flash(f"Booking cancelled successfully! Full refund of ₹{total_refund:,.2f} has been credited to your Roamly Wallet.", 'success')
     return redirect(url_for('dashboard.dashboard', tab='bookings'))
 
-# complete trip
+# complete trip (verifies travel date has passed)
 @dashboard_bp.route('/bookings/complete/<int:booking_id>', methods=['POST'])
 @login_required
 def complete_trip(booking_id):
@@ -194,24 +231,40 @@ def complete_trip(booking_id):
     cursor.execute('SELECT * FROM bookings WHERE id = %s AND user_id = %s', (booking_id, user_id))
     booking = cursor.fetchone()
 
-    if booking:
-        cursor.execute("UPDATE bookings SET trip_status = 'Completed' WHERE id = %s", (booking_id,))
-        conn.commit()
-        
-        # trip notification
-        create_notification(
-            user_id=user_id,
-            title="Trip Marked as Completed",
-            message=f"Hope you had a memorable journey! Please take a moment to leave a review for booking #{booking_id:04d}.",
-            notification_type='trip',
-            link_url=url_for('dashboard.trip_timeline', booking_id=booking_id)
-        )
-        flash('Trip has been marked as Completed! Thank you for traveling with Roamly.', 'success')
-    else:
+    if not booking:
+        conn.close()
         flash('Booking record not found.', 'danger')
+        return redirect(url_for('dashboard.dashboard', tab='bookings'))
 
+    if booking['status'] == 'Cancelled':
+        conn.close()
+        flash('Cancelled bookings cannot be marked as completed.', 'danger')
+        return redirect(url_for('dashboard.dashboard', tab='bookings'))
+
+    # Check travel date
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    effective_date = booking.get('check_out_date') or booking.get('travel_date') or ''
+    if effective_date and effective_date > today_str:
+        conn.close()
+        flash(f"Cannot complete trip before your scheduled travel date ({effective_date}). Have a safe trip!", 'warning')
+        return redirect(url_for('dashboard.trip_timeline', booking_id=booking_id))
+
+    cursor.execute("UPDATE bookings SET trip_status = 'Completed' WHERE id = %s", (booking_id,))
+    conn.commit()
+    
+    # trip notification
+    create_notification(
+        user_id=user_id,
+        title="Trip Marked as Completed",
+        message=f"Hope you had a memorable journey! Please take a moment to leave a review for booking #{booking_id:04d}.",
+        notification_type='trip',
+        link_url=url_for('dashboard.trip_timeline', booking_id=booking_id)
+    )
     conn.close()
+
+    flash('Trip has been marked as Completed! Thank you for traveling with Roamly.', 'success')
     return redirect(url_for('dashboard.trip_timeline', booking_id=booking_id))
+
 
 # trip timeline
 @dashboard_bp.route('/trip-timeline/<int:booking_id>')

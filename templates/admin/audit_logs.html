@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}System Audit Logs - Central Admin Console{% endblock %}
+
+{% block content %}
+<div class="travel-hero">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div>
+            <div style="display:inline-flex; align-items:center; gap:8px; border:2px solid #000; background:var(--pastel-peach); padding:4px 12px; transform:rotate(-1deg); box-shadow:2px 2px 0px #000; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; margin-bottom:12px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">shield_lock</span>
+                <span>SECURITY &amp; COMPLIANCE AUDIT TRAIL</span>
+            </div>
+            <h2>Administrative Audit Trail</h2>
+            <p>Immutable log of administrative operations, agency provisioning, payout approvals, and booking interventions.</p>
+        </div>
+        <a href="/admin/dashboard" class="btn btn-outline btn-sm">Back to Dashboard</a>
+    </div>
+</div>
+
+<div class="card" style="padding:24px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid #000; padding-bottom:12px; flex-wrap:wrap; gap:10px;">
+        <h3 style="margin:0; font-size:18px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase;">Recent Activity Events</h3>
+        <span class="badge badge-yellow">{{ logs|length }} Audit Records</span>
+    </div>
+
+    {% if logs %}
+    <div style="overflow-x:auto;">
+        <table class="table-executive">
+            <thead>
+                <tr>
+                    <th>TIMESTAMP</th>
+                    <th>ACTOR</th>
+                    <th>ACTION</th>
+                    <th>DETAILS</th>
+                    <th>IP ADDRESS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td style="font-family:'Space Grotesk',sans-serif; font-size:12px; white-space:nowrap;">
+                        {{ log.created_at|format_datetime }}
+                    </td>
+                    <td>
+                        <strong>{{ log.actor_name or 'System' }}</strong>
+                        <div style="font-size:11px; color:var(--text-secondary); text-transform:uppercase;">{{ log.actor_type }}</div>
+                    </td>
+                    <td>
+                        <span class="badge {% if 'CANCEL' in log.action or 'DELETE' in log.action or 'REJECT' in log.action %}badge-pink{% elif 'APPROVE' in log.action or 'PROVISION' in log.action %}badge-mint{% else %}badge-yellow{% endif %}">
+                            {{ log.action }}
+                        </span>
+                    </td>
+                    <td style="font-size:13px;">
+                        {{ log.details }}
+                    </td>
+                    <td style="font-family:'Space Grotesk',sans-serif; font-size:12px; color:var(--text-secondary);">
+                        {{ log.ip_address or '—' }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:40px 20px;">
+        <span class="material-symbols-outlined" style="font-size:48px; color:var(--text-muted);">verified_user</span>
+        <h4 style="margin:12px 0 4px;">No Audit Events Logged Yet</h4>
+        <p style="color:var(--text-secondary); font-size:13px; margin:0;">Administrative operations will be recorded and timestamped here.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

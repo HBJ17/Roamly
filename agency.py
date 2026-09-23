@@ -1,6 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from config import Config
 from database.connection import get_db_connection
 from utils.decorators import agency_required
+from utils.security import verify_password, is_rate_limited, record_failed_attempt, clear_failed_attempts
+from payments import create_notification
 
 agency_bp = Blueprint('agency', __name__, url_prefix='/agency')
 
@@ -11,8 +14,15 @@ def login():
         return redirect(url_for('agency.dashboard'))
 
     if request.method == 'POST':
+        client_ip = request.remote_addr or 'unknown'
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
+
+        rate_key = f"agency:{client_ip}:{username.lower()}"
+        limited, retry_sec = is_rate_limited(rate_key, max_attempts=5, window_seconds=300)
+        if limited:
+            flash(f'Too many failed attempts. Agency portal locked for security. Please wait {retry_sec} seconds.', 'danger')
+            return render_template('agency/login.html')
 
         if not username or not password:
             flash('Please enter both agency username and password.', 'danger')
@@ -20,15 +30,17 @@ def login():
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM agencies WHERE username = %s AND password = %s', (username, password))
+        cursor.execute('SELECT * FROM agencies WHERE username = %s', (username,))
         agency = cursor.fetchone()
         conn.close()
 
-        if agency:
+        if agency and verify_password(password, agency['password']):
             if agency['status'] != 'Active':
                 flash('Your agency account is currently suspended. Please contact Roamly central administration.', 'danger')
                 return render_template('agency/login.html')
 
+            clear_failed_attempts(rate_key)
+            session.clear()
             session['agency_id'] = agency['id']
             session['agency_name'] = agency['name']
             session['agency_type'] = agency['agency_type']
@@ -36,6 +48,7 @@ def login():
             flash(f'Welcome back, {agency["name"]}!', 'success')
             return redirect(url_for('agency.dashboard'))
         else:
+            record_failed_attempt(rate_key)
             flash('Invalid agency username or password.', 'danger')
             return render_template('agency/login.html')
 
@@ -78,6 +91,9 @@ def dashboard():
         SELECT 
             b.*,
             u.username,
+            u.full_name as user_full_name,
+            u.email as user_email,
+            u.phone as user_phone,
             COALESCE(p.title, h.name, t.title) as item_title
         FROM bookings b
         JOIN users u ON b.user_id = u.id
@@ -114,7 +130,7 @@ def dashboard():
         transport_count=transport_count,
         total_earnings=total_earnings,
         total_orders=total_orders,
-        bookings=agency_bookings[:6],
+        bookings=agency_bookings[:8],
         my_packages=my_packages,
         my_hotels=my_hotels,
         my_transports=my_transports
@@ -187,14 +203,14 @@ def add_package():
 
     return render_template('agency/package_form.html', is_edit=False, package=None)
 
-# edit package
+# edit package (Strictly bounded to agency_id)
 @agency_bp.route('/packages/edit/<int:package_id>', methods=['GET', 'POST'])
 @agency_required
 def edit_package(package_id):
     agency_id = session['agency_id']
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM packages WHERE id = %s AND (agency_id = %s OR agency_id IS NULL)', (package_id, agency_id))
+    cursor.execute('SELECT * FROM packages WHERE id = %s AND agency_id = %s', (package_id, agency_id))
     pkg = cursor.fetchone()
 
     if not pkg:
@@ -228,9 +244,8 @@ def edit_package(package_id):
             UPDATE packages
             SET title = %s, destination = %s, category = %s, price = %s,
                 duration_days = %s, duration_nights = %s, description = %s,
-                highlights = %s, included_amenities = %s, image_url = %s,
-                agency_id = %s
-            WHERE id = %s
+                highlights = %s, included_amenities = %s, image_url = %s
+            WHERE id = %s AND agency_id = %s
         ''', (
             title or pkg['title'],
             destination or pkg['destination'],
@@ -242,8 +257,8 @@ def edit_package(package_id):
             highlights or pkg['highlights'],
             included_amenities or pkg['included_amenities'],
             image_url or pkg['image_url'],
-            agency_id,
-            package_id
+            package_id,
+            agency_id
         ))
         conn.commit()
         conn.close()
@@ -254,19 +269,19 @@ def edit_package(package_id):
     conn.close()
     return render_template('agency/package_form.html', is_edit=True, package=pkg)
 
-# delete package
+# delete package (Strictly bounded to agency_id)
 @agency_bp.route('/packages/delete/<int:package_id>', methods=['POST'])
 @agency_required
 def delete_package(package_id):
     agency_id = session['agency_id']
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT title FROM packages WHERE id = %s AND (agency_id = %s OR agency_id IS NULL)', (package_id, agency_id))
+    cursor.execute('SELECT title FROM packages WHERE id = %s AND agency_id = %s', (package_id, agency_id))
     pkg = cursor.fetchone()
 
     if pkg:
         pkg_title = pkg['title']
-        cursor.execute('DELETE FROM packages WHERE id = %s', (package_id,))
+        cursor.execute('DELETE FROM packages WHERE id = %s AND agency_id = %s', (package_id, agency_id))
         conn.commit()
         flash(f'Package "{pkg_title}" has been deleted from your catalog.', 'success')
     else:
@@ -407,18 +422,18 @@ def payouts():
     ''', (agency_id, agency_id, agency_id))
     gross_sales = float(cursor.fetchone()['gross_sales'])
 
-    commission_rate = 0.10
+    commission_rate = Config.DEFAULT_COMMISSION_PERCENT / 100.0
     platform_fee = round(gross_sales * commission_rate, 2)
     net_earnings = round(gross_sales - platform_fee, 2)
 
-    # total already withdrawn or approved
+    # total already requested, approved, or settled
     cursor.execute('''
-        SELECT COALESCE(SUM(net_payout), 0) as total_settled
+        SELECT COALESCE(SUM(amount), 0) as total_claimed
         FROM agency_payouts
-        WHERE agency_id = %s AND status IN ('Approved', 'Processed')
+        WHERE agency_id = %s AND status IN ('Approved', 'Processed', 'Pending')
     ''', (agency_id,))
-    total_settled = float(cursor.fetchone()['total_settled'])
-    available_balance = max(0.0, round(net_earnings - total_settled, 2))
+    total_claimed = float(cursor.fetchone()['total_claimed'])
+    available_balance = max(0.0, round(gross_sales - total_claimed, 2))
 
     # payout history
     cursor.execute('''
@@ -436,10 +451,10 @@ def payouts():
         net_earnings=net_earnings,
         available_balance=available_balance,
         history=history,
-        commission_rate=int(commission_rate * 100)
+        commission_rate=int(Config.DEFAULT_COMMISSION_PERCENT)
     )
 
-# submit payout settlement request
+# submit payout settlement request with strict server-side balance validation
 @agency_bp.route('/payouts/request', methods=['POST'])
 @agency_required
 def request_payout():
@@ -455,11 +470,38 @@ def request_payout():
         flash('Invalid withdrawal amount.', 'danger')
         return redirect(url_for('agency.payouts'))
 
-    commission_amount = round(req_amount * 0.10, 2)
-    net_payout = round(req_amount - commission_amount, 2)
-
     conn = get_db_connection()
     cursor = conn.cursor()
+
+    # Compute actual available balance on backend
+    cursor.execute('''
+        SELECT COALESCE(SUM(b.total_price), 0) as gross_sales
+        FROM bookings b
+        LEFT JOIN packages p ON b.package_id = p.id
+        LEFT JOIN hotels h ON b.hotel_id = h.id
+        LEFT JOIN transports t ON b.transport_id = t.id
+        WHERE (p.agency_id = %s OR h.agency_id = %s OR t.agency_id = %s)
+          AND b.status != 'Cancelled'
+    ''', (agency_id, agency_id, agency_id))
+    gross_sales = float(cursor.fetchone()['gross_sales'])
+
+    cursor.execute('''
+        SELECT COALESCE(SUM(amount), 0) as total_claimed
+        FROM agency_payouts
+        WHERE agency_id = %s AND status IN ('Approved', 'Processed', 'Pending')
+    ''', (agency_id,))
+    total_claimed = float(cursor.fetchone()['total_claimed'])
+    available_balance = max(0.0, round(gross_sales - total_claimed, 2))
+
+    if req_amount > available_balance:
+        conn.close()
+        flash(f'Requested amount (₹{req_amount:,.2f}) exceeds your available withdrawable earnings (₹{available_balance:,.2f}).', 'danger')
+        return redirect(url_for('agency.payouts'))
+
+    commission_rate = Config.DEFAULT_COMMISSION_PERCENT / 100.0
+    commission_amount = round(req_amount * commission_rate, 2)
+    net_payout = round(req_amount - commission_amount, 2)
+
     cursor.execute('''
         INSERT INTO agency_payouts (agency_id, amount, commission_amount, net_payout, bank_account_info, status)
         VALUES (%s, %s, %s, %s, %s, 'Pending')
@@ -467,5 +509,78 @@ def request_payout():
     conn.commit()
     conn.close()
 
-    flash(f'Settlement request for ₹{net_payout:,.2f} submitted to Roamly Admin for processing.', 'success')
+    flash(f'Settlement request for ₹{net_payout:,.2f} (Gross ₹{req_amount:,.2f}) submitted to Roamly Admin for processing.', 'success')
     return redirect(url_for('agency.payouts'))
+
+# agency update booking status (confirm/cancel assigned booking)
+@agency_bp.route('/bookings/status/<int:booking_id>', methods=['POST'])
+@agency_required
+def update_booking_status(booking_id):
+    agency_id = session['agency_id']
+    new_status = request.form.get('status', 'Confirmed').strip()
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # verify this booking belongs to this agency's packages/hotels/transports
+    cursor.execute('''
+        SELECT b.*, u.username
+        FROM bookings b
+        JOIN users u ON b.user_id = u.id
+        LEFT JOIN packages p ON b.package_id = p.id
+        LEFT JOIN hotels h ON b.hotel_id = h.id
+        LEFT JOIN transports t ON b.transport_id = t.id
+        WHERE b.id = %s AND (p.agency_id = %s OR h.agency_id = %s OR t.agency_id = %s)
+    ''', (booking_id, agency_id, agency_id, agency_id))
+    booking = cursor.fetchone()
+
+    if not booking:
+        conn.close()
+        flash('Booking record not found or permission denied.', 'danger')
+        return redirect(url_for('agency.dashboard'))
+
+    if new_status == 'Cancelled':
+        if booking['status'] == 'Cancelled':
+            conn.close()
+            flash('This booking is already cancelled.', 'warning')
+            return redirect(url_for('agency.dashboard'))
+
+        total_refund = float(booking['total_price'])
+        user_id = booking['user_id']
+
+        cursor.execute("UPDATE bookings SET status = 'Cancelled', trip_status = 'Cancelled' WHERE id = %s", (booking_id,))
+
+        # refund customer wallet
+        cursor.execute('SELECT * FROM wallets WHERE user_id = %s', (user_id,))
+        wallet = cursor.fetchone()
+        current_bal = float(wallet['balance']) if wallet else 0.0
+        new_bal = current_bal + total_refund
+
+        if wallet:
+            cursor.execute('UPDATE wallets SET balance = %s, updated_at = CURRENT_TIMESTAMP WHERE user_id = %s', (new_bal, user_id))
+        else:
+            cursor.execute('INSERT INTO wallets (user_id, balance, currency) VALUES (%s, %s, "INR")', (user_id, new_bal))
+
+        cursor.execute('''
+            INSERT INTO wallet_transactions (user_id, amount, transaction_type, description, reference_id)
+            VALUES (%s, %s, 'Refund', %s, %s)
+        ''', (user_id, total_refund, f"Agency cancellation refund for booking #{booking_id:04d}", f"REFUND-AG-{booking_id}"))
+
+        conn.commit()
+        conn.close()
+
+        create_notification(
+            user_id=user_id,
+            title="Booking Cancelled by Travel Agency Partner",
+            message=f"Your booking #{booking_id:04d} was cancelled by {session.get('agency_name')}. A full refund of ₹{total_refund:,.2f} has been deposited to your Roamly Wallet.",
+            notification_type='booking',
+            link_url=url_for('payments.wallet')
+        )
+        flash(f'Booking #{booking_id:04d} cancelled and full refund of ₹{total_refund:,.2f} returned to customer.', 'warning')
+    else:
+        cursor.execute("UPDATE bookings SET status = %s WHERE id = %s", (new_status, booking_id))
+        conn.commit()
+        conn.close()
+        flash(f'Booking #{booking_id:04d} marked as {new_status}.', 'success')
+
+    return redirect(url_for('agency.dashboard'))

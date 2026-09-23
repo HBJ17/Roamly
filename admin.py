@@ -1,8 +1,25 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from config import Config
 from database.connection import get_db_connection
 from utils.decorators import admin_required
+from utils.security import hash_password, verify_password, is_rate_limited, record_failed_attempt, clear_failed_attempts
+from payments import create_notification
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+
+def log_audit(actor_type, actor_id, actor_name, action, details, ip_address=''):
+    """Record an entry into the immutable administrative audit log."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO audit_logs (actor_type, actor_id, actor_name, action, details, ip_address)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        ''', (actor_type, actor_id, actor_name, action, details, ip_address))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Audit log error: {e}")
 
 # admin login
 @admin_bp.route('/login', methods=['GET', 'POST'])
@@ -11,8 +28,15 @@ def login():
         return redirect(url_for('admin.dashboard'))
 
     if request.method == 'POST':
+        client_ip = request.remote_addr or 'unknown'
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
+
+        rate_key = f"admin:{client_ip}:{username.lower()}"
+        limited, retry_sec = is_rate_limited(rate_key, max_attempts=5, window_seconds=300)
+        if limited:
+            flash(f'Too many failed attempts. Console locked for security. Please wait {retry_sec} seconds.', 'danger')
+            return render_template('admin/login.html')
 
         if not username or not password:
             flash('Please enter both admin username and password.', 'danger')
@@ -20,18 +44,23 @@ def login():
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM admins WHERE username = %s AND password = %s', (username, password))
+        cursor.execute('SELECT * FROM admins WHERE username = %s', (username,))
         admin = cursor.fetchone()
         conn.close()
 
-        if admin:
+        if admin and verify_password(password, admin['password']):
+            clear_failed_attempts(rate_key)
+            session.clear()
             session['admin_id'] = admin['id']
             session['admin_username'] = admin['username']
             session['admin_role'] = admin['role']
             session['admin_name'] = admin['full_name']
+            
+            log_audit('admin', admin['id'], admin['full_name'], 'LOGIN', f"Admin logged in from {client_ip}", client_ip)
             flash(f'Welcome to the Roamly Admin Console, {admin["full_name"]}!', 'success')
             return redirect(url_for('admin.dashboard'))
         else:
+            record_failed_attempt(rate_key)
             flash('Invalid administrator credentials.', 'danger')
             return render_template('admin/login.html')
 
@@ -40,6 +69,10 @@ def login():
 # admin logout
 @admin_bp.route('/logout')
 def logout():
+    admin_id = session.get('admin_id')
+    admin_name = session.get('admin_name', 'Administrator')
+    if admin_id:
+        log_audit('admin', admin_id, admin_name, 'LOGOUT', 'Admin logged out')
     session.pop('admin_id', None)
     session.pop('admin_username', None)
     session.pop('admin_role', None)
@@ -253,14 +286,17 @@ def add_agency():
         flash('An agency with this username or email already exists.', 'danger')
         return redirect(url_for('admin.agencies'))
 
-    # insert agency
+    # insert agency with securely hashed password
+    hashed_pwd = hash_password(password)
     cursor.execute('''
         INSERT INTO agencies (name, agency_type, username, password, email, phone, address, status)
         VALUES (%s, %s, %s, %s, %s, %s, %s, 'Active')
-    ''', (name, agency_type, username, password, email, phone, address))
+    ''', (name, agency_type, username, hashed_pwd, email, phone, address))
+    new_agency_id = cursor.lastrowid
     conn.commit()
     conn.close()
 
+    log_audit('admin', session.get('admin_id'), session.get('admin_name'), 'PROVISION_AGENCY', f"Provisioned agency '{name}' ({agency_type}, ID: {new_agency_id})")
     flash(f'Successfully provisioned credentials for agency partner "{name}" ({agency_type})!', 'success')
     return redirect(url_for('admin.agencies'))
 
@@ -270,14 +306,15 @@ def add_agency():
 def toggle_agency(agency_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT status FROM agencies WHERE id = %s', (agency_id,))
+    cursor.execute('SELECT name, status FROM agencies WHERE id = %s', (agency_id,))
     agency = cursor.fetchone()
 
     if agency:
         new_status = 'Inactive' if agency['status'] == 'Active' else 'Active'
         cursor.execute('UPDATE agencies SET status = %s WHERE id = %s', (new_status, agency_id))
         conn.commit()
-        flash(f'Agency status updated to {new_status}.', 'success')
+        log_audit('admin', session.get('admin_id'), session.get('admin_name'), 'TOGGLE_AGENCY_STATUS', f"Agency '{agency['name']}' status changed from {agency['status']} to {new_status}")
+        flash(f"Agency partner '{agency['name']}' status updated to {new_status}.", 'success')
     else:
         flash('Agency not found.', 'danger')
 
@@ -302,6 +339,7 @@ def delete_agency(agency_id):
         cursor.execute('UPDATE hotels SET agency_id = NULL WHERE agency_id = %s', (agency_id,))
         cursor.execute('UPDATE transports SET agency_id = NULL WHERE agency_id = %s', (agency_id,))
         conn.commit()
+        log_audit('admin', session.get('admin_id'), session.get('admin_name'), 'DELETE_AGENCY', f"Deleted agency '{agency_name}' (ID: {agency_id}) and unlinked its listings")
         flash(f'Agency partner "{agency_name}" deleted successfully.', 'success')
     else:
         flash('Agency not found.', 'danger')
@@ -366,6 +404,82 @@ def global_bookings():
         query=query
     )
 
+# admin cancel booking with automatic wallet refund
+@admin_bp.route('/bookings/cancel/<int:booking_id>', methods=['POST'])
+@admin_required
+def cancel_booking(booking_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM bookings WHERE id = %s', (booking_id,))
+    booking = cursor.fetchone()
+
+    if not booking:
+        conn.close()
+        flash('Booking record not found.', 'danger')
+        return redirect(url_for('admin.global_bookings'))
+
+    if booking['status'] == 'Cancelled':
+        conn.close()
+        flash('This booking is already cancelled.', 'warning')
+        return redirect(url_for('admin.global_bookings'))
+
+    total_refund = float(booking['total_price'])
+    user_id = booking['user_id']
+
+    # update booking status
+    cursor.execute("UPDATE bookings SET status = 'Cancelled', trip_status = 'Cancelled' WHERE id = %s", (booking_id,))
+
+    # ensure user wallet exists & credit refund
+    cursor.execute('SELECT * FROM wallets WHERE user_id = %s', (user_id,))
+    wallet = cursor.fetchone()
+    current_bal = float(wallet['balance']) if wallet else 0.0
+    new_bal = current_bal + total_refund
+
+    if wallet:
+        cursor.execute('UPDATE wallets SET balance = %s, updated_at = CURRENT_TIMESTAMP WHERE user_id = %s', (new_bal, user_id))
+    else:
+        cursor.execute('INSERT INTO wallets (user_id, balance, currency) VALUES (%s, %s, "INR")', (user_id, new_bal))
+
+    # insert ledger transaction
+    cursor.execute('''
+        INSERT INTO wallet_transactions (user_id, amount, transaction_type, description, reference_id)
+        VALUES (%s, %s, 'Refund', %s, %s)
+    ''', (user_id, total_refund, f"Admin Refund for cancelled booking #ROAM-{booking['booking_type'][:3].upper()}-{booking_id:04d}", f"REFUND-ADM-{booking_id}"))
+
+    conn.commit()
+    conn.close()
+
+    # notify customer
+    create_notification(
+        user_id=user_id,
+        title="Booking Cancelled & Refunded by Admin",
+        message=f"Booking #{booking_id:04d} was cancelled by Roamly Administration. A full refund of ₹{total_refund:,.2f} has been credited to your Roamly Wallet.",
+        notification_type='booking',
+        link_url=url_for('payments.wallet')
+    )
+
+    log_audit('admin', session.get('admin_id'), session.get('admin_name'), 'CANCEL_BOOKING', f"Admin force-cancelled booking #{booking_id} and issued ₹{total_refund:,.2f} wallet refund to user ID {user_id}")
+    flash(f'Booking #{booking_id:04d} has been cancelled and ₹{total_refund:,.2f} successfully refunded to customer wallet.', 'success')
+    return redirect(url_for('admin.global_bookings'))
+
+# admin update booking status
+@admin_bp.route('/bookings/status/<int:booking_id>', methods=['POST'])
+@admin_required
+def update_booking_status(booking_id):
+    new_status = request.form.get('status', 'Confirmed').strip()
+    trip_status = request.form.get('trip_status', 'Upcoming').strip()
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE bookings SET status = %s, trip_status = %s WHERE id = %s', (new_status, trip_status, booking_id))
+    conn.commit()
+    conn.close()
+
+    log_audit('admin', session.get('admin_id'), session.get('admin_name'), 'UPDATE_BOOKING_STATUS', f"Booking #{booking_id} status updated to {new_status} / trip: {trip_status}")
+    flash(f'Booking #{booking_id:04d} status updated to {new_status}.', 'success')
+    return redirect(url_for('admin.global_bookings'))
+
 # admin commission & payout settlement console
 @admin_bp.route('/commissions')
 @admin_required
@@ -377,7 +491,7 @@ def commissions():
     cursor.execute("SELECT COALESCE(SUM(total_price), 0) as total_sales FROM bookings WHERE status != 'Cancelled'")
     total_sales = float(cursor.fetchone()['total_sales'])
     
-    commission_rate = 0.10 # 10% platform fee
+    commission_rate = Config.DEFAULT_COMMISSION_PERCENT / 100.0
     platform_earnings = round(total_sales * commission_rate, 2)
     net_agency_pool = round(total_sales - platform_earnings, 2)
 
@@ -396,7 +510,7 @@ def commissions():
         total_sales=total_sales,
         platform_earnings=platform_earnings,
         net_agency_pool=net_agency_pool,
-        commission_rate=int(commission_rate * 100),
+        commission_rate=int(Config.DEFAULT_COMMISSION_PERCENT),
         payouts=payouts
     )
 
@@ -413,6 +527,8 @@ def approve_payout(payout_id):
     ''', (payout_id,))
     conn.commit()
     conn.close()
+    
+    log_audit('admin', session.get('admin_id'), session.get('admin_name'), 'APPROVE_PAYOUT', f"Approved agency payout #{payout_id}")
     flash(f'Agency payout #{payout_id} approved for bank transfer settlement.', 'success')
     return redirect(url_for('admin.commissions'))
 
@@ -429,5 +545,18 @@ def reject_payout(payout_id):
     ''', (payout_id,))
     conn.commit()
     conn.close()
+    
+    log_audit('admin', session.get('admin_id'), session.get('admin_name'), 'REJECT_PAYOUT', f"Rejected agency payout #{payout_id}")
     flash(f'Agency payout #{payout_id} marked as rejected.', 'warning')
     return redirect(url_for('admin.commissions'))
+
+# audit logs console
+@admin_bp.route('/audit-logs')
+@admin_required
+def audit_logs():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 100')
+    logs = cursor.fetchall()
+    conn.close()
+    return render_template('admin/audit_logs.html', logs=logs)
