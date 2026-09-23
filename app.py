@@ -1,5 +1,7 @@
 import os
 from flask import Flask, session, url_for, request, redirect
+from config import Config
+from utils.security import generate_csrf_token
 from database.schema import init_db
 from auth import auth_bp
 from dashboard import dashboard_bp
@@ -17,7 +19,8 @@ from coupons import coupons_bp
 from database.connection import get_db_connection
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'super_secret_key_for_session')
+app.config.from_object(Config)
+app.secret_key = Config.SECRET_KEY
 
 # register blueprints
 app.register_blueprint(auth_bp)
@@ -43,7 +46,6 @@ def url_build_error_handler(error, endpoint, values):
 
 app.url_build_error_handlers.append(url_build_error_handler)
 
-from config import Config
 from utils.i18n import translate
 
 # custom template filters
@@ -125,6 +127,7 @@ def inject_global_data():
             pass
 
     return dict(
+        csrf_token=generate_csrf_token(),
         compare_count=len(compare_list),
         unread_notifications_count=unread_notifs,
         saved_count=saved_count,
@@ -143,4 +146,5 @@ except Exception as e:
 
 # run server
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=Config.DEBUG)
+

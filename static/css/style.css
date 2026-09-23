@@ -69,7 +69,7 @@ html {
 }
 
 body {
-    background-color: var(--background);
+    background-color: #faf7ee;
     color: var(--text-primary);
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     min-height: 100vh;
@@ -81,11 +81,16 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* Halftone Texture Underlay */
+/* Rich Travel Cartography Dot-Matrix & Meridian Underlay */
 .halftone-bg {
-    background-image: radial-gradient(#000000 1.2px, transparent 1.2px);
-    background-size: 16px 16px;
-    opacity: 0.05;
+    background-image: 
+        radial-gradient(rgba(0, 0, 0, 0.13) 1.25px, transparent 1.25px),
+        radial-gradient(rgba(217, 119, 6, 0.16) 1px, transparent 1px),
+        linear-gradient(to right, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.035) 1px, transparent 1px);
+    background-size: 24px 24px, 48px 48px, 96px 96px, 96px 96px;
+    background-position: 0 0, 12px 12px, 0 0, 0 0;
+    opacity: 0.85;
     position: fixed;
     inset: 0;
     pointer-events: none;
@@ -93,9 +98,11 @@ body {
 }
 
 .halftone-bg-dense {
-    background-image: radial-gradient(#000000 1.5px, transparent 1.5px);
-    background-size: 8px 8px;
-    opacity: 0.1;
+    background-image: 
+        radial-gradient(rgba(0, 0, 0, 0.18) 1.5px, transparent 1.5px),
+        radial-gradient(rgba(217, 119, 6, 0.22) 1.2px, transparent 1.2px);
+    background-size: 16px 16px, 32px 32px;
+    opacity: 0.9;
 }
 
 /* Diagonal Hatching Pattern */
@@ -173,17 +180,17 @@ h1, h2, h3, h4, h5, h6 {
    ========================================================================== */
 
 header {
-    background: var(--surface);
+    background: var(--pastel-yellow-light);
     border-bottom: 2.5px solid #000000;
     box-shadow: 0 4px 0 0 #000000;
     position: sticky;
     top: 0;
     z-index: 100;
-    padding: 12px 30px;
+    padding: 10px 30px;
 }
 
 .header-inner {
-    max-width: 1240px;
+    max-width: 1280px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -195,7 +202,7 @@ header {
 .header-brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
 }
 
 .logo-link {
@@ -203,50 +210,59 @@ header {
     color: var(--primary);
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .brand-logo-img {
-    width: 44px;
-    height: 44px;
-    border-radius: var(--radius-sm);
-    border: 2px solid #000000;
-    box-shadow: 2px 2px 0px #000000;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-md);
+    border: 2.5px solid #000000;
+    box-shadow: 3px 3px 0px #000000;
     background: var(--pastel-yellow);
     object-fit: cover;
     display: block;
+    transition: var(--transition-fast);
+}
+
+.logo-link:hover .brand-logo-img {
+    transform: scale(1.05) rotate(-2deg);
 }
 
 .brand-title-badge {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     color: #000000;
-    border: 2px solid #000000;
-    padding: 4px 10px;
+    border: 2.5px solid #000000;
+    padding: 5px 14px;
     background: var(--pastel-yellow);
-    box-shadow: 2px 2px 0px #000000;
+    box-shadow: 3px 3px 0px #000000;
     transform: rotate(-2deg);
     transition: var(--transition-fast);
+    line-height: 1.1;
+    display: inline-flex;
+    align-items: center;
 }
 
 .logo-link:hover .brand-title-badge {
-    transform: rotate(0deg);
+    transform: rotate(0deg) scale(1.02);
 }
 
 .brand-est-badge {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    border: 1.5px solid #000000;
-    padding: 2px 8px;
+    font-size: 11.5px;
+    font-weight: 800;
+    border: 2px solid #000000;
+    padding: 3px 9px;
     border-radius: var(--radius-sm);
     background: var(--pastel-mint-light);
     color: #000000;
     transform: rotate(3deg);
     display: inline-block;
+    box-shadow: 1.5px 1.5px 0px #000000;
 }
 
 /* Nav Menu */
@@ -259,12 +275,15 @@ header {
 
 .nav-link {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 700;
     text-decoration: none;
     color: #000000;
-    padding: 6px 12px;
+    padding: 5px 12px;
+    background: #ffffff;
+    border: 1.5px solid #000000;
     border-radius: var(--radius-sm);
+    box-shadow: 2px 2px 0px #000000;
     transition: var(--transition-fast);
     display: inline-flex;
     align-items: center;
@@ -272,16 +291,14 @@ header {
 }
 
 .nav-link:hover {
-    background: var(--pastel-yellow-warm);
-    border: 1.5px solid #000000;
-    box-shadow: 2px 2px 0px #000000;
+    background: var(--pastel-yellow);
+    box-shadow: 3px 3px 0px #000000;
     transform: translate(-1px, -1px);
 }
 
 .nav-link.active {
     background: var(--pastel-yellow);
-    border: 2px solid #000000;
-    box-shadow: 2px 2px 0px #000000;
+    box-shadow: 3px 3px 0px #000000;
 }
 
 /* ==========================================================================

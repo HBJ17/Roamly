@@ -7,5 +7,3 @@ instance/
 .env
 .venv/
 env/
-credentials.txt
-CREDENTIALS.txt
