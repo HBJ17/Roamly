@@ -7,13 +7,13 @@
 <div class="travel-hero">
     <div style="display:inline-flex; align-items:center; gap:8px; border:2px solid #000; background:var(--pastel-blue-light); padding:4px 12px; transform:rotate(1deg); box-shadow:2px 2px 0px #000; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; text-transform:uppercase; margin-bottom:12px;">
         <span class="material-symbols-outlined" style="font-size:16px;">commute</span>
-        <span>SECTION 04: TRANSIT MANIFEST & TICKETING</span>
+        <span>{{ 'transit_section_title'|t }}</span>
     </div>
-    <h2>Private Cabs, Volvo Coaches, Mountain Rail & Air Transfers</h2>
+    <h2>{{ 'express_transports_sub'|t }}</h2>
     <p>High-speed Vande Bharat rail connections, Volvo AC coaches, chauffeur-driven private cabs, and scenic mountain railway routes across India.</p>
     
     <div class="quick-destination-pills">
-        <span class="quick-destination-pill"><span class="material-symbols-outlined" style="font-size:15px;">local_taxi</span> Sedan & SUV Cabs</span>
+        <span class="quick-destination-pill"><span class="material-symbols-outlined" style="font-size:15px;">local_taxi</span> {{ 'taxi_rentals'|t }}</span>
         <span class="quick-destination-pill"><span class="material-symbols-outlined" style="font-size:15px;">directions_bus</span> Multi-Axle Volvo Sleepers</span>
         <span class="quick-destination-pill"><span class="material-symbols-outlined" style="font-size:15px;">train</span> Heritage Mountain Railway</span>
         <span class="quick-destination-pill"><span class="material-symbols-outlined" style="font-size:15px;">flight</span> Regional Flights</span>
@@ -25,16 +25,16 @@
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:16px;">
         <div style="display:flex; align-items:center; gap:8px;">
             <span class="material-symbols-outlined" style="font-size:22px;">route</span>
-            <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:0.04em;">Search Transit Waypoints</span>
+            <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:0.04em;">{{ 'filter_transit'|t }}</span>
         </div>
         <span class="badge badge-peach" style="font-size:10px;">TRANSIT-DISPATCH-2024</span>
     </div>
 
     <div class="filter-row">
         <div class="filter-group" style="flex:1; min-width:150px;">
-            <label for="transport-type-select">Transit Mode</label>
+            <label for="transport-type-select">{{ 'vehicle_fleet_type'|t }}</label>
             <select id="transport-type-select" name="type">
-                <option value="">All Modes</option>
+                <option value="">{{ 'all_transports'|t }}</option>
                 <option value="Cab" {% if selected_type == 'Cab' %}selected{% endif %}>Private AC Cab</option>
                 <option value="Bus" {% if selected_type == 'Bus' %}selected{% endif %}>Luxury Coach</option>
                 <option value="Train" {% if selected_type == 'Train' %}selected{% endif %}>Mountain Train</option>
@@ -43,9 +43,9 @@
         </div>
 
         <div class="filter-group" style="flex:1; min-width:160px;">
-            <label for="source-select">Origin City</label>
+            <label for="source-select">{{ 'select_origin_city'|t }}</label>
             <select id="source-select" name="source">
-                <option value="">All Origins</option>
+                <option value="">{{ 'all_origins'|t }}</option>
                 {% for s in sources %}
                     <option value="{{ s }}" {% if selected_source == s %}selected{% endif %}>{{ s }}</option>
                 {% endfor %}
@@ -53,9 +53,9 @@
         </div>
 
         <div class="filter-group" style="flex:1; min-width:160px;">
-            <label for="dest-select">Destination City</label>
+            <label for="dest-select">{{ 'select_destination_city'|t }}</label>
             <select id="dest-select" name="destination">
-                <option value="">All Destinations</option>
+                <option value="">{{ 'all_destinations'|t }}</option>
                 {% for d in destinations %}
                     <option value="{{ d }}" {% if selected_dest == d %}selected{% endif %}>{{ d }}</option>
                 {% endfor %}
@@ -63,17 +63,17 @@
         </div>
 
         <div class="filter-group" style="flex:1; min-width:150px;">
-            <label for="sort-select">Sort By</label>
+            <label for="sort-select">{{ 'sort_by'|t }}</label>
             <select id="sort-select" name="sort_by">
-                <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
-                <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
-                <option value="duration_asc" {% if sort_by == 'duration_asc' %}selected{% endif %}>Fastest Duration</option>
+                <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>{{ 'price_low_high'|t }}</option>
+                <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>{{ 'price_high_low'|t }}</option>
+                <option value="duration_asc" {% if sort_by == 'duration_asc' %}selected{% endif %}>{{ 'duration_shortest'|t }}</option>
             </select>
         </div>
 
         <div style="display:flex; gap:8px; align-items:flex-end;">
-            <button type="submit" class="btn btn-primary" style="padding:10px 20px;">Search</button>
-            <a href="{{ url_for('transports.transports') }}" class="btn btn-outline" style="padding:10px 16px;">Reset</a>
+            <button type="submit" class="btn btn-primary" style="padding:10px 20px;">{{ 'search'|t }}</button>
+            <a href="{{ url_for('transports.transports') }}" class="btn btn-outline" style="padding:10px 16px;">{{ 'reset'|t }}</a>
         </div>
     </div>
 </form>
@@ -130,12 +130,12 @@
         <!-- Ticket Footer Perforation -->
         <div style="padding:12px 16px; border-top:2px dashed #000; background:var(--surface-container-low); display:flex; justify-content:space-between; align-items:center;">
             <div>
-                <span style="font-size:10px; color:var(--text-secondary); font-weight:700; text-transform:uppercase; font-family:'Space Grotesk',sans-serif; display:block;">TRANSIT FARE</span>
+                <span style="font-size:10px; color:var(--text-secondary); font-weight:700; text-transform:uppercase; font-family:'Space Grotesk',sans-serif; display:block;">{{ 'expedition_fare'|t }}</span>
                 <div class="package-price">{{ t['price']|currency }}<small style="font-size:11px; font-weight:500; color:var(--text-secondary);">/ seat</small></div>
             </div>
 
             <a href="{{ url_for('transports.transport_detail', transport_id=t['id']) }}" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:4px;">
-                <span>Book Transit</span>
+                <span>{{ 'book_transit'|t }}</span>
                 <span class="material-symbols-outlined" style="font-size:15px;">arrow_forward</span>
             </a>
         </div>

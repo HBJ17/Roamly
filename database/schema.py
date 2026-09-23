@@ -93,6 +93,9 @@ def init_db():
             rating DOUBLE DEFAULT 4.5,
             image_url TEXT,
             agency_id INT,
+            pros TEXT,
+            cons TEXT,
+            ideal_for VARCHAR(255) DEFAULT 'All Travelers',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (agency_id) REFERENCES agencies(id) ON DELETE SET NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -113,6 +116,10 @@ def init_db():
             description TEXT NOT NULL,
             dining_options TEXT,
             image_url TEXT,
+            ac_type VARCHAR(50) DEFAULT 'AC',
+            pet_friendly INT DEFAULT 0,
+            bed_type VARCHAR(100) DEFAULT 'King Bed',
+            max_capacity INT DEFAULT 2,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (agency_id) REFERENCES agencies(id) ON DELETE SET NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -133,6 +140,10 @@ def init_db():
             departure_time VARCHAR(50) NOT NULL,
             meal_service TEXT,
             image_url TEXT,
+            service_type VARCHAR(50) DEFAULT 'Taxi',
+            ac_type VARCHAR(50) DEFAULT 'AC',
+            seating_capacity INT DEFAULT 4,
+            daily_rate DECIMAL(10,2) DEFAULT 0.0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (agency_id) REFERENCES agencies(id) ON DELETE SET NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -266,6 +277,41 @@ def init_db():
     ]:
         try:
             cursor.execute(f'ALTER TABLE reviews ADD COLUMN {col} {ctype}')
+        except Exception:
+            pass
+
+    # safe column migrations for hotels
+    for col, ctype in [
+        ('ac_type', "VARCHAR(50) DEFAULT 'AC'"),
+        ('pet_friendly', 'INT DEFAULT 0'),
+        ('bed_type', "VARCHAR(100) DEFAULT 'King Bed'"),
+        ('max_capacity', 'INT DEFAULT 2')
+    ]:
+        try:
+            cursor.execute(f'ALTER TABLE hotels ADD COLUMN {col} {ctype}')
+        except Exception:
+            pass
+
+    # safe column migrations for transports
+    for col, ctype in [
+        ('service_type', "VARCHAR(50) DEFAULT 'Taxi'"),
+        ('ac_type', "VARCHAR(50) DEFAULT 'AC'"),
+        ('seating_capacity', 'INT DEFAULT 4'),
+        ('daily_rate', 'DECIMAL(10,2) DEFAULT 0.0')
+    ]:
+        try:
+            cursor.execute(f'ALTER TABLE transports ADD COLUMN {col} {ctype}')
+        except Exception:
+            pass
+
+    # safe column migrations for packages
+    for col, ctype in [
+        ('pros', 'TEXT'),
+        ('cons', 'TEXT'),
+        ('ideal_for', "VARCHAR(255) DEFAULT 'All Travelers'")
+    ]:
+        try:
+            cursor.execute(f'ALTER TABLE packages ADD COLUMN {col} {ctype}')
         except Exception:
             pass
 

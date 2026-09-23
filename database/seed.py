@@ -1,7 +1,8 @@
 """
 Roamly Database Seed Data Module
-Seeds well-known national and state travel agencies, iconic holiday packages across India,
-prestigious hotels, and high-speed transit routes.
+Seeds tailored agencies (Cab/Rental, Hotel, Travel), curated holiday packages across 6 core destinations
+(Madurai, Kodaikanal, Chennai, Thanjavur, Bangalore, Kanyakumari) with multi-duration options and pros/cons,
+authentic regional hotels with AC/Pet/Bed/Capacity options, and taxi/self-drive rental fleets.
 """
 from utils.security import hash_password
 
@@ -28,7 +29,7 @@ def seed_users(cursor):
                 'Ramesh Kumar',
                 '+91 9840112233',
                 '45 Mount Road, Chennai, Tamil Nadu',
-                'Avid explorer and photographer who loves South Indian hill stations, heritage temples, and Himalayan trails.'
+                'Avid explorer and photographer who loves South Indian hill stations, heritage temples, and coastal escapes.'
             ),
             (
                 'priya_travels',
@@ -37,7 +38,7 @@ def seed_users(cursor):
                 'Priya Sundaram',
                 '+91 9840223344',
                 '12 Race Course Road, Coimbatore, Tamil Nadu',
-                'Heritage enthusiast, food blogger, and road-tripper seeking authentic cultural experiences across India.'
+                'Heritage enthusiast, food blogger, and road-tripper seeking authentic cultural and culinary experiences.'
             ),
             (
                 'aarav_explorer',
@@ -45,8 +46,8 @@ def seed_users(cursor):
                 'aarav@roamly.com',
                 'Aarav Sharma',
                 '+91 9811223344',
-                'B-42 Connaught Place, New Delhi',
-                'Mountain trekker and wildlife enthusiast exploring high-altitude passes and coastal escapes.'
+                'B-42 Indiranagar, Bangalore, Karnataka',
+                'Mountain road-tripper and nature lover exploring hill stations and scenic coastal highways.'
             )
         ]
         cursor.executemany('''
@@ -54,7 +55,6 @@ def seed_users(cursor):
             VALUES (%s, %s, %s, %s, %s, %s, %s)
         ''', users_data)
 
-        # seed user preferences
         cursor.execute('''
             INSERT INTO user_preferences (user_id, preferred_travel_mode, dietary_preference, budget_range, preferred_categories)
             VALUES (1, 'Train', 'Vegetarian', 'Moderate', 'Hill Station, Heritage & Culture, Pilgrimage & Coastal')
@@ -64,70 +64,70 @@ def seed_users(cursor):
             VALUES (2, 'Private Car', 'Non-Vegetarian', 'Luxury', 'Heritage & Culture, Coastal & Beach, Nature & Wellness')
         ''')
 
-# seed 6 recognized partner agencies
+# seed 6 partner agencies (Cab, Hotel, Travel)
 def seed_agencies(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM agencies')
     count = cursor.fetchone()['count']
     if count == 0:
         seed_agencies_data = [
             (
-                'makemytrip',
+                'fasttrack_cabs',
                 hash_password('agency123'),
-                'MakeMyTrip Holidays & Expeditions',
-                'Travel Brand',
-                'holidays@makemytrip.com',
-                '+91 124 4628747',
-                'DLF Cyber City, Tower A, Gurugram, Delhi NCR',
+                'FastTrack Cabs & Self-Drive Rentals',
+                'Cab Agency',
+                'cabs@fasttrackrentals.in',
+                '+91 44 28889999',
+                'Mount Road, Chennai & South Hubs',
                 'Active'
             ),
             (
-                'taj_hotels',
+                'zoomwheels_fleet',
                 hash_password('agency123'),
-                'Taj & IHCL Luxury Palace Resorts',
-                'Hotel Owner',
-                'reservations@ihcltata.com',
-                '+91 22 66653366',
-                'Apollo Bunder, Colaba, Mumbai, Maharashtra',
+                'ZoomWheels Self-Drive & Taxi Fleet',
+                'Cab Agency',
+                'fleet@zoomwheels.in',
+                '+91 80 41112233',
+                'Indiranagar 100ft Road, Bangalore',
                 'Active'
             ),
             (
-                'zingbus_fleet',
+                'heritage_palaces',
                 hash_password('agency123'),
-                'Zingbus Intercity Express & Cabs',
-                'Cab Service',
-                'support@zingbus.com',
-                '+91 1800 1028747',
-                'Sector 44, Gurugram, Delhi NCR',
+                'Heritage Southern Palaces & Resorts',
+                'Hotel Agency',
+                'stay@heritagesouth.in',
+                '+91 452 2345678',
+                'Pasumalai Hills, Madurai',
                 'Active'
             ),
             (
-                'thomas_cook',
+                'grand_star_hotels',
                 hash_password('agency123'),
-                'Thomas Cook India Grand Expeditions',
-                'Tour Operator',
-                'customercare@thomascook.in',
-                '+91 22 42427000',
-                'Dr. D.N. Road, Fort, Mumbai, Maharashtra',
+                'Grand Star Hotels & Eco Retreats',
+                'Hotel Agency',
+                'bookings@grandstarhotels.in',
+                '+91 4542 240001',
+                'Observatory Road, Kodaikanal',
                 'Active'
             ),
             (
-                'southern_travels',
+                'roamly_expeditions',
                 hash_password('agency123'),
-                'Southern Travels & Tamil Nadu Tourism (TTDC)',
-                'Travel Brand',
-                'contact@southerntravels.in',
-                '+91 44 28460280',
-                'Wallajah Road, Triplicane, Chennai, Tamil Nadu',
+                'Roamly South Expeditions & Trails',
+                'Travel Agency',
+                'tours@roamly.com',
+                '+91 44 28460000',
+                'Anna Salai, Chennai',
                 'Active'
             ),
             (
-                'club_mahindra',
+                'dravidian_holidays',
                 hash_password('agency123'),
-                'Club Mahindra Wilderness & Hill Resorts',
-                'Hotel Owner',
-                'memberrelations@clubmahindra.com',
-                '+91 1800 2668800',
-                'Mahindra Towers, P.K. Kurne Chowk, Worli, Mumbai',
+                'Dravidian Heritage & Mountain Holidays',
+                'Travel Agency',
+                'holidays@dravidianholidays.com',
+                '+91 4362 270000',
+                'South Rampart, Thanjavur',
                 'Active'
             )
         ]
@@ -136,346 +136,994 @@ def seed_agencies(cursor):
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         ''', seed_agencies_data)
 
-# seed well-known packages across India
+# seed packages for the 6 core destinations with multi-durations (2D, 3D, 5D, 7D) and pros/cons
 def seed_packages(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM packages')
     count = cursor.fetchone()['count']
     if count == 0:
         seed_packages_data = [
+            # 1. Kodaikanal 3D/2N Classic
             (
-                'Golden Triangle Royal Heritage Tour (Delhi - Agra - Jaipur)',
-                'Delhi, Agra & Jaipur',
-                'Heritage & Culture',
-                18500.0,
-                5,
-                4,
-                'Experience the golden era of Mughal and Rajputana royalty. Marvel at the Taj Mahal at sunrise, walk the halls of Agra Fort, climb the ramparts of Amber Fort in Jaipur, and explore Old Delhi markets.',
-                'Taj Mahal Sunrise View, Agra Fort, Qutub Minar, Amber Fort Elephant Trail, Hawa Mahal & City Palace Jaipur, Chandni Chowk Rickshaw Safari',
-                '5-Star Heritage Hotel Stay, Private AC Chauffeur Sedan, Daily Buffet Breakfast & Dinner, Monuments Fast-Track Passes, Licensed Guide',
-                'Old Delhi Street Food Walk (Paranthe Wali Gali), Mughlai Handi Biryani Dinner in Agra, Royal Rajasthani Dal Baati Churma Thali in Jaipur',
-                4.9,
-                'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=800&q=80',
-                1
-            ),
-            (
-                'Kashmir Valley, Dal Lake & Gulmarg Snow Peaks',
-                'Srinagar, Gulmarg & Pahalgam, Kashmir',
+                'Kodaikanal Misty Pines & Lake Classic Getaway',
+                'Kodaikanal',
                 'Hill Station',
-                22000.0,
-                6,
+                7999.0,
+                3,
+                2,
+                'A refreshing 3-day mountain retreat exploring mist-covered Coaker’s Walk, star-shaped Kodai Lake, Pillar Rocks, and pine forest trails.',
+                'Coaker’s Walk, Kodai Lake Boating, Pillar Rocks, Bryant Park, Silver Cascade Falls, Pine Forest Walk',
+                '3-Star Mountain Resort, Daily Buffet Breakfast, Sightseeing Cab, Boating Pass, Tea Plantation Walk',
+                'Homemade Kodai Chocolates, Hot Filter Coffee, Hill Station Masala Corn & Herbal Soups',
+                4.8,
+                'https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?auto=format&fit=crop&w=800&q=80',
                 5,
-                'Discover paradise on earth with snow-capped Pir Panjal peaks, peaceful Shikara rides on Dal Lake, meadow walks in Pahalgam, and the world-famous Gulmarg Gondola cable car.',
-                'Dal Lake Shikara Cruise at Sunset, Luxury Houseboat Stay, Gulmarg Phase 2 Gondola Cable Car Ride, Betaab Valley Horse Trail, Mughal Gardens Nishat & Shalimar',
-                'Deluxe Heritage Houseboat Stay, Pine Valley Resort in Pahalgam, Daily Breakfast & Wazwan Dinners, Private 4x4 Mountain Scorpio, Gondola Tickets',
-                'Traditional Kashmiri 7-Course Wazwan Feast (Rogan Josh & Gushtaba), Saffron Kehwa Tea with Almonds, Kashmiri Pulao & Nadru Yakhni',
-                5.0,
-                'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80',
-                4
+                'Fast-paced and budget-friendly; Covers all prime postcard landmarks; Ideal for a quick weekend recharge',
+                'Rushed schedule with limited leisure time; Misses remote waterfalls and deep trekking trails',
+                'Weekend travelers & couples looking for a quick mountain break'
             ),
+            # 2. Kodaikanal 5D/4N Leisure Deep Immersion
             (
-                'Kerala Backwaters, Munnar Hills & Alleppey Houseboat',
-                'Munnar & Alleppey, Kerala',
-                'Nature & Wellness',
-                16800.0,
-                5,
-                4,
-                'Serene palm-fringed backwaters, rolling emerald tea estates in Munnar, aromatic spice plantations in Thekkady, and an overnight luxury houseboat cruise through Alleppey.',
-                'Munnar Tea Plantation Walking Trail, Eravikulam National Park Nilgiri Tahr Spotting, Periyar Lake Wildlife Boat Safari, Private Alleppey Houseboat Overnight Cruise',
-                'Colonial Tea Chalet Stay, Private Air-Conditioned Deluxe Houseboat, All Houseboat Meals, Spice Plantation Guided Walk, Airport Transfers',
-                'Traditional Kerala Sadya on Fresh Banana Leaf, Alleppey Karimeen Pollichathu (Pearl Spot Fish), Appam with Vegetable Stew & Coconut Milk',
-                4.9,
-                'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80',
-                1
-            ),
-            (
-                'Tamil Nadu Grand Temple & Coastal Heritage Trail',
-                'Madurai, Rameswaram & Kanyakumari, Tamil Nadu',
-                'Pilgrimage & Coastal',
+                'Kodaikanal Wilderness, Berijam Forest & High Valley Trek',
+                'Kodaikanal',
+                'Hill Station',
                 14500.0,
                 5,
                 4,
-                'Journey through sacred temples, historic sea bridges, and the confluence of three oceans. Explore Madurai Meenakshi Amman Temple, Pamban Sea Bridge, and Kanyakumari sunrise.',
-                'Meenakshi Amman Temple Golden Tower Darshan, Pamban Sea Bridge Train View, Ramanathaswamy 22 Sacred Theerthams, Dhanushkodi Ghost Town, Vivekananda Rock Memorial Sunrise',
-                '3-Star Heritage Hotels, Daily South Indian Buffet Breakfast, Private AC Sightseeing Vehicle, Temple Guide, Ferry Tickets',
-                'Authentic Madurai Jigarthanda Tasting, Banana Leaf Ghee Roast Dosa & Filter Coffee, Coastal Tamil Coconut Fish Curry & Tirunelveli Halwa',
+                'A relaxed 5-day immersive holiday including exclusive Berijam Lake forest permits, Vattakanal dolphin nose sunrise trek, and organic spice plantation stay.',
+                'Berijam Biosphere Forest Safari, Vattakanal Dolphin Nose Trek, Mannavanur Sheep Farm & Lake, Guna Caves, Silent Valley Viewpoint, Kodai Solar Observatory',
+                '4-Star Premium Valley View Chalet, Daily Breakfast & Dinner, Private SUV Sightseeing, Forest Entry Permits, Campfire Evening',
+                'Farm-to-Table Organic Meals, Badaga Herb Roast Dishes, Authentic Kodai Cheeses & Wood-Fired Sourdough Pizzas',
                 4.9,
-                'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80',
-                5
-            ),
-            (
-                'Royal Rajasthan Palaces & Thar Desert Safari',
-                'Udaipur, Jodhpur & Jaisalmer, Rajasthan',
-                'Heritage & Culture',
-                24500.0,
-                6,
+                'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80',
                 5,
-                'Immerse yourself in royal Rajputana heritage. Glide over Lake Pichola in Udaipur, scale Mehrangarh Fort in Jodhpur, and sleep under desert stars in the golden sand dunes of Jaisalmer.',
-                'Lake Pichola Sunset Boat Cruise, Jag Mandir Palace, Mehrangarh Fort Tower Tour, Jaisalmer Golden Fort, Sam Sand Dunes Camel Safari & Luxury Tent Campfire',
-                'Heritage Haveli & Luxury Desert Camp Stay, Daily Breakfast & Camp Dinner, Private AC SUV Transfers, Desert Safari, Folk Dance Access',
-                'Royal Marwari Thali, Junglee Maas & Laal Maas Specialty, Desert Campfire Barbecue with Mawa Kachori & Masala Chai',
-                4.8,
-                'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=800&q=80',
-                1
+                'Deep leisurely pace; Includes protected eco-zones and hidden lakes; Ample time for relaxation and photography; Campfire dinner included',
+                'Higher overall price; Requires moderate walking stamina for valley treks',
+                'Nature lovers, photographers & families desiring an in-depth serene vacation'
             ),
+            # 3. Kodaikanal 7D/6N Grand Mountain Expedition
             (
-                'Goa Coastal Sun, Beaches & Portuguese Heritage',
-                'North & South Goa',
-                'Coastal & Beach',
-                13900.0,
-                4,
-                3,
-                'Sun-kissed beaches, thrilling water sports, UNESCO Portuguese churches, vibrant flea markets, and sunset catamaran cruises along the Arabian Sea.',
-                'Baga & Calangute Beach Watersports, Basilica of Bom Jesus UNESCO Heritage, Fontainhas Latin Quarter Photo Walk, Mandovi River Sunset Catamaran Cruise, Dudhsagar Waterfalls Jeep Trek',
-                '4-Star Beachside Resort Stay, Daily Breakfast, Private AC Airport & Sightseeing Car, Catamaran Cruise Passes, Watersports Voucher',
-                'Authentic Goan Fish Curry Thali, Prawn Balchao, Bebinca Layered Cake & Tropical Feni Cocktails at Beach Shacks',
-                4.7,
-                'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80',
-                4
-            ),
-            (
-                'Leh-Ladakh High Altitude Himalayan Odyssey',
-                'Leh, Nubra Valley & Pangong Lake, Ladakh',
-                'Adventure & Mountain',
-                29000.0,
+                'Kodaikanal & Western Ghats Ultimate Mountain Odyssey',
+                'Kodaikanal',
+                'Hill Station',
+                21900.0,
                 7,
                 6,
-                'Cross the highest motorable mountain passes in the world. Witness the color-shifting waters of Pangong Tso Lake, ride double-humped camels in Nubra Valley, and visit ancient cliffside monasteries.',
-                'Pangong Tso Color-Changing Lake, Khardung La Pass (17,982 ft), Nubra Valley Hunder Sand Dunes Double-Humped Camel Ride, Diskit Monastery Giant Buddha, Magnetic Hill',
-                'Boutique Hotel in Leh & Luxury Swiss Tent at Pangong, Oxygen Cylinders Onboard, 4x4 Luxury Scorpio, All Inner Line Permits, All Meals',
-                'Traditional Ladakhi Thukpa, Steamed Yak Cheese Momos, Butter Tea (Gur Gur Chai), Hot Wood-Fired Stews at Mountain Passes',
+                'The definitive 7-day high-altitude adventure covering all Kodai highlights plus offbeat Poombari terraced villages, Kukkal shola forest, and yoga retreats.',
+                'Poombari Garlic Terrace Hills, Kukkal Forest Sanctuary, Pambar Waterfalls Safari, Berijam Lake, Night Sky Stargazing at Observatory, Kurinji Andavar Temple',
+                'Luxury Boutique Villa with Fireplace, All Meals Included, Dedicated 4x4 Vehicle, Forest & Wildlife Guide, Spa & Wellness Session',
+                'Multi-Course Traditional Hill Country Banquet, Artisan Kodai Chocolate Tasting Masterclass, Fresh Strawberry & Plum Delicacies',
                 5.0,
                 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
-                4
+                6,
+                'Complete all-inclusive coverage; Zero rush; Access to secluded mountain villages and remote waterfalls; Spa and bonfire sessions included',
+                'Requires a full week leave; Premium price point',
+                'Long-stay travelers, remote work vacationers, honeymooners & trekking enthusiasts'
             ),
+
+            # 4. Madurai 2D/1N Express Heritage
             (
-                'Ooty & Nilgiri Mountain Steam Toy Train Escape',
-                'Ooty & Coonoor, Tamil Nadu',
-                'Hill Station',
-                12500.0,
+                'Madurai Meenakshi Temple Express Weekend',
+                'Madurai',
+                'Heritage & Culture',
+                4999.0,
+                2,
+                1,
+                'Experience the spiritual grandeur and culinary vibrant night markets of the ancient Athens of the East in a compact 2-day express tour.',
+                'Meenakshi Amman Temple Special Darshan, Thousand Pillar Hall, Thirumalai Nayakkar Palace Light & Sound Show, Vandiyur Mariamman Teppakulam',
+                '3-Star City Hotel Stay, South Indian Breakfast, AC Sedan Sightseeing, Temple Guide',
+                'Original Famous Madurai Jigarthanda Tasting, Murugan Idli Shop Breakfast, Madurai Kari Dosa Dinner',
+                4.7,
+                'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80',
+                6,
+                'Very affordable; Seamless quick weekend getaway; Covers the essential temple darshan and top street foods',
+                'Tight timeline; Does not include day excursions to Keeladi or Alagar Kovil',
+                'Weekend pilgrims & short-trip city explorers'
+            ),
+            # 5. Madurai 4D/3N Heritage & Culinary Heritage Trail
+            (
+                'Madurai Grand Nayakkar Heritage & Keeladi Civilization Trail',
+                'Madurai',
+                'Heritage & Culture',
+                11200.0,
                 4,
                 3,
-                'Escape into the misty blue mountains of Nilgiris. Ride the UNESCO heritage steam toy train, wander around tranquil Ooty Lake, and breathe fresh aroma in century-old tea gardens.',
-                'UNESCO Heritage Steam Toy Train Ride, Ooty Lake Boating, Doddabetta Peak Panoramic View, Sim\'s Park Coonoor, Single-Origin High-Grown Tea Factory Tour',
-                'Colonial Heritage Resort Stay, Daily Breakfast & Dinner, Private Sightseeing Cab, Toy Train Reserved First Class Tickets, Entry Permits',
-                'Nilgiri Orthodox Tea Tasting, Fresh Handmade Mountain Chocolates, Badaga Herbal Roast Dining & South Indian Filter Coffee',
-                4.8,
-                'https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?auto=format&fit=crop&w=800&q=80',
-                5
+                'Comprehensive 4-day deep dive into Sangam-era history at the Keeladi Archaeological Museum, Alagar Hills temple, and Chettinad architectural fringes.',
+                'Keeladi Archaeological Excavation Museum, Alagar Kovil & Pazhamudircholai Hill Temple, Meenakshi Golden Tower Darshan, Banana Market Walk, Thirupparankundram Rock-Cut Shrine',
+                '4-Star Heritage Palace Resort, Daily Breakfast & Chef Dinners, Private AC Chauffeur Cab, VIP Temple Darshan Passes, Historian Guide',
+                'Chettinad Spicy Kuzhambu Feast on Banana Leaf, Bun Parotta Masterclass, Madurai Halwa & Jigarthanda Safari',
+                4.9,
+                'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80',
+                5,
+                'In-depth historical immersion; Includes world-renowned Keeladi museum; Guided food walk through historic bazaars; Relaxed afternoon palace visits',
+                'Involves local market walking in warmer daytime temperatures',
+                'History buffs, culture enthusiasts, foodies & multi-generational families'
             ),
+
+            # 6. Chennai 3D/2N Coastal & Colonial Heritage
             (
-                'Varanasi Spiritual Ganges & Sarnath Odyssey',
-                'Varanasi, Uttar Pradesh',
-                'Heritage & Culture',
-                9800.0,
+                'Chennai Coastal Breeze & Colonial Heritage Trail',
+                'Chennai',
+                'Coastal & Heritage',
+                6800.0,
                 3,
                 2,
-                'Witness timeless spirituality on the banks of the sacred Ganges River. Experience the mesmerizing evening Maha Aarti, sunrise boat ride, and the historic Buddhist ruins of Sarnath.',
-                'Dashashwamedh Ghat Grand Evening Ganga Aarti, Sunrise Wooden Boat Ride on Sacred Ganges, Kashi Vishwanath Golden Temple Corridor, Sarnath Deer Park & Dhamek Stupa',
-                'Ganga Riverside Heritage Hotel, Daily Breakfast, Private AC Car, Private Boat with Priest for Aarti, Temple Special Darshan Pass',
-                'Authentic Banarasi Malaiyo, Kachori Jalebi Breakfast on Ghats, Banarasi Paan Tasting, Thandai with Saffron & Pistachio',
-                4.9,
-                'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=800&q=80',
-                1
+                'Discover Madras history from 1644 Fort St. George, San Thome Cathedral, colorful Mylapore Kapaleeshwarar temple, and vibrant Marina beach evenings.',
+                'Kapaleeshwarar Temple Mylapore Walk, Marina Beach Lighthouse Panorama, San Thome Basilica, Fort St. George Colonial Museum, Government Museum Bronze Gallery',
+                '3-Star Seaside Hotel, Daily Buffet Breakfast, Private AC Car, Museum Fast-Track Entry, Filter Coffee Experience',
+                'Mylapore Ghee Roast Dosas with 4 Chutneys, Fresh Marina Beach Sundal, Madras Filter Coffee & Authentic South Indian Thali',
+                4.7,
+                'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80',
+                5,
+                'Efficient coverage of city icons; Great blend of coastal breeze and historic landmarks; Easy airport and railway connectivity',
+                'City traffic during peak hours; Shorter stay doesn’t cover Mahabalipuram shore temples',
+                'Business travelers extending stay, weekend coastal explorers & first-time Tamil Nadu visitors'
             ),
+            # 7. Chennai 5D/4N Coastal City & Mahabalipuram UNESCO Wonders
             (
-                'Andaman Coral Islands & Radhanagar Beach Paradise',
-                'Port Blair & Havelock Island, Andaman',
-                'Coastal & Beach',
-                26500.0,
+                'Chennai & Mahabalipuram UNESCO Shore Temple Immersion',
+                'Chennai',
+                'Coastal & Heritage',
+                13900.0,
                 5,
                 4,
-                'Pristine turquoise waters, white sand beaches, and coral reefs. Relax on Radhanagar Beach (voted Asia’s best beach), explore Cellular Jail history, and snorkel in vibrant sea waters.',
-                'Radhanagar Beach Sunset, Cellular Jail Light & Sound Show, Elephant Beach Coral Snorkeling, Makruzz High-Speed Sea Catamaran Ride, Kalapathar Beach Sunrise',
-                'Beach Villa Resort Stay, High-Speed Ferry Tickets, Daily Breakfast & Seafood Dinner, Snorkeling Gear & Instructor, Private AC Transfers',
-                'Fresh Coconut Crab Curry, Ocean Catch Grilled Fish, Tropical Mango Coconut Shakes & Beachside Barbecue',
+                'A 5-day coastal luxury tour spanning ancient Madras, East Coast Road scenic drives, and the 7th-century UNESCO Shore Temples of Mahabalipuram.',
+                'Mahabalipuram Shore Temple & Arjuna’s Penance, DakshinaChitra Living History Museum, Covelong Beach Watersports, Mylapore Silk Street, Cholamandal Artists’ Village',
+                '4-Star Beachside Resort on ECR, Daily Breakfast & Seafood Dinners, Private AC Chauffeur Car, Monument Passes, Surfing / Boating Voucher',
+                'Fresh Coastal Crab & Fish Curry, Chettinad Spiced Prawns, Dakshin Fine Dining Experience, Coconut Tender Water Refreshments',
                 4.9,
-                'https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?auto=format&fit=crop&w=800&q=80',
-                4
+                'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+                6,
+                'Expands to scenic ECR beaches and world heritage monuments; Relaxed coastal resort stay; Combines culture, beach activities, and living art villages',
+                'Higher price due to premium beach resort stay and extended cab hire',
+                'Families, heritage travelers, beach enthusiasts & slow-paced vacationers'
+            ),
+
+            # 8. Thanjavur 3D/2N Chola Dynasty Heritage
+            (
+                'Thanjavur Brihadisvara Great Chola Temple Trail',
+                'Thanjavur',
+                'Heritage & Culture',
+                6500.0,
+                3,
+                2,
+                'Marvel at the 1,000-year-old architectural marvel Brihadisvara Big Temple, explore the Maratha Palace, and visit generation-old bronze casting artisans.',
+                'Brihadisvara UNESCO Big Temple Darshan, Thanjavur Maratha Royal Palace & Art Gallery, Saraswathi Mahal Ancient Manuscript Library, Bronze & Art Plate Workshops',
+                'Heritage 3-Star Hotel Stay, Daily South Indian Breakfast, Private AC Sightseeing Vehicle, Certified Historian Guide, Art Souvenir Gift',
+                'Authentic Thanjavur Thali with More Kuzhambu, Kumbakonam Degree Coffee, Fresh Banana Leaf Sambhar Rice & Ash Gourd Halwa',
+                4.8,
+                'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=800&q=80',
+                6,
+                'Focused exploration of world-famous Chola architecture; Meets authentic metalcraft artisans; Pocket-friendly heritage tour',
+                'Does not include nearby temple towns like Gangaikonda Cholapuram or Darasuram',
+                'Architecture lovers, spiritual seekers & culture buffs'
+            ),
+            # 9. Thanjavur 5D/4N Great Living Chola Temples Circuit
+            (
+                'Great Living Chola Dynasty Complete Triangle (Thanjavur - Kumbakonam - Gangaikonda)',
+                'Thanjavur',
+                'Heritage & Culture',
+                13200.0,
+                5,
+                4,
+                'Complete 5-day expedition covering the trio of UNESCO Great Living Chola Temples, ancient weaving clusters, and tranquil Cauvery delta villages.',
+                'Brihadisvara Temple at Thanjavur, Gangaikonda Cholapuram Sanctuary, Airavatesvara Temple Darshan at Darasuram, Kumbakonam Brass & Silk Weavers, Royal Palace Courtyard',
+                'Heritage Luxury Ayurvedic Resort Stay, Daily Breakfast & Traditional Dinners, AC Chauffeur Car, Temple VIP Passes, Village Bull Cart Ride',
+                'Delta Harvest Feast with 14 Native Curries, Traditional Kumbakonam Ghee Roast, Filter Coffee Tasting & Svatma Classical Dinner',
+                4.9,
+                'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=800&q=80',
+                6,
+                'Comprehensive coverage of all three UNESCO Chola monuments; Rich artisan and handloom village visits; Authentic heritage resort experience',
+                'Moderate road travel between delta temple clusters',
+                'Art historians, photographers, spiritual explorers & discerning culture seekers'
+            ),
+
+            # 10. Bangalore 3D/2N Garden City & Royal Palace Tour
+            (
+                'Bangalore Garden City, Palaces & Craft Breweries',
+                'Bangalore',
+                'City & Nature',
+                7200.0,
+                3,
+                2,
+                'Explore the royal Tudor-style Bangalore Palace, lush Lalbagh Botanical Gardens, Tipu Sultan’s Summer Palace, and the vibrant pub & craft brewing culture.',
+                'Bangalore Tudor Palace Tour, Lalbagh Glass House & 200-yr-old Trees, Cubbon Park Walk, Tipu Sultan Summer Palace, Indiranagar Craft Brewery Experience',
+                '4-Star Central Hotel, Daily Buffet Breakfast, Private AC Sedan Sightseeing, Palace Entry Passes, Craft Tasting Voucher',
+                'Iconic Vidyarthi Bhavan Masala Dosa, CTR Benne Dosa, Craft Beer Tasting Flights, Authentic Karnataka Ragi Mudde Thali',
+                4.8,
+                'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=800&q=80',
+                5,
+                'Exciting blend of royal heritage, vast botanical green spaces, and modern cosmopolitan gastronomy; Very flexible itinerary',
+                'City traffic during evening rush hours',
+                'Young professionals, couples, urban explorers & food & beverage enthusiasts'
+            ),
+            # 11. Bangalore 5D/4N Hills, Palaces & Nandi Sunrise Expedition
+            (
+                'Bangalore & Nandi Hills Royal Nature & Vineyard Escape',
+                'Bangalore',
+                'City & Nature',
+                14900.0,
+                5,
+                4,
+                'A 5-day luxurious retreat combining Bengaluru heritage, early morning Nandi Hills cloud sunrise, Grover Zampa vineyard wine tour, and Bannerghatta safari.',
+                'Nandi Hills Sunrise & Bhoga Nandeeshwara Temple, Grover Zampa Vineyard Tour & Wine Tasting, Bannerghatta National Park Jungle Safari, Bangalore Palace, MG Road Walking Safari',
+                'Luxury 5-Star Garden Palace Hotel, Daily Breakfast & Gourmet Dinners, Private SUV Chauffeur, Safari & Vineyard Passes',
+                'Vineyard Gourmet Cheese & Wine Pairing, Mysore Pak Tasting, Udupi Multi-Course Feast & High Tea at Palace Gardens',
+                4.9,
+                'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+                5,
+                'Expands into breathtaking cloud-top hills and boutique vineyards; Top-tier luxury hotel stay; Wildlife safari included',
+                'Early 4:30 AM departure required for Nandi sunrise on Day 3',
+                'Leisure travelers, wine enthusiasts, families & luxury seekers'
+            ),
+
+            # 12. Kanyakumari 3D/2N Lands End & Triveni Sangam
+            (
+                'Kanyakumari Lands End, Sunrise & Ocean Confluence',
+                'Kanyakumari',
+                'Coastal & Pilgrimage',
+                6200.0,
+                3,
+                2,
+                'Stand at the southern tip of the Indian subcontinent where the Indian Ocean, Arabian Sea, and Bay of Bengal unite. Witness spectacular sunrise and sunset.',
+                'Vivekananda Rock Memorial & Ferry Ride, 133-ft Thiruvalluvar Statue, Triveni Sangam Holy Dip, Sunset Viewpoint at Beach Promenade, Kanyakumari Bhagavathy Amman Temple',
+                '3-Star Sea Facing Hotel, Daily Breakfast, Private AC Sightseeing Car, Ferry Passes, Temple Guide',
+                'Coastal Kanyakumari Nethili Fish Fry, Fresh Coconut Banana Halwa, Appam with Sweet Coconut Milk & Filter Coffee',
+                4.8,
+                'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80',
+                5,
+                'Witness both sunrise and sunset over the ocean from the same point; Unmatched spiritual & geographical significance; Budget-friendly',
+                'Peak season ferry queues for Vivekananda Rock; Afternoon coastal heat',
+                'Spiritual travelers, geography enthusiasts, families & budget travelers'
+            ),
+            # 13. Kanyakumari 5D/4N Coastal Castles & Padmanabhapuram Royal Tour
+            (
+                'Kanyakumari & Travancore Coastal Castles Odyssey',
+                'Kanyakumari',
+                'Coastal & Pilgrimage',
+                13500.0,
+                5,
+                4,
+                'A 5-day scenic expedition exploring Kanyakumari along with the 16th-century wooden marvel Padmanabhapuram Palace, Mathur Hanging Trough, and Vattakottai ocean fort.',
+                'Padmanabhapuram Teakwood Palace Tour, Vattakottai Beachside Granite Fort, Mathur Aqueduct Hanging Trough, Vivekananda Rock Memorial, Suchindram Thanumalayan Temple, Sunset Catamaran Cruise',
+                '4-Star Oceanfront Suite Resort, Daily Breakfast & Seafood Dinners, Private AC Chauffeur Car, Ferry & Palace VIP Passes, Catamaran Ride',
+                'Travancore Royal Sadya Feast, Fresh Coastal Seafood Platters, Tirunelveli Ghee Halwa & South Coastal Coconut Curries',
+                4.9,
+                'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80',
+                6,
+                'Explores hidden coastal forts and majestic teakwood palaces; Unhurried relaxed pace with sunset catamaran cruise; Seafront private balcony stay',
+                'Requires inter-district sightseeing transit along the scenic coastal route',
+                'History buffs, beach lovers, honeymooners & multi-generational vacationers'
             )
         ]
         cursor.executemany('''
-            INSERT INTO packages (title, destination, category, price, duration_days, duration_nights, description, highlights, included_amenities, food_highlights, rating, image_url, agency_id)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO packages (title, destination, category, price, duration_days, duration_nights, description, highlights, included_amenities, food_highlights, rating, image_url, agency_id, pros, cons, ideal_for)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', seed_packages_data)
 
-# seed premier hotels across India
+# seed hotels for each of the 6 core destinations with AC, Pet, Bed, and Capacity options
 def seed_hotels(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM hotels')
     count = cursor.fetchone()['count']
     if count == 0:
         hotels_data = [
+            # Madurai Hotels
             (
-                2,
-                'The Taj Mahal Palace',
-                'Mumbai, Maharashtra',
-                'Apollo Bunder, Colaba, Mumbai, Maharashtra 400001',
-                5.0,
-                14500.0,
-                'Luxury Sea Facing Room, Tower Deluxe Room, Presidential Grand Suite',
-                'Gateway of India Sea Vista, Swimming Pool, Jiva Spa, 9 Fine Dining Specialty Restaurants, 24/7 Butler Service, High-Speed WiFi',
-                'Legendary 1903 flagship luxury hotel overlooking the Gateway of India and the Arabian Sea with royal architecture and world-class hospitality.',
-                'Wasabi by Morimoto (Japanese), Golden Dragon (Sichuan), Shamiana 24-hr Coffee Shop, and Sea Lounge Afternoon High Tea',
-                'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80'
-            ),
-            (
-                2,
-                'The Oberoi Udaivilas',
-                'Udaipur, Rajasthan',
-                'Haridas Ji Ki Magri, Mulla Talai, Udaipur, Rajasthan 313001',
-                5.0,
-                18000.0,
-                'Premier Lake View Room, Luxury Suite with Private Pool, Kohinoor Royal Villa',
-                'Private Boat Arrival across Lake Pichola, Semi-Private Moat Pools, Royal Peacock Courtyards, Ayurvedic Spa, Fine Dining',
-                'Set on the banks of Lake Pichola with majestic domes, hand-painted frescoes, reflection pools, and 50 acres of royal gardens.',
-                'Suryamahal & Chandni serving Royal Rajasthani Mewari Thalis, European Classics, and Lakeside Candlelight Dining',
-                'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80'
-            ),
-            (
-                2,
-                'ITC Grand Chola, a Luxury Collection Hotel',
-                'Chennai, Tamil Nadu',
-                '63 Mount Road, Guindy, Chennai, Tamil Nadu 600032',
-                5.0,
-                9500.0,
-                'Executive Club Room, The Towers Luxury Room, Chola Grand Suite',
-                'Imperial Chola White Marble Architecture, 3 Swimming Pools, Kaya Kalp Royal Spa, Heliport, 10 Gourmet Restaurants, Valet Parking',
-                'Palatial grandeur inspired by the ancient Chola Empire with 1 million square feet of carved white Italian marble, grand pillars, and regal luxury.',
-                'Peshawri (Tandoori & Kebabs), Madras Pavilion (Grand World Buffet), Pan Asian, and Royal South Indian Cuisines',
-                'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80'
-            ),
-            (
-                6,
-                'Wildflower Hall, An Oberoi Resort',
-                'Shimla, Himachal Pradesh',
-                'Chharabra, Shimla, Himachal Pradesh 171012',
-                5.0,
-                16500.0,
-                'Premier Mountain View Room, Deluxe Pine View Room, Lord Kitchener Suite',
-                'Outdoor Heated Infinity Whirlpool over Himalayas, Cedar Forest Sanctuary, Billiards Room, Tennis Courts, Mountain Biking, Spa',
-                'Former residence of Lord Kitchener nestled 8,250 feet high in the Himalayas surrounded by 22 acres of virgin pine and cedar forests.',
-                'The Restaurant with Open-Air Terrace serving Himachali Sepu Vadi, Pan-Asian Delicacies, and Wood-Fired Pastries',
-                'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80'
-            ),
-            (
-                6,
-                'Kumarakom Lake Resort',
-                'Kumarakom, Kerala',
-                'Vembanad Lake, Kumarakom, Kottayam, Kerala 686563',
+                3,
+                'Heritage Madurai Palace & Banyan Resort',
+                'Madurai',
+                '11 Melakkal Main Road, Kochadai, Madurai 625016',
                 4.9,
-                12800.0,
-                'Heritage Meandering Pool Villa, Presidential Pool Villa, Traditional Backwater Chalet',
-                'Meandering 250m Swimming Pool connecting Villas, Sunset Lake Cruise, Ayurmana Ayurveda Hospital, Traditional Kathakali Evenings',
-                'Ranked among the finest luxury resorts in India, featuring 16th-century reconstructed wooden ancestral homes on the shores of Lake Vembanad.',
-                'Ettukettu Heritage Multi-Cuisine Restaurant and Seafood Bar on the Backwaters serving Fresh Crab and Pearl Spot Curry',
-                'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80'
+                5200.0,
+                'Heritage Deluxe Room, Luxury Plunge Pool Villa, Royal Suite',
+                'Olympic-Sized Temple-Style Pool, Traditional Ayurvedic Spa, 300-Year-Old Banyan Tree Courtyard, Free WiFi, 24/7 Butler',
+                'Sprawling 17-acre heritage sanctuary designed by Geoffrey Bawa blending ancient Tamil craftsmanship with modern five-star comfort.',
+                'Banyan Multi-Cuisine Fine Dining, Madurai Kari Dosa Live Counter, and Traditional South Indian Filter Coffee Bar',
+                'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+                'AC',
+                0,
+                'King Bed',
+                2
             ),
             (
-                2,
-                'Savoy - IHCL SeleQtions',
-                'Ooty, Tamil Nadu',
-                '77 Sylks Road, Monterosa, Ooty, Nilgiris, Tamil Nadu 643001',
+                3,
+                'The Gateway Hotel Pasumalai Madurai',
+                'Madurai',
+                'Pasumalai Hills, Madurai 625004',
                 4.8,
-                7800.0,
-                'Colonial Superior Room, Heritage Deluxe Cottage, Nilgiri Suite',
-                '180-Year-Old English Heritage Estate, Log Fireplaces in Every Room, Afternoon Tea on Lawns, Billiards, Badminton, Spa',
-                'Dating back to 1841, Savoy captures the timeless colonial romance of the Nilgiri hills with wood-beamed ceilings and vintage gardens.',
-                'The Dining Hall serving British Roast Classics, Badaga Tribal Spiced Mutton, and Warm Steamed Chocolate Puddings',
-                'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80'
+                6400.0,
+                'Executive Hill View Room, Garden Cottage, Suite',
+                'Panoramic City & Temple Views, Swimming Pool, Pet-Friendly Cottages, Lawn Tennis, Fitness Center',
+                'Perched atop Pasumalai hill amidst 62 acres of lush gardens with wandering peacocks and serene sunset vistas.',
+                'Gadam Multi-Cuisine, High Point Lounge Bar, Authentic Chettinad & Madurai Special Menus',
+                'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
+                'AC',
+                1,
+                'Queen Bed',
+                4
+            ),
+            (
+                4,
+                'Meenakshi Heritage Residency & Suites',
+                'Madurai',
+                'West Perumal Maistry Street, Madurai 625001',
+                4.4,
+                2400.0,
+                'Standard Double Room, Family 4-Bed Suite',
+                'Walking Distance to Meenakshi Temple, Free WiFi, Lift, 24-hr Travel Desk, Room Service',
+                'Comfortable, budget-friendly heritage accommodation situated just 400m from Meenakshi Amman Temple Golden Towers.',
+                'Annapoorna Pure Vegetarian South Indian Restaurant',
+                'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
+                'Both',
+                0,
+                'Twin Beds',
+                3
+            ),
+
+            # Kodaikanal Hotels
+            (
+                4,
+                'The Tamara Kodai Luxury Hill Retreat',
+                'Kodaikanal',
+                'St Marys Road, Kodaikanal 624101',
+                5.0,
+                11500.0,
+                'Luxury Pine Suite, Mountain View Suite, Presidential Grand Suite',
+                'Heated Outdoor Pool, Spa Elevation, Fireplace in All Suites, French Architectural Heritage, High-Speed WiFi',
+                'A restored 1840s French monastic heritage retreat nestled high in the misty pine hills with breathtaking valley panoramas.',
+                'La Providence (Multi-Cuisine Buffet) & Bistro 1845 with Mountain Valley Views',
+                'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80',
+                'AC',
+                0,
+                'King Suite',
+                4
+            ),
+            (
+                4,
+                'Sterling Kodai Valley & Pines Resort',
+                'Kodaikanal',
+                'Pallangi Road, Attuvampatti, Kodaikanal 624101',
+                4.7,
+                5400.0,
+                'Classic Room, Premiere Valley Suite, Pet-Friendly Family Chalet',
+                'Ship-Shaped Architecture, Pet-Friendly Grounds, Children Activity Zone, Campfire Evenings, Trekking Desk',
+                'Overlooking the terraced valley of Villpatti, offering pure pine mountain air, quiet gardens, and star-filled night skies.',
+                'Valley View Restaurant with South Indian & Continental Buffet Delicacies',
+                'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80',
+                'AC',
+                1,
+                'Queen Bed',
+                3
+            ),
+            (
+                3,
+                'Kodai Misty Mountain Chalet & Homestay',
+                'Kodaikanal',
+                'Observatory Road, Kodaikanal 624103',
+                4.5,
+                2800.0,
+                'Mountain Double Room, Pine Wood Cottage',
+                'Pure Mountain Breeze, Campfire by Request, Lawn Gardens, Pet Welcoming, Homemade Breakfast',
+                'Cozy mountain chalet surrounded by eucalyptus and silver oak trees, ideal for peaceful hill station stays.',
+                'Home-Cooked Warm Soups, Fresh Bread, Dosa & Filter Coffee',
+                'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+                'Non-AC',
+                1,
+                'Twin Beds',
+                2
+            ),
+
+            # Chennai Hotels
+            (
+                3,
+                'The Leela Palace Seaside Marina',
+                'Chennai',
+                'Adyar Seaface, MRC Nagar, Chennai 600028',
+                5.0,
+                11800.0,
+                'Deluxe Sea Facing Room, Grand Heritage Suite, Presidential Bay Suite',
+                'Bay of Bengal Ocean Panorama, Infinity Pool, ESPA Royal Spa, 6 Specialty Restaurants, Valet Parking',
+                'Chennai’s only seafront palace hotel, inspired by Chettinad royal architecture and regal Tamil splendor.',
+                'Spectra (Seven Global Kitchens), China XO, Jamavar (Royal Indian), and Library Blu Lounge',
+                'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+                'AC',
+                0,
+                'King Bed',
+                2
+            ),
+            (
+                3,
+                'Taj Connemara Heritage Hotel',
+                'Chennai',
+                'Binny Road, Anna Salai, Chennai 600002',
+                4.9,
+                8200.0,
+                'Heritage Superior Room, Colonial Deluxe Suite, Luxury Suite',
+                '130-Year-Old Historic Heritage, Pet-Friendly Lawns, Jiva Spa, Large Swimming Pool, Fitness Center',
+                'South India’s oldest heritage hotel dating to 1891, combining art deco architecture and legendary hospitality.',
+                'Raintree (Authentic Chettinad Open-Air Dining) & The Verandah 24-hr Cafe',
+                'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+                'AC',
+                1,
+                'King Bed',
+                3
+            ),
+            (
+                4,
+                'Mylapore Courtyard Heritage Inn',
+                'Chennai',
+                'Luz Church Road, Mylapore, Chennai 600004',
+                4.4,
+                3200.0,
+                'Executive AC Room, Cultural Family Room',
+                'Close to Kapaleeshwarar Temple & Music Academies, Free WiFi, Travel Desk, Sanitized Rooms',
+                'Traditional Tamil courtyard architecture located right in the cultural heart of Mylapore.',
+                'Mylapore Tiffin Room serving Hot Idli, Vada, Poori & Fresh Filter Coffee',
+                'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
+                'AC',
+                0,
+                'Twin Beds',
+                2
+            ),
+
+            # Thanjavur Hotels
+            (
+                3,
+                'Svatma Luxury Heritage Sanctuary',
+                'Thanjavur',
+                'Blake Higher Secondary Road, Thanjavur 613007',
+                4.9,
+                7900.0,
+                'Heritage Deluxe Suite, Svatma Royal Villa',
+                'Restored 100-Year-Old Brahmin Mansion, Aromatherapy Spa, Classical Carnatic Music Concerts, Rooftop Pool',
+                'An ultra-exclusive luxury sanctuary dedicated to Tamil art, architecture, bronze casting, and ancient healing.',
+                'Aaharam (Pure Gourmet Vegetarian Flavors) & Nila Rooftop Dining',
+                'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
+                'AC',
+                0,
+                'King Suite',
+                3
+            ),
+            (
+                4,
+                'Great Chola Palace & Garden Resort',
+                'Thanjavur',
+                'Trichy-Thanjavur Highway, Thanjavur 613005',
+                4.6,
+                4200.0,
+                'Executive Club Room, Chola Suite, Pet Family Room',
+                'Swimming Pool, Pet Welcoming Grounds, Free High-Speed WiFi, Banquet Lawns, Travel Desk',
+                'Grand hotel reflecting Chola pillars and courtyard designs, ideal for visiting the Big Temple and palace.',
+                'Rajarajan Multi-Cuisine Restaurant serving Traditional Thanjavur Feast & Continental favorites',
+                'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+                'AC',
+                1,
+                'Queen Bed',
+                4
+            ),
+            (
+                4,
+                'Tanjore Heritage Homestay & Lodge',
+                'Thanjavur',
+                'South Rampart, Near Palace, Thanjavur 613001',
+                4.3,
+                2100.0,
+                'Standard AC Room, Traditional Non-AC Double',
+                'Walk to Royal Palace & Saraswathi Mahal, Free WiFi, Travel Information Desk, Authentic Hospitality',
+                'Warm family-run homestay with traditional red oxide floors and wood-carved verandas.',
+                'Homemade Thanjavur Sambhar Rice, Poriyal, Rasam & Curd with Appalam',
+                'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
+                'Both',
+                1,
+                'Twin Beds',
+                2
+            ),
+
+            # Bangalore Hotels
+            (
+                3,
+                'The Oberoi Bengaluru Garden City',
+                'Bangalore',
+                '37-39 MG Road, Bengaluru 560001',
+                5.0,
+                12500.0,
+                'Premier Garden View Room, Deluxe Balcony Room, Presidential Suite',
+                'Centenary Rain Tree Gardens, Heated Outdoor Pool, Oberoi Spa, Private Garden Balconies, High-Speed WiFi',
+                'A tranquil tropical garden oasis set in the heart of Bangalore’s commercial district, famous for bespoke hospitality.',
+                'Rim Naam (Alfresco Thai by Koi Pond), Le Jardin (All-Day Dining), and Polo Club Bar',
+                'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+                'AC',
+                0,
+                'King Bed',
+                2
+            ),
+            (
+                3,
+                'ITC Windsor, a Luxury Collection Palace Hotel',
+                'Bangalore',
+                '25 Golf Course Road, Bengaluru 560052',
+                4.9,
+                8800.0,
+                'Executive Club Room, The Manor Luxury Suite, Presidential Suite',
+                'British Regency Architecture, Pet-Friendly Lawns, Kaya Kalp Spa, Swimming Pool, Golf Course Views',
+                'Evokes the charm of the Victorian era with white pillared verandas, chandeliers, and manicured gardens.',
+                'Dakshin (Southern Indian Masterpieces), Dum Pukht Jolly Nabobs (Awadhi Cuisine), and Royal Afghan',
+                'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+                'AC',
+                1,
+                'Queen Bed',
+                3
+            ),
+            (
+                4,
+                'Silicon Valley Boutique Suites & Studios',
+                'Bangalore',
+                '100 Feet Road, Indiranagar, Bengaluru 560038',
+                4.5,
+                3600.0,
+                'Studio Suite, One-Bedroom Executive Apartment',
+                'Kitchenette, Pet Friendly, Workstation with Ergonomic Chair, High-Speed Fiber WiFi, Gym',
+                'Trendy boutique suites right next to Indiranagar’s premier cafes, craft breweries, and shopping high streets.',
+                'Rooftop Cafe serving Artisan Coffee, Avocado Toast, and South Indian Breakfast Bowls',
+                'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
+                'AC',
+                1,
+                'Twin Beds',
+                2
+            ),
+
+            # Kanyakumari Hotels
+            (
+                3,
+                'The Seashore Grand Resort & Spa',
+                'Kanyakumari',
+                'East Car Street, Beach Road, Kanyakumari 629702',
+                4.8,
+                4800.0,
+                'Ocean Front Deluxe Room, Sunrise Panorama Suite',
+                'Direct Ocean Views from Balcony, Swimming Pool, Rooftop Sunrise Observation Deck, Spa, Free WiFi',
+                'Positioned right on the shore, offering unmatched direct views of Vivekananda Rock and early morning sunrises.',
+                'Ocean Whisper Multi-Cuisine Restaurant with Fresh Catch Seafood Specialties',
+                'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+                'AC',
+                0,
+                'King Bed',
+                2
+            ),
+            (
+                4,
+                'Cape Heritage Ocean View Chalet & Resort',
+                'Kanyakumari',
+                'Kovalam Road, Kanyakumari 629702',
+                4.7,
+                5600.0,
+                'Heritage Beach Villa, Family Sea Chalet',
+                'Private Beach Access, Pet Friendly Lawns, Children Play Area, Ayurvedic Wellness, Campfire',
+                'Relaxing coastal resort surrounded by swaying coconut palms and soothing Arabian Sea breeze.',
+                'Sea Wave Restaurant serving Authentic Coastal Fish Curry Meals & Kerala Parottas',
+                'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80',
+                'AC',
+                1,
+                'Queen Bed',
+                4
+            ),
+            (
+                4,
+                'Vivekananda Sunrise Inn & Residency',
+                'Kanyakumari',
+                'Main Road, Near Bus Stand, Kanyakumari 629702',
+                4.3,
+                2200.0,
+                'Standard AC Room, Budget Non-AC Triple Room',
+                '500m to Triveni Sangam, Free WiFi, 24-hr Front Desk, Travel Assistance Desk',
+                'Comfortable, budget-friendly lodging ideal for pilgrims and weekend coastal tourists.',
+                'Annai Pure Vegetarian Mess serving Hot Dosas, Idlis, and Meals',
+                'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
+                'Both',
+                0,
+                'Twin Beds',
+                3
             )
         ]
         cursor.executemany('''
-            INSERT INTO hotels (agency_id, name, city, address, star_rating, price_per_night, room_types, amenities, description, dining_options, image_url)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO hotels (agency_id, name, city, address, star_rating, price_per_night, room_types, amenities, description, dining_options, image_url, ac_type, pet_friendly, bed_type, max_capacity)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', hotels_data)
 
-# seed premier transports across India
+# seed transports (Taxi services and Self-drive rentals) across all 6 core destinations
 def seed_transports(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM transports')
     count = cursor.fetchone()['count']
     if count == 0:
         transports_data = [
+            # Madurai Taxis & Rentals
             (
                 1,
-                'Southern Vande Bharat Superfast Express (Chennai - Coimbatore)',
-                'Train',
-                'Chennai Central',
-                'Coimbatore Jn',
-                1450.0,
-                5.8,
-                'Executive Chair Car, Onboard Gourmet Catering, 180-Degree Rotating Recliner Seats, WiFi, Panoramic Windows, Bio-Vacuum Toilets',
-                '05:50 AM',
-                'Executive Gourmet Breakfast (Hot Idli, Medu Vada, Upma, Fresh Fruit Juice, and South Indian Filter Coffee)',
-                'https://images.unsplash.com/photo-1532105956626-9569c0f46d80?auto=format&fit=crop&w=800&q=80'
-            ),
-            (
-                1,
-                'Northern Vande Bharat Express (Delhi - Varanasi Superfast)',
-                'Train',
-                'New Delhi',
-                'Varanasi Cantt',
-                1750.0,
+                'Madurai Swift Dzire Chauffeur Taxi',
+                'Taxi',
+                'Madurai',
+                'Madurai & Surrounds',
+                2200.0,
                 8.0,
-                'High-Speed 130 km/h Running, Executive AC Luxury, Soundproof Coaches, CCTV Security, Bio-Vacuum Restrooms, GPS Tracking',
-                '06:00 AM',
-                'Complimentary 3-Course Hot Lunch with Paneer Butter Masala, Dal Makhani, Parathas, and Gulab Jamun',
-                'https://images.unsplash.com/photo-1532105956626-9569c0f46d80?auto=format&fit=crop&w=800&q=80'
-            ),
-            (
-                3,
-                'Zingbus Multi-Axle Volvo AC Sleeper (Bengaluru - Ooty)',
-                'Bus',
-                'Bengaluru (Majestic)',
-                'Ooty (Charring Cross)',
-                1200.0,
-                7.0,
-                'Sanitized Sleeping Pods, Individual Type-C Fast Chargers, Premium Air Suspension, Live GPS Link, Emergency SOS, Reading Lamps',
-                '10:30 PM',
-                'Welcome Chilled Water Bottle, Fruit Juice, and Highway Food Court Dinner Stop',
-                'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80'
+                'AC Sedan, Verified Uniformed Chauffeur, Fuel & Tolls Included, Bottled Water, Sanitized Interior, City & Temple Sightseeing',
+                'Flexible (07:00 AM - 10:00 PM)',
+                'Chilled Bottled Water & Wet Wipes',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Taxi Service',
+                'AC',
+                4,
+                2200.0
             ),
             (
                 1,
-                'MakeMyTrip Private Chauffeur Innova Crysta (Delhi - Agra - Jaipur)',
-                'Cab',
-                'New Delhi',
-                'Agra / Jaipur',
-                4800.0,
-                4.5,
-                'Dedicated Uniformed Chauffeur, Yamuna Expressway FastTag Tolls Included, Dual AC, Sanitized Fleet, Mineral Water, Flexible Stops',
-                '06:30 AM (Customizable)',
-                'Chilled Bottled Water, Wet Tissues, and Route Highway Confectionery Box',
-                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80'
+                'Madurai Toyota Innova Crysta Family Cab',
+                'Taxi',
+                'Madurai',
+                'Madurai & Southern Circuit',
+                3800.0,
+                8.0,
+                'AC 7-Seater Luxury SUV, Expert Chauffeur, Large Luggage Space, FastTag Included, Music System, High Comfort Suspension',
+                'Flexible (06:30 AM - 11:00 PM)',
+                'Mineral Water & Route Snack Box',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Taxi Service',
+                'AC',
+                7,
+                3800.0
             ),
             (
-                5,
-                'Nilgiri UNESCO Heritage Mountain Toy Train (Mettupalayam - Ooty)',
-                'Train',
-                'Mettupalayam',
-                'Ooty (Udagamandalam)',
-                650.0,
-                4.8,
-                'UNESCO Heritage Steam Rack Engine, First Class Wooden Window Carriages, 250 Bridges & 16 Tunnels View, Waterfall Panoramas',
-                '07:10 AM',
-                'Hill Station Hot Masala Tea, Fresh Medu Vadas, and Ooty Butter Rusks at Coonoor Station',
-                'https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=800&q=80'
-            ),
-            (
+                2,
+                'Madurai Mahindra Thar 4x4 Self-Drive Rental',
+                'Rental',
+                'Madurai',
+                'Madurai & Ghats',
+                2900.0,
+                24.0,
+                'Self-Drive 4x4 Automatic, Unlimited KM, GPS Navigation, Comprehensive Insurance, Zero Security Deposit Option, Bluetooth Touchscreen',
+                '24/7 Keyless App Pickup',
+                'Roadside Emergency Assistance Included',
+                'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80',
+                'Self-Drive Rental',
+                'AC',
                 4,
-                'IndiGo Regional Air Connect (Chennai - Madurai / Kochi)',
-                'Flight',
-                'Chennai (MAA)',
-                'Madurai (IXM)',
+                2900.0
+            ),
+            (
+                1,
+                'Madurai Budget City Taxi (Non-AC)',
+                'Taxi',
+                'Madurai',
+                'Madurai Local City',
+                1400.0,
+                6.0,
+                'Compact Non-AC Hatchback, Local Driver, Temple & Bazaar Drops, Punctual Service',
+                'Flexible (08:00 AM - 08:00 PM)',
+                'Local City Map & Temple Timing Guide',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Taxi Service',
+                'Non-AC',
+                3,
+                1400.0
+            ),
+
+            # Kodaikanal Taxis & Rentals
+            (
+                1,
+                'Kodai Mountain Chauffeur Scorpio 4x4 Taxi',
+                'Taxi',
+                'Kodaikanal',
+                'Kodaikanal & Berijam Valley',
                 3400.0,
-                1.2,
-                'Direct Non-Stop Express Flight, 15kg Check-in + 7kg Cabin Luggage, Priority Web Check-in, Punctual Transit, Air Conditioned',
-                '08:45 AM',
-                'Onboard Gourmet Snack Box with Cashews, Cookie, and Choice of Beverage',
-                'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80'
+                8.0,
+                'High-Ground Clearance 4x4 Scorpio, Experienced Hill Chauffeur, Fog Lights, Heater/AC, Forest Permits Assistance, Music System',
+                'Flexible (07:30 AM - 09:00 PM)',
+                'Warm Herbal Tea Flask & Bottled Water',
+                'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80',
+                'Taxi Service',
+                'AC',
+                6,
+                3400.0
+            ),
+            (
+                2,
+                'Kodai Hyundai Creta Self-Drive Mountain Rental',
+                'Rental',
+                'Kodaikanal',
+                'Kodaikanal Hill Circuit',
+                2700.0,
+                24.0,
+                'Self-Drive SUV, Hill Hold Assist, Automatic AC, Sunroof, Unlimited KM, Comprehensive Hill Insurance, 24/7 Roadside Support',
+                '24/7 Station Pickup',
+                'Mountain Road Emergency Kit Included',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Self-Drive Rental',
+                'AC',
+                5,
+                2700.0
+            ),
+            (
+                1,
+                'Kodai Toyota Fortuner Luxury Chauffeur SUV',
+                'Taxi',
+                'Kodaikanal',
+                'Kodaikanal & Poombari Villages',
+                4800.0,
+                10.0,
+                '7-Seater Luxury SUV, Leather Recliner Seats, Chauffeur with 15+ Yrs Hill Experience, Panoramic Sunroof, FastTag, Bottled Water',
+                'Flexible (06:00 AM - 10:00 PM)',
+                'Gourmet Snack Basket & Fresh Hot Beverages',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Taxi Service',
+                'AC',
+                7,
+                4800.0
+            ),
+            (
+                2,
+                'Kodai Budget Eco Hatchback Self-Drive',
+                'Rental',
+                'Kodaikanal',
+                'Kodaikanal Town & Lakes',
+                1800.0,
+                24.0,
+                'Fuel-Efficient Maruti Swift, Fresh Mountain Air Non-AC Mode, Agile on Narrow Hairpin Bends, Unlimited KM',
+                '08:00 AM - 08:00 PM',
+                'Hill Station Tourist Map',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Self-Drive Rental',
+                'Non-AC',
+                4,
+                1800.0
+            ),
+
+            # Chennai Taxis & Rentals
+            (
+                1,
+                'Chennai Honda City Chauffeur Executive Sedan',
+                'Taxi',
+                'Chennai',
+                'Chennai & Mahabalipuram',
+                2500.0,
+                8.0,
+                'Premium AC Sedan, Uniformed Executive Driver, ECR Tolls Included, Sanitized, Mobile Chargers, Airport / Station Pickup',
+                '24/7 on Demand',
+                'Chilled Bottled Water & Daily Newspaper',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Taxi Service',
+                'AC',
+                4,
+                2500.0
+            ),
+            (
+                2,
+                'Chennai Mahindra XUV700 Self-Drive Rental',
+                'Rental',
+                'Chennai',
+                'Chennai Coastal & ECR',
+                3600.0,
+                24.0,
+                'Luxury 7-Seater Self-Drive SUV, ADAS & Cruise Control, Dual Climate AC, Unlimited KM, Zero Deposit, Comprehensive Insurance',
+                '24/7 Airport / City Drop',
+                'Emergency 24x7 Roadside Support',
+                'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80',
+                'Self-Drive Rental',
+                'AC',
+                7,
+                3600.0
+            ),
+            (
+                2,
+                'Chennai Tata Nexon EV Eco Self-Drive Rental',
+                'Rental',
+                'Chennai',
+                'Chennai City & Marina',
+                2800.0,
+                24.0,
+                '100% Electric SUV, 350km Range, Automatic Silent Drive, Touchscreen Carplay, Fast Charger Network Access Included',
+                '24/7 Keyless Unlock',
+                'Fast Charging Card Included',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Self-Drive Rental',
+                'AC',
+                5,
+                2800.0
+            ),
+            (
+                1,
+                'Chennai Force Urbania Luxury 12-Seater Van',
+                'Taxi',
+                'Chennai',
+                'Chennai Group Circuit',
+                6500.0,
+                10.0,
+                '12 Individual Recliner Seats, Dual AC Roof Vents, Professional Chauffeur, Smart LED TV, FastTag, Huge Luggage Boot',
+                'Flexible (06:00 AM - 11:00 PM)',
+                'Welcome Refreshment Kits for all 12 Guests',
+                'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+                'Taxi Service',
+                'AC',
+                12,
+                6500.0
+            ),
+
+            # Thanjavur Taxis & Rentals
+            (
+                1,
+                'Thanjavur Chola Temple Tour Chauffeur Sedan',
+                'Taxi',
+                'Thanjavur',
+                'Thanjavur & Delta Circuit',
+                2100.0,
+                8.0,
+                'AC Sedan, Knowledgeable Local Driver, Big Temple & Palace Sightseeing, Fuel & Parking Included, Sanitized',
+                'Flexible (07:00 AM - 09:00 PM)',
+                'Chilled Bottled Water & Temple Guidebook',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Taxi Service',
+                'AC',
+                4,
+                2100.0
+            ),
+            (
+                1,
+                'Thanjavur Maruti Ertiga 7-Seater Chauffeur Cab',
+                'Taxi',
+                'Thanjavur',
+                'Thanjavur - Kumbakonam - Gangaikonda',
+                3200.0,
+                9.0,
+                'Spacious 7-Seater AC MUV, Experienced Highway Driver, Multi-Temple Circuit Coverage, FastTag, USB Ports for all rows',
+                'Flexible (06:30 AM - 09:30 PM)',
+                'Bottled Water & Banana Leaf Snack Box',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Taxi Service',
+                'AC',
+                7,
+                3200.0
+            ),
+            (
+                2,
+                'Thanjavur Maruti Baleno Self-Drive Rental',
+                'Rental',
+                'Thanjavur',
+                'Thanjavur Delta Roads',
+                2200.0,
+                24.0,
+                'Self-Drive Premium Hatchback, AC, Fuel Efficient, Unlimited KM, Free Cancellation, Comprehensive Coverage',
+                '08:00 AM - 08:00 PM',
+                'Cauvery Delta Road Map',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Self-Drive Rental',
+                'AC',
+                5,
+                2200.0
+            ),
+
+            # Bangalore Taxis & Rentals
+            (
+                1,
+                'Bengaluru Toyota Camry / Ciaz Chauffeur Sedan',
+                'Taxi',
+                'Bangalore',
+                'Bangalore City & Airport',
+                2800.0,
+                8.0,
+                'Executive AC Sedan, Corporate-Grade Chauffeur, Airport Tolls Included, High-Speed WiFi Dongle, Phone Chargers',
+                '24/7 on Demand',
+                'Mineral Water, Wet Wipes & Mint Candies',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Taxi Service',
+                'AC',
+                4,
+                2800.0
+            ),
+            (
+                2,
+                'Bengaluru ZoomWheels Thar 4x4 Self-Drive Rental',
+                'Rental',
+                'Bangalore',
+                'Bangalore & Nandi Hills',
+                3200.0,
+                24.0,
+                'Hard-Top 4x4 Convertible Thar, Automatic, Touchscreen Infotainment, Keyless App Pickup, Unlimited KM, Zero Deposit',
+                '24/7 App Keyless Unlock',
+                '24x7 Roadside Assistance & Tire Support',
+                'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80',
+                'Self-Drive Rental',
+                'AC',
+                4,
+                3200.0
+            ),
+            (
+                1,
+                'Bengaluru Innova Hycross Hybrid Chauffeur Taxi',
+                'Taxi',
+                'Bangalore',
+                'Bangalore & Outstation Circuit',
+                4200.0,
+                10.0,
+                'Ultra-Silent Hybrid 7-Seater, Ottoman Reclining Captain Seats, Panoramic Roof, Dedicated Chauffeur, FastTag',
+                'Flexible (06:00 AM - 11:30 PM)',
+                'Gourmet Snack Basket & Chilled Beverages',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Taxi Service',
+                'AC',
+                7,
+                4200.0
+            ),
+            (
+                2,
+                'Bengaluru Compact Kia Sonet Self-Drive',
+                'Rental',
+                'Bangalore',
+                'Bangalore Urban & Cafes',
+                2400.0,
+                24.0,
+                'Compact City SUV, Automatic Turbo, Reverse Camera, Bluetooth Audio, Sanitized, Unlimited KM',
+                '24/7 City Center Pickup',
+                'City Parking Guide App Integration',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Self-Drive Rental',
+                'AC',
+                5,
+                2400.0
+            ),
+
+            # Kanyakumari Taxis & Rentals
+            (
+                1,
+                'Kanyakumari Ocean Drive Chauffeur Sedan',
+                'Taxi',
+                'Kanyakumari',
+                'Kanyakumari & Lands End',
+                2300.0,
+                8.0,
+                'AC Sedan, Friendly Local Chauffeur, Sunrise to Sunset Points Covered, Parking & Tolls Included, Clean & Sanitized',
+                'Flexible (05:30 AM - 08:30 PM)',
+                'Chilled Bottled Water & Sunrise Guide',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Taxi Service',
+                'AC',
+                4,
+                2300.0
+            ),
+            (
+                1,
+                'Kanyakumari Innova Coastal Safari Cab',
+                'Taxi',
+                'Kanyakumari',
+                'Kanyakumari - Padmanabhapuram - Vattakottai',
+                3600.0,
+                9.0,
+                '7-Seater AC SUV, Experienced Coastal Driver, Forts and Palaces Circuit, FastTag Included, Dual AC',
+                'Flexible (06:00 AM - 09:00 PM)',
+                'Mineral Water & Coastal Banana Chips',
+                'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
+                'Taxi Service',
+                'AC',
+                7,
+                3600.0
+            ),
+            (
+                2,
+                'Kanyakumari Open-Air Beach Gypsy / Jeep Self-Drive',
+                'Rental',
+                'Kanyakumari',
+                'Kanyakumari Coastal Highway',
+                2000.0,
+                24.0,
+                'Open-Top Beach Jeep, Non-AC Pure Ocean Air Drive, 4WD Capability, Unlimited KM, Perfect for Coastal Photography',
+                '06:00 AM - 08:00 PM',
+                'Beach Road Map & Sunset Points Guide',
+                'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80',
+                'Self-Drive Rental',
+                'Non-AC',
+                4,
+                2000.0
             )
         ]
         cursor.executemany('''
-            INSERT INTO transports (agency_id, title, transport_type, source_city, destination_city, price, duration_hours, features, departure_time, meal_service, image_url)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO transports (agency_id, title, transport_type, source_city, destination_city, price, duration_hours, features, departure_time, meal_service, image_url, service_type, ac_type, seating_capacity, daily_rate)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', transports_data)
 
 # seed reviews
@@ -489,8 +1137,8 @@ def seed_reviews(cursor):
                 'package',
                 1,
                 5,
-                'Unforgettable Golden Triangle Experience!',
-                'The sunrise at the Taj Mahal was pure magic. Our chauffeur from MakeMyTrip was punctual and polite, and the hotels in Agra and Jaipur were palatial!',
+                'Magical 3 Days in Kodaikanal!',
+                'The mist at Coakers walk and the fresh homemade chocolates were sublime. FastTrack cabs made transit seamless.',
                 'Family',
                 1
             ),
@@ -499,8 +1147,8 @@ def seed_reviews(cursor):
                 'package',
                 2,
                 5,
-                'Kashmir Paradise - Dream Vacation Come True',
-                'The Shikara ride on Dal Lake and the snow at Gulmarg Gondola phase 2 were out of this world. Thomas Cook handled all mountain permits smoothly.',
+                'Berijam Safari was the Highlight of our Trip',
+                'The 5-day itinerary was so well-paced. The private SUV and forest guide made our wilderness dream come true.',
                 'Couple',
                 1
             ),
@@ -509,9 +1157,9 @@ def seed_reviews(cursor):
                 'package',
                 4,
                 5,
-                'Grand Temple & Coastal Trail in Tamil Nadu',
-                'Special darshan at Madurai Meenakshi Amman Temple and crossing the Pamban Bridge at sunset to Rameswaram was spiritually enriching.',
-                'Family',
+                'Meenakshi Temple & Keeladi were mindblowing',
+                'Exceptional historical depth! The guide brought 2,000 years of Madurai history alive.',
+                'Solo',
                 1
             ),
             (
@@ -519,9 +1167,9 @@ def seed_reviews(cursor):
                 'hotel',
                 1,
                 5,
-                'Iconic Stay at The Taj Mahal Palace Mumbai',
-                'The historic sea-facing luxury and afternoon high tea at the Sea Lounge were unforgettable. Impeccable Tata hospitality!',
-                'Solo',
+                'Banyan Resort Heritage Madurai is a Masterpiece',
+                'Geoffrey Bawas architecture and the Olympic temple pool made our stay unforgettable.',
+                'Family',
                 1
             ),
             (
@@ -529,14 +1177,14 @@ def seed_reviews(cursor):
                 'transport',
                 1,
                 5,
-                'Superb Punctuality on Vande Bharat Express',
-                'Smooth 130 km/h ride between Chennai and Coimbatore. The executive breakfast with hot filter coffee was delicious.',
-                'Business',
+                'Punctual and Polite Chauffeur in Madurai',
+                'Driver was polite, vehicle was spotless with AC on throughout.',
+                'Couple',
                 1
             )
         ]
         cursor.executemany('''
-            INSERT INTO reviews (user_id, item_type, item_id, rating, title, comment, travel_type, cleanliness_rating)
+            INSERT INTO reviews (user_id, item_type, item_id, rating, title, comment, travel_type, verified_booking)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         ''', reviews_data)
 
@@ -549,7 +1197,7 @@ def seed_notifications(cursor):
             (
                 1,
                 'Welcome to Roamly Expeditions',
-                'Your Roamly Explorer Passport is officially active with ₹5,000 complimentary travel credits.',
+                'Your Roamly Explorer Passport is active with ₹5,000 complimentary travel credits.',
                 'system',
                 '/dashboard',
                 0
@@ -557,7 +1205,7 @@ def seed_notifications(cursor):
             (
                 1,
                 'Booking Confirmed #ROAM-PAC-0001',
-                'Your Golden Triangle Royal Heritage Tour has been confirmed with MakeMyTrip Holidays.',
+                'Your Kodaikanal Misty Pines Classic Getaway has been confirmed.',
                 'booking',
                 '/bookings/summary/1',
                 0
@@ -565,7 +1213,7 @@ def seed_notifications(cursor):
             (
                 2,
                 'Welcome to Roamly Expeditions',
-                'Your travel account is verified. Start exploring handcrafted Indian holiday packages and luxury stays.',
+                'Start exploring handcrafted South Indian holiday packages and taxi/self-drive rentals.',
                 'system',
                 '/packages',
                 0
@@ -576,14 +1224,14 @@ def seed_notifications(cursor):
             VALUES (%s, %s, %s, %s, %s, %s)
         ''', notifs_data)
 
-# seed saved wishlist items
+# seed saved items
 def seed_saved_items(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM saved_items')
     count = cursor.fetchone()['count']
     if count == 0:
         saved_data = [
             (1, 'package', 2),
-            (1, 'hotel', 2),
+            (1, 'hotel', 1),
             (1, 'transport', 1),
             (2, 'package', 1)
         ]
@@ -592,7 +1240,7 @@ def seed_saved_items(cursor):
             VALUES (%s, %s, %s)
         ''', saved_data)
 
-# seed promotional coupons
+# seed coupons
 def seed_coupons(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM coupons')
     count = cursor.fetchone()['count']
@@ -600,15 +1248,15 @@ def seed_coupons(cursor):
         coupons_data = [
             ('ROAMFIRST', 'percentage', 15.0, 1000.0, 2500.0, '15% instant discount on your first Indian expedition booking', 1),
             ('SUMMER20', 'percentage', 20.0, 2000.0, 3000.0, '20% discount on hill station chalets and mountain tours', 1),
-            ('EXPLOREINDIA', 'flat', 1000.0, 5000.0, 1000.0, 'Flat ₹1,000 off on national heritage packages', 1),
-            ('TAMIL15', 'percentage', 15.0, 1000.0, 2000.0, '15% discount on Tamil Nadu temple and hill trails', 1)
+            ('SOUTHTRAILS', 'flat', 1000.0, 4000.0, 1000.0, 'Flat ₹1,000 off on heritage & coastal packages', 1),
+            ('DRIVE15', 'percentage', 15.0, 1500.0, 2000.0, '15% discount on self-drive car rentals and private taxis', 1)
         ]
         cursor.executemany('''
             INSERT INTO coupons (code, discount_type, discount_value, min_purchase, max_discount, description, is_active)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
         ''', coupons_data)
 
-# seed digital wallets
+# seed wallets
 def seed_wallets(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM wallets')
     count = cursor.fetchone()['count']
@@ -631,38 +1279,38 @@ def seed_payouts(cursor):
     count = cursor.fetchone()['count']
     if count == 0:
         payouts_data = [
-            (1, 18500.0, 1850.0, 16650.0, 'HDFC Bank - A/C 501004928192 (IFSC: HDFC0001234) - MakeMyTrip', 'Approved'),
-            (2, 14500.0, 1450.0, 13050.0, 'State Bank of India - A/C 30291049281 (IFSC: SBIN0000456) - Taj Hotels', 'Processed'),
-            (3, 3600.0, 360.0, 3240.0, 'ICICI Bank - A/C 001205019284 (IFSC: ICIC0000012) - Zingbus', 'Pending')
+            (1, 14500.0, 1450.0, 13050.0, 'HDFC Bank - A/C 501004928192 (IFSC: HDFC0001234) - FastTrack Cabs', 'Approved'),
+            (3, 11800.0, 1180.0, 10620.0, 'State Bank of India - A/C 30291049281 (IFSC: SBIN0000456) - Heritage Palaces', 'Processed'),
+            (2, 6400.0, 640.0, 5760.0, 'ICICI Bank - A/C 001205019284 (IFSC: ICIC0000012) - ZoomWheels', 'Pending')
         ]
         cursor.executemany('''
             INSERT INTO agency_payouts (agency_id, amount, commission_amount, net_payout, bank_account_info, status)
             VALUES (%s, %s, %s, %s, %s, %s)
         ''', payouts_data)
 
-# seed initial sample bookings for rich initial state
+# seed initial sample bookings
 def seed_initial_bookings(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM bookings')
     count = cursor.fetchone()['count']
     if count == 0:
         cursor.execute('''
             INSERT INTO bookings (user_id, booking_type, package_id, hotel_id, transport_id, travel_date, num_travelers, total_price, status, pickup_location, special_requests)
-            VALUES (1, 'Package', 1, NULL, NULL, '2026-10-15', 2, 37000.00, 'Confirmed', 'New Delhi Airport', 'Vegetarian meals preferred')
+            VALUES (1, 'Package', 1, NULL, NULL, '2026-10-15', 2, 15998.00, 'Confirmed', 'Madurai / Kodai Road Station', 'Vegetarian meals preferred')
         ''')
         b_id = cursor.lastrowid
         cursor.execute('''
             INSERT INTO payments (booking_id, user_id, amount, payment_method, status, transaction_id)
-            VALUES (%s, 1, 37000.00, 'Roamly Wallet', 'Completed', 'TXN-ROAM-99210482')
+            VALUES (%s, 1, 15998.00, 'Roamly Wallet', 'Completed', 'TXN-ROAM-99210482')
         ''', (b_id,))
         cursor.execute('''
             INSERT INTO invoices (invoice_number, booking_id, user_id, subtotal, tax_amount, discount, total_amount)
-            VALUES ('INV-2026-000001', %s, 1, 35238.10, 1761.90, 0.00, 37000.00)
+            VALUES ('INV-2026-000001', %s, 1, 14283.93, 1714.07, 0.00, 15998.00)
         ''', (b_id,))
         cursor.execute('''
             INSERT INTO messages (booking_id, sender_type, sender_id, recipient_id, message_text, is_read)
             VALUES 
-            (%s, 'agency', 1, 1, 'Welcome to MakeMyTrip! Your Golden Triangle itinerary is confirmed. Our driver will meet you at Terminal 3.', 1),
-            (%s, 'user', 1, 1, 'Thank you! Looking forward to the tour.', 1)
+            (%s, 'agency', 5, 1, 'Welcome to Roamly South Expeditions! Your Kodaikanal classic itinerary is confirmed. Driver details will be shared on morning of travel.', 1),
+            (%s, 'user', 1, 1, 'Thank you! Looking forward to the mountain trip.', 1)
         ''', (b_id, b_id))
 
 # function to wipe and reseed database cleanly

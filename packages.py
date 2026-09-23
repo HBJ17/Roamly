@@ -166,22 +166,70 @@ def compare_toggle(package_id):
 # view comparison
 @packages_bp.route('/compare')
 def compare():
+    destination = request.args.get('destination', '').strip()
     compare_list = session.get('compare_packages', [])
-
-    if not compare_list:
-        return render_template('compare.html', packages=[])
-
-    # query comparison
-    placeholders = ','.join(['%s'] * len(compare_list))
-    sql = f'SELECT * FROM packages WHERE id IN ({placeholders})'
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute(sql, tuple(compare_list))
-    packages_data = cursor.fetchall()
+    
+    # fetch available destinations
+    cursor.execute('SELECT DISTINCT destination FROM packages ORDER BY destination ASC')
+    destinations = [row['destination'] for row in cursor.fetchall()]
+
+    packages_data = []
+    
+    if destination:
+        # fetch all packages for the selected destination
+        cursor.execute('SELECT * FROM packages WHERE destination LIKE %s ORDER BY duration_days ASC, price ASC', (f'%{destination}%',))
+        packages_data = cursor.fetchall()
+    elif compare_list:
+        placeholders = ','.join(['%s'] * len(compare_list))
+        sql = f'SELECT * FROM packages WHERE id IN ({placeholders}) ORDER BY duration_days ASC, price ASC'
+        cursor.execute(sql, tuple(compare_list))
+        packages_data = cursor.fetchall()
+        if packages_data:
+            destination = packages_data[0]['destination']
+    else:
+        # default to Kodaikanal for immediate high-impact itinerary comparison
+        default_dest = 'Kodaikanal'
+        cursor.execute('SELECT * FROM packages WHERE destination LIKE %s ORDER BY duration_days ASC, price ASC', (f'%{default_dest}%',))
+        packages_data = cursor.fetchall()
+        destination = default_dest
+
     conn.close()
 
-    return render_template('compare.html', packages=packages_data)
+    # parse pros, cons, and pace for each package
+    for pkg in packages_data:
+        # calculate cost per day
+        days = max(1, pkg.get('duration_days', 1))
+        pkg['cost_per_day'] = round(float(pkg.get('price', 0)) / days, 2)
+        
+        # pros and cons splitting
+        pros_raw = pkg.get('pros') or 'All prime highlights covered; Verified guide included; Seamless transfers'
+        cons_raw = pkg.get('cons') or 'Tight schedule; Higher physical pace'
+        pkg['pros_list'] = [p.strip() for p in pros_raw.replace(';', ',').split(',') if p.strip()]
+        pkg['cons_list'] = [c.strip() for c in cons_raw.replace(';', ',').split(',') if c.strip()]
+        
+        # pace & traveler persona
+        if days <= 2:
+            pkg['pace_type'] = '⚡ Fast-Paced Weekend Sprint'
+            pkg['pace_badge'] = 'badge-yellow'
+        elif days <= 4:
+            pkg['pace_type'] = '⚖️ Balanced Classic Exploration'
+            pkg['pace_badge'] = 'badge-mint'
+        elif days <= 5:
+            pkg['pace_type'] = '🌿 Deep Leisure & Nature Immersion'
+            pkg['pace_badge'] = 'badge-blue'
+        else:
+            pkg['pace_type'] = '👑 Grand All-Inclusive Unhurried Odyssey'
+            pkg['pace_badge'] = 'badge-peach'
+
+    return render_template(
+        'compare.html',
+        packages=packages_data,
+        selected_destination=destination,
+        destinations=destinations
+    )
 
 # clear comparison
 @packages_bp.route('/compare/clear')

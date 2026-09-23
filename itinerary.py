@@ -7,78 +7,126 @@ from utils.geo import get_coordinates_for_location
 itinerary_bp = Blueprint('itinerary', __name__)
 
 SAMPLE_ACTIVITIES = {
-    'ooty': [
-        {'title': 'Doddabetta Peak Viewpoint', 'time': 'Morning', 'cost': 50, 'desc': 'Highest point in Nilgiris offering 360-degree panoramic views.'},
-        {'title': 'Government Botanical Gardens & Rose Garden', 'time': 'Afternoon', 'cost': 100, 'desc': 'Exotic flora and thousands of hybrid rose cultivars.'},
-        {'title': 'Pykara Lake Boating & Waterfalls', 'time': 'Evening', 'cost': 350, 'desc': 'Tranquil speedboat ride surrounded by pine forests.'},
-        {'title': 'Nilgiri Heritage Tea Factory Tour', 'time': 'Morning', 'cost': 200, 'desc': 'Live orthodox tea manufacturing with tasting session.'},
-        {'title': 'Avalanche Lake Nature Excursion', 'time': 'Afternoon', 'cost': 300, 'desc': 'Pristine biosphere reserve with trout fishing streams.'}
-    ],
     'kodaikanal': [
-        {'title': 'Coaker’s Walk & Bryant Park Stroll', 'time': 'Morning', 'cost': 50, 'desc': 'Pedestrian cliff path with valley mist vistas.'},
-        {'title': 'Pillar Rocks & Guna Caves Exploration', 'time': 'Afternoon', 'cost': 80, 'desc': 'Giant granite rock formations and dense pine forests.'},
-        {'title': 'Kodai Lake Pedal Boating & Cycling', 'time': 'Evening', 'cost': 250, 'desc': 'Star-shaped lake surrounded by heritage bungalows.'},
-        {'title': 'Silver Cascade & Bear Shola Waterfalls', 'time': 'Morning', 'cost': 50, 'desc': 'Crystal cascading forest springs.'}
+        {'title': 'Coaker’s Walk & Bryant Park Mist Stroll', 'time': 'Morning', 'cost': 60, 'desc': 'Pedestrian cliff edge path with valley mist vistas and floral gardens.'},
+        {'title': 'Pillar Rocks & Guna Caves Geological Exploration', 'time': 'Afternoon', 'cost': 100, 'desc': 'Giant 400-foot granite rock boulders and dense shola pine forests.'},
+        {'title': 'Kodai Star Lake Pedal Boating & Cycle Loop', 'time': 'Evening', 'cost': 250, 'desc': 'Heritage star-shaped lake boat cruise with eucalyptus fragrance.'},
+        {'title': 'Silver Cascade & Bear Shola Forest Waterfalls', 'time': 'Morning', 'cost': 50, 'desc': 'Crystal cascading natural mountain springs nestled in forest clearings.'},
+        {'title': 'Mannavanur Sheep Farm & High Valley Meadow Safari', 'time': 'Afternoon', 'cost': 350, 'desc': 'Rolling green pastures, coracle boating, and organic rabbit farm.'},
+        {'title': 'Berijam Biosphere Forest Protected Safari', 'time': 'Morning', 'cost': 500, 'desc': 'Restricted evergreen forest zone with bison and Nilgiri langurs.'},
+        {'title': 'Vattakanal Dolphin’s Nose Sunrise Cliff Trek', 'time': 'Morning', 'cost': 200, 'desc': 'Flat rock projecting over a 6,600-foot deep valley precipice.'}
     ],
     'madurai': [
-        {'title': 'Meenakshi Amman Temple Architecture Tour', 'time': 'Morning', 'cost': 150, 'desc': 'Towering colorful gopurams and Thousand Pillar Hall.'},
-        {'title': 'Thirumalai Nayakkar Mahal Light & Sound', 'time': 'Evening', 'cost': 100, 'desc': '17th-century palace with Indo-Saracenic arches.'},
-        {'title': 'Traditional South Indian Culinary Trail', 'time': 'Afternoon', 'cost': 450, 'desc': 'Authentic Madurai Kari Dosa, Jigarthanda, and Banana Leaf feast.'}
-    ],
-    'thanjavur': [
-        {'title': 'Brihadisvara Great Living Chola Temple', 'time': 'Morning', 'cost': 100, 'desc': 'UNESCO World Heritage granite sanctuary with monolithic Nandi.'},
-        {'title': 'Thanjavur Royal Palace & Saraswathi Mahal Library', 'time': 'Afternoon', 'cost': 120, 'desc': 'Ancient palm-leaf manuscripts and Maratha art museum.'},
-        {'title': 'Thanjavur Art Plate & Bronze Casting Workshop', 'time': 'Evening', 'cost': 250, 'desc': 'Witness generational artisans crafting metal masterpieces.'}
-    ],
-    'rameswaram': [
-        {'title': 'Ramanathaswamy Temple 22 Sacred Wells & Corridors', 'time': 'Morning', 'cost': 100, 'desc': 'Longest corridor of carved sandstone pillars in India.'},
-        {'title': 'Dhanushkodi Ghost Town & Lands End 4x4 Safari', 'time': 'Afternoon', 'cost': 600, 'desc': 'Meeting point of Bay of Bengal and Indian Ocean.'},
-        {'title': 'Pamban Sea Bridge Sunset Viewpoint', 'time': 'Evening', 'cost': 50, 'desc': 'Historic cantilevering maritime railway bridge.'}
+        {'title': 'Meenakshi Amman Temple Golden Gopuram Darshan', 'time': 'Morning', 'cost': 150, 'desc': 'Explore towering sculptured gopurams and the Thousand Pillar Hall.'},
+        {'title': 'Thirumalai Nayakkar Mahal Light & Sound Spectacle', 'time': 'Evening', 'cost': 100, 'desc': '17th-century Indo-Saracenic palace with giant stucco pillars.'},
+        {'title': 'Keeladi Sangam-Era Archaeological Museum Tour', 'time': 'Afternoon', 'cost': 120, 'desc': '2,600-year-old Vaigai river civilization artifacts and ancient script pottery.'},
+        {'title': 'Authentic Madurai Street Food & Jigarthanda Walk', 'time': 'Evening', 'cost': 350, 'desc': 'Taste Famous Jigarthanda, fluffy bun parottas, and piping hot filter coffee.'},
+        {'title': 'Alagar Hills & Pazhamudircholai Murugan Temple', 'time': 'Morning', 'cost': 180, 'desc': 'Scenic hill forest temple dedicated to Lord Vishnu and Lord Murugan.'},
+        {'title': 'Vandiyur Mariamman Teppakulam Temple Tank Heritage Walk', 'time': 'Afternoon', 'cost': 50, 'desc': 'Enormous granite tank with island pavilion built in 1645.'}
     ],
     'chennai': [
-        {'title': 'Kapaleeshwarar Temple & Mylapore Heritage Walk', 'time': 'Morning', 'cost': 100, 'desc': 'Dravidian temple architecture and heritage silk boutiques.'},
-        {'title': 'Marina Beach Promenade & Lighthouse View', 'time': 'Evening', 'cost': 50, 'desc': 'Second longest urban beach with panoramic ocean view.'},
-        {'title': 'Fort St. George & National Art Gallery', 'time': 'Afternoon', 'cost': 80, 'desc': '1644 British citadel museum and colonial artifacts.'}
+        {'title': 'Kapaleeshwarar Temple & Mylapore Cultural Walk', 'time': 'Morning', 'cost': 100, 'desc': 'Dravidian temple architecture, colorful bronze deities, and traditional silk stores.'},
+        {'title': 'Marina Beach Promenade & Lighthouse Panoramic View', 'time': 'Evening', 'cost': 80, 'desc': 'India’s longest urban beach with ocean breeze and sunset lighthouse deck.'},
+        {'title': 'Fort St. George & 1644 Colonial Museum', 'time': 'Afternoon', 'cost': 100, 'desc': 'First British fortress in India with historic artifacts and St. Mary’s Church.'},
+        {'title': 'Mahabalipuram UNESCO Shore Temples & Arjuna’s Penance', 'time': 'Morning', 'cost': 300, 'desc': '7th-century rock-cut monoliths and oceanfront stone sanctum.'},
+        {'title': 'DakshinaChitra Living Heritage Museum Excursion', 'time': 'Afternoon', 'cost': 250, 'desc': 'Authentic reconstructed traditional houses of South Indian communities.'},
+        {'title': 'San Thome Basilica & St. Thomas Mount Heritage', 'time': 'Evening', 'cost': 60, 'desc': 'Neo-Gothic cathedral built over the tomb of apostle St. Thomas.'}
+    ],
+    'thanjavur': [
+        {'title': 'Brihadisvara Great Living Chola Temple Darshan', 'time': 'Morning', 'cost': 100, 'desc': '1,000-year-old UNESCO World Heritage granite marvel with monolithic Nandi.'},
+        {'title': 'Thanjavur Maratha Royal Palace & Art Gallery', 'time': 'Afternoon', 'cost': 150, 'desc': 'Royal courtyards, Darbar hall, and ancient Chola bronze masterworks.'},
+        {'title': 'Saraswathi Mahal Ancient Palm-Leaf Library', 'time': 'Morning', 'cost': 80, 'desc': 'One of the oldest libraries in Asia housing rare medieval manuscripts.'},
+        {'title': 'Swamimalai Traditional Bronze Casting Workshop', 'time': 'Evening', 'cost': 300, 'desc': 'Witness generational artisans practicing lost-wax bronze casting technique.'},
+        {'title': 'Darasuram Airavatesvara UNESCO Sculptural Marvel', 'time': 'Afternoon', 'cost': 120, 'desc': 'Chola chariot temple adorned with exquisite musical steps.'},
+        {'title': 'Cauvery Delta Village & Handloom Silk Weaving Safari', 'time': 'Morning', 'cost': 220, 'desc': 'Scenic paddy field village with live silk handloom weavers.'}
+    ],
+    'bangalore': [
+        {'title': 'Bangalore Palace & Tudor Royal Heritage Tour', 'time': 'Morning', 'cost': 250, 'desc': '1878 royal palace inspired by Windsor Castle with wood carvings.'},
+        {'title': 'Lalbagh Botanical Gardens & Historic Glass House', 'time': 'Morning', 'cost': 70, 'desc': '240 acres of exotic trees, bonsai gardens, and centuries-old lake.'},
+        {'title': 'Nandi Hills Cloud Sunrise & Bhoga Nandeeshwara Temple', 'time': 'Morning', 'cost': 350, 'desc': 'Breathtaking cloud-sea sunrise from 4,850 ft high mountain peak.'},
+        {'title': 'Bannerghatta National Park Jungle Safari & Zoo', 'time': 'Afternoon', 'cost': 400, 'desc': 'Witness royal Bengal tigers, lions, and bears in protected forest.'},
+        {'title': 'Grover Zampa Vineyard Guided Tour & Wine Tasting', 'time': 'Afternoon', 'cost': 800, 'desc': 'Scenic vineyard walk, barrel cellar tour, and sommelier tasting flight.'},
+        {'title': 'Cubbon Park Bamboo Grove Walk & Vidhana Soudha View', 'time': 'Evening', 'cost': 50, 'desc': 'Lush green lung of the city with neo-Dravidian state legislature facade.'}
+    ],
+    'kanyakumari': [
+        {'title': 'Vivekananda Rock Memorial & Ferry Ocean Ride', 'time': 'Morning', 'cost': 150, 'desc': 'Sacred monument on rock island surrounded by three uniting oceans.'},
+        {'title': '133-Foot Thiruvalluvar Statue & Triveni Sangam', 'time': 'Morning', 'cost': 100, 'desc': 'Gigantic stone statue of ancient Tamil sage and poet overlooking ocean waters.'},
+        {'title': 'Padmanabhapuram 16th-Century Teakwood Palace', 'time': 'Afternoon', 'cost': 200, 'desc': 'Magnificent wooden architecture with Belgian mirrors and carved ceilings.'},
+        {'title': 'Vattakottai Ocean Granite Fort & Black Sand Beach', 'time': 'Evening', 'cost': 80, 'desc': '18th-century coastal fortress with panoramic views of the sea and Western Ghats.'},
+        {'title': 'Sunset View Point & Catamaran Ocean Cruise', 'time': 'Evening', 'cost': 300, 'desc': 'Watch the sun dip below the horizon over the confluence of three oceans.'},
+        {'title': 'Suchindram Thanumalayan Temple Musical Pillars', 'time': 'Morning', 'cost': 100, 'desc': 'Unique temple dedicated to Trinity (Brahma, Vishnu, Shiva) with acoustic pillars.'}
     ]
 }
 
 @itinerary_bp.route('/itinerary/builder')
 def builder():
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    destination = request.args.get('destination', 'Kodaikanal').strip()
     
-    # fetch hotels and transports
-    cursor.execute('SELECT * FROM hotels ORDER BY star_rating DESC')
-    hotels = cursor.fetchall()
-    
-    cursor.execute('SELECT * FROM transports ORDER BY price ASC')
-    transports = cursor.fetchall()
-    
-    conn.close()
-    
-    destination = request.args.get('destination', 'Ooty')
     dest_key = destination.lower()
     if 'kodai' in dest_key:
         dest_key = 'kodaikanal'
+        canonical_dest = 'Kodaikanal'
     elif 'madurai' in dest_key:
         dest_key = 'madurai'
-    elif 'thanjavur' in dest_key or 'tanjore' in dest_key:
+        canonical_dest = 'Madurai'
+    elif 'thanjavur' in dest_key or 'tanjavur' in dest_key or 'tanjore' in dest_key:
         dest_key = 'thanjavur'
-    elif 'rameswaram' in dest_key:
-        dest_key = 'rameswaram'
+        canonical_dest = 'Thanjavur'
     elif 'chennai' in dest_key:
         dest_key = 'chennai'
+        canonical_dest = 'Chennai'
+    elif 'bangalore' in dest_key or 'bengaluru' in dest_key:
+        dest_key = 'bangalore'
+        canonical_dest = 'Bangalore'
+    elif 'kanyakumari' in dest_key or 'cape' in dest_key:
+        dest_key = 'kanyakumari'
+        canonical_dest = 'Kanyakumari'
     else:
-        dest_key = 'ooty'
+        dest_key = 'kodaikanal'
+        canonical_dest = 'Kodaikanal'
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # fetch hotels strictly for this destination/region
+    cursor.execute('''
+        SELECT h.*, a.name as agency_name 
+        FROM hotels h 
+        LEFT JOIN agencies a ON h.agency_id = a.id
+        WHERE h.city LIKE %s
+        ORDER BY h.star_rating DESC, h.price_per_night ASC
+    ''', (f'%{canonical_dest}%',))
+    hotels = cursor.fetchall()
+    
+    # if none found with exact wildcard, fallback to all hotels
+    if not hotels:
+        cursor.execute('SELECT h.*, a.name as agency_name FROM hotels h LEFT JOIN agencies a ON h.agency_id = a.id ORDER BY h.star_rating DESC')
+        hotels = cursor.fetchall()
+
+    # fetch transports (Taxis and Self-Drive Rentals) available for this region
+    cursor.execute('''
+        SELECT t.*, a.name as agency_name 
+        FROM transports t 
+        LEFT JOIN agencies a ON t.agency_id = a.id
+        WHERE t.source_city LIKE %s OR t.destination_city LIKE %s OR t.title LIKE %s
+        ORDER BY t.daily_rate ASC, t.price ASC
+    ''', (f'%{canonical_dest}%', f'%{canonical_dest}%', f'%{canonical_dest}%'))
+    transports = cursor.fetchall()
+    
+    if not transports:
+        cursor.execute('SELECT t.*, a.name as agency_name FROM transports t LEFT JOIN agencies a ON t.agency_id = a.id ORDER BY t.price ASC')
+        transports = cursor.fetchall()
         
-    activities = SAMPLE_ACTIVITIES.get(dest_key, SAMPLE_ACTIVITIES['ooty'])
-    map_lat, map_lng, map_title = get_coordinates_for_location(destination)
+    conn.close()
+    
+    activities = SAMPLE_ACTIVITIES.get(dest_key, SAMPLE_ACTIVITIES['kodaikanal'])
+    map_lat, map_lng, map_title = get_coordinates_for_location(canonical_dest)
     
     return render_template(
         'itinerary_builder.html',
         hotels=hotels,
         transports=transports,
-        destination=destination,
+        destination=canonical_dest,
         dest_key=dest_key,
         activities=activities,
         map_lat=map_lat,
@@ -91,7 +139,7 @@ def builder():
 def save_itinerary():
     user_id = session['user_id']
     title = request.form.get('title', 'Custom South India Getaway').strip()
-    destination = request.form.get('destination', 'Ooty').strip()
+    destination = request.form.get('destination', 'Kodaikanal').strip()
     start_date = request.form.get('start_date')
     duration_days = int(request.form.get('duration_days', 3))
     duration_nights = max(1, duration_days - 1)
@@ -117,7 +165,7 @@ def save_itinerary():
     conn.commit()
     conn.close()
     
-    flash('Custom Trip Itinerary created and saved successfully!', 'success')
+    flash('Custom Trip Itinerary stamped and saved successfully!', 'success')
     return redirect(url_for('itinerary.view_itinerary', itinerary_id=itinerary_id))
 
 @itinerary_bp.route('/itinerary/<int:itinerary_id>')
@@ -127,8 +175,8 @@ def view_itinerary(itinerary_id):
     
     cursor.execute('''
         SELECT ci.*, u.full_name, u.email as user_email,
-               h.name as hotel_name, h.star_rating as hotel_stars, h.city as hotel_city,
-               t.title as transport_title, t.transport_type, t.source_city, t.destination_city
+               h.name as hotel_name, h.star_rating as hotel_stars, h.city as hotel_city, h.ac_type as hotel_ac, h.pet_friendly as hotel_pets, h.bed_type as hotel_bed, h.max_capacity as hotel_capacity,
+               t.title as transport_title, t.transport_type, t.service_type, t.ac_type as transport_ac, t.seating_capacity as transport_seats, t.source_city, t.destination_city
         FROM custom_itineraries ci
         LEFT JOIN users u ON ci.user_id = u.id
         LEFT JOIN hotels h ON ci.hotel_id = h.id

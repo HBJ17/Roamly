@@ -48,19 +48,19 @@
         <div class="boarding-card">
             <div class="boarding-card-header">
                 <div>
-                    <h4 style="color:#000; margin:0; font-size:16px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; font-weight:800;">Transit Reservation</h4>
-                    <small style="opacity:0.85; color:var(--text-secondary); font-family:'Space Grotesk',sans-serif; font-weight:700; text-transform:uppercase; font-size:10px;">TRANSIT PASS</small>
+                    <h4 style="color:#000; margin:0; font-size:16px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; font-weight:800;">Transit &amp; Vehicle</h4>
+                    <small style="opacity:0.85; color:var(--text-secondary); font-family:'Space Grotesk',sans-serif; font-weight:700; text-transform:uppercase; font-size:10px;">{{ itinerary['service_type']|default('TRANSIT PASS') }}</small>
                 </div>
-                <span class="badge badge-mint">{{ itinerary['transport_type']|default('Private Transfer') }}</span>
+                <span class="badge badge-mint">{{ itinerary['service_type']|default('Private Transfer') }}</span>
             </div>
             <div class="boarding-card-body" style="padding:18px;">
                 {% if itinerary['transport_title'] %}
                     <h4 style="font-family:'Space Grotesk',sans-serif; text-transform:uppercase; margin-bottom:6px;">{{ itinerary['transport_title'] }}</h4>
                     <p style="color:var(--text-secondary); font-size:13.5px; margin-top:4px;">
-                        Route: <strong>{{ itinerary['source_city'] }}</strong> to <strong>{{ itinerary['destination_city'] }}</strong>
+                        Coverage: <strong>{{ itinerary['source_city'] }}</strong> &bull; Mode: <strong>{{ itinerary['service_type']|default('Taxi') }} ({{ itinerary['transport_ac']|default('AC') }}, {{ itinerary['transport_seats']|default(4) }} Seats)</strong>
                     </p>
                     <div class="badge badge-mint" style="margin-top:8px;">
-                        <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">check_circle</span> Confirmed for {{ itinerary['start_date'] }}
+                        <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">check_circle</span> Confirmed for {{ itinerary['duration_days'] }} Days from {{ itinerary['start_date'] }}
                     </div>
                 {% else %}
                     <p style="color:var(--text-secondary); font-size:13.5px;">Self-arranged transportation / Direct arrival.</p>
@@ -72,19 +72,20 @@
         <div class="boarding-card">
             <div class="boarding-card-header">
                 <div>
-                    <h4 style="color:#000; margin:0; font-size:16px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; font-weight:800;">Curated Accommodations</h4>
+                    <h4 style="color:#000; margin:0; font-size:16px; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; font-weight:800;">Curated Lodging</h4>
                     <small style="opacity:0.85; color:var(--text-secondary); font-family:'Space Grotesk',sans-serif; font-weight:700; text-transform:uppercase; font-size:10px;">HOTEL VOUCHER</small>
                 </div>
-                <span class="badge badge-yellow">Rating: {{ itinerary['hotel_stars']|default('4.5') }}</span>
+                <span class="badge badge-yellow">★ {{ itinerary['hotel_stars']|default('4.5') }}</span>
             </div>
             <div class="boarding-card-body" style="padding:18px;">
                 {% if itinerary['hotel_name'] %}
                     <h4 style="font-family:'Space Grotesk',sans-serif; text-transform:uppercase; margin-bottom:6px;">{{ itinerary['hotel_name'] }}</h4>
                     <p style="color:var(--text-secondary); font-size:13.5px; margin-top:4px;">
-                        Location: <strong>{{ itinerary['hotel_city'] }}</strong> &bull; Duration: <strong>{{ itinerary['duration_nights'] }} Nights</strong>
+                        Location: <strong>{{ itinerary['hotel_city'] }}</strong> &bull; Specs: <strong>{{ itinerary['hotel_bed']|default('King Bed') }} (Max {{ itinerary['hotel_capacity']|default(2) }} Guests) • {{ itinerary['hotel_ac']|default('AC') }}</strong>
+                        {% if itinerary['hotel_pets'] == 1 %}&bull; 🐾 Pet Friendly{% endif %}
                     </p>
                     <div class="badge badge-mint" style="margin-top:8px;">
-                        <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">hotel</span> Confirmed Check-In on {{ itinerary['start_date'] }}
+                        <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">hotel</span> Confirmed {{ itinerary['duration_nights'] }} Nights Check-In on {{ itinerary['start_date'] }}
                     </div>
                 {% else %}
                     <p style="color:var(--text-secondary); font-size:13.5px;">Independent accommodation arranged.</p>
