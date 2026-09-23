@@ -13,7 +13,7 @@
     <form action="{{ url_for('agency.login') }}" method="POST">
         <div class="form-group mb-15">
             <label class="form-label" for="username">Agency Username *</label>
-            <input type="text" id="username" name="username" class="form-control" placeholder="e.g. nilgiri_cabs / heritage_hotels / tamil_tours" required autofocus>
+            <input type="text" id="username" name="username" class="form-control" placeholder="e.g. makemytrip / taj_hotels / zingbus_fleet" required autofocus>
         </div>
 
         <div class="form-group mb-20">
@@ -27,10 +27,15 @@
     </form>
 
     <div style="background:var(--pastel-yellow-light); border:2px solid #000; border-radius:var(--radius-sm); padding:14px; margin-top:20px; font-size:12px; box-shadow:2px 2px 0px #000;">
-        <strong style="font-family:'Space Grotesk',sans-serif;">Sample Partner Credentials:</strong><br>
-        <code>nilgiri_cabs</code> / <code>agency123</code><br>
-        <code>heritage_hotels</code> / <code>agency123</code><br>
-        <code>tamil_tours</code> / <code>agency123</code>
+        <strong style="font-family:'Space Grotesk',sans-serif; display:block; margin-bottom:6px;">Recognized Partner Agencies (Password: <code>agency123</code>):</strong>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-size:11.5px;">
+            <div>• <code>makemytrip</code> (MMT Holidays)</div>
+            <div>• <code>taj_hotels</code> (Taj & IHCL)</div>
+            <div>• <code>zingbus_fleet</code> (Zingbus Cabs)</div>
+            <div>• <code>thomas_cook</code> (Thomas Cook)</div>
+            <div>• <code>southern_travels</code> (TTDC / South)</div>
+            <div>• <code>club_mahindra</code> (Resorts)</div>
+        </div>
     </div>
 </div>
 {% endblock %}
