@@ -34,14 +34,14 @@
 <form action="{{ url_for('packages.packages') }}" method="GET" class="search-filter-card reveal-scroll">
     <div style="display:grid; grid-template-columns: 2fr 1.2fr 1fr 1fr 1.2fr auto; gap:14px; align-items:flex-end;">
         <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label" for="q">Where to wander?</label>
-            <input type="text" id="q" name="q" value="{{ query or '' }}" placeholder="Search destination, hills, temple..." class="form-control">
+            <label class="form-label" for="q">{{ 'where_to_wander'|t }}</label>
+            <input type="text" id="q" name="q" value="{{ query or '' }}" placeholder="{{ 'search_dest_placeholder'|t }}" class="form-control">
         </div>
 
         <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label" for="category">Category</label>
+            <label class="form-label" for="category">{{ 'category'|t }}</label>
             <select id="category" name="category" class="form-control">
-                <option value="">All Categories</option>
+                <option value="">{{ 'all_categories'|t }}</option>
                 {% for cat in categories %}
                     <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
                 {% endfor %}
@@ -49,28 +49,28 @@
         </div>
 
         <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label" for="min_price">Min Price</label>
+            <label class="form-label" for="min_price">{{ 'min_price'|t }}</label>
             <input type="number" id="min_price" name="min_price" value="{{ min_price or '' }}" placeholder="Min ₹" class="form-control">
         </div>
 
         <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label" for="max_price">Max Price</label>
+            <label class="form-label" for="max_price">{{ 'max_price'|t }}</label>
             <input type="number" id="max_price" name="max_price" value="{{ max_price or '' }}" placeholder="Max ₹" class="form-control">
         </div>
 
         <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label" for="sort_by">Sort By</label>
+            <label class="form-label" for="sort_by">{{ 'sort_by'|t }}</label>
             <select id="sort_by" name="sort_by" class="form-control">
-                <option value="popular" {% if sort_by == 'popular' %}selected{% endif %}>Highest Rated</option>
-                <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
-                <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
-                <option value="duration_asc" {% if sort_by == 'duration_asc' %}selected{% endif %}>Duration: Shortest</option>
+                <option value="popular" {% if sort_by == 'popular' %}selected{% endif %}>{{ 'highest_rated'|t }}</option>
+                <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>{{ 'price_low_high'|t }}</option>
+                <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>{{ 'price_high_low'|t }}</option>
+                <option value="duration_asc" {% if sort_by == 'duration_asc' %}selected{% endif %}>{{ 'duration_shortest'|t }}</option>
             </select>
         </div>
 
         <div style="display:flex; gap:6px;">
-            <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-            <a href="{{ url_for('packages.packages') }}" class="btn btn-outline btn-sm">Clear</a>
+            <button type="submit" class="btn btn-primary btn-sm">{{ 'filter'|t }}</button>
+            <a href="{{ url_for('packages.packages') }}" class="btn btn-outline btn-sm">{{ 'clear'|t }}</a>
         </div>
     </div>
 </form>
@@ -79,12 +79,12 @@
 {% if compare_list %}
 <div class="card mb-20 reveal-scroll" style="background:var(--pastel-yellow-warm); border:2.5px solid #000; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
     <div>
-        <strong style="font-family:'Space Grotesk',sans-serif; font-size:16px;">{{ compare_list|length }} Packages in Comparison Deck</strong>
+        <strong style="font-family:'Space Grotesk',sans-serif; font-size:16px;">{{ compare_list|length }} {{ 'packages'|t }} in Comparison Deck</strong>
         <p style="font-size:13px; margin:2px 0 0; color:var(--text-secondary);">Compare pricing, duration, and inclusions side-by-side.</p>
     </div>
     <div style="display:flex; gap:8px;">
-        <a href="{{ url_for('packages.compare') }}" class="btn btn-primary btn-sm">View Matrix</a>
-        <a href="{{ url_for('packages.compare_clear') }}" class="btn btn-outline btn-sm">Clear</a>
+        <a href="{{ url_for('packages.compare') }}" class="btn btn-primary btn-sm">{{ 'view_matrix'|t }}</a>
+        <a href="{{ url_for('packages.compare_clear') }}" class="btn btn-outline btn-sm">{{ 'clear'|t }}</a>
     </div>
 </div>
 {% endif %}
@@ -125,12 +125,12 @@
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:14px; border-top:2px solid #000;">
                 <div>
-                    <span style="font-family:'Space Grotesk',sans-serif; font-size:10px; color:var(--text-muted); font-weight:800; text-transform:uppercase; display:block;">EXPEDITION FARE</span>
-                    <div class="package-price">{{ pkg['price']|currency }} <small style="font-size:12px; font-weight:500; color:var(--text-muted);">/ person</small></div>
+                    <span style="font-family:'Space Grotesk',sans-serif; font-size:10px; color:var(--text-muted); font-weight:800; text-transform:uppercase; display:block;">{{ 'expedition_fare'|t }}</span>
+                    <div class="package-price">{{ pkg['price']|currency }} <small style="font-size:12px; font-weight:500; color:var(--text-muted);">{{ 'per_explorer'|t }}</small></div>
                 </div>
 
                 <a href="{{ url_for('packages.package_detail', package_id=pkg['id']) }}" class="btn btn-primary btn-sm">
-                    Book Journey →
+                    {{ 'book_journey'|t }}
                 </a>
             </div>
         </div>

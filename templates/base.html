@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_lang or 'en' }}" dir="{% if (current_lang or 'en') == 'ar' %}rtl{% else %}ltr{% endif %}" data-lang="{{ current_lang or 'en' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,6 +23,15 @@
     
     <!-- Design System CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+        function setRoamlyLanguage(lang) {
+            if (!lang) return;
+            try {
+                localStorage.setItem('roamly_lang', lang);
+            } catch(e) {}
+            window.location.href = '/set-lang/' + lang;
+        }
+    </script>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -37,30 +46,42 @@
                 <div class="header-brand">
                     <a href="{{ url_for('admin.dashboard') }}" class="logo-link">
                         <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Roamly Logo" class="brand-logo-img">
-                        <span class="brand-title-badge" style="background:var(--pastel-peach);">ROAMLY ADMIN</span>
+                        <span class="brand-title-badge" style="background:var(--pastel-peach);">ROAMLY</span>
                     </a>
-                    <span class="badge badge-peach" style="font-size:11px; text-transform:uppercase;">CENTRAL CONTROL</span>
+                    <span class="badge badge-peach" style="font-size:11px; text-transform:uppercase;">{{ 'central_control'|t }}</span>
                 </div>
 
                 <nav class="nav-menu">
-                    <a href="{{ url_for('admin.dashboard') }}" class="nav-link">Dashboard</a>
-                    <a href="{{ url_for('admin.agencies') }}" class="nav-link">Agencies</a>
-                    <a href="{{ url_for('admin.global_bookings') }}" class="nav-link">Bookings Ledger</a>
-                    <a href="{{ url_for('admin.commissions') }}" class="nav-link">Commissions &amp; Payouts</a>
-                    <a href="{{ url_for('coupons.list_coupons') }}" class="nav-link">Promo Coupons</a>
-                    <a href="{{ url_for('admin.audit_logs') }}" class="nav-link">Audit Trail</a>
+                    <a href="{{ url_for('admin.dashboard') }}" class="nav-link">{{ 'dashboard'|t }}</a>
+                    <a href="{{ url_for('admin.agencies') }}" class="nav-link">{{ 'agencies'|t }}</a>
+                    <a href="{{ url_for('admin.global_bookings') }}" class="nav-link">{{ 'bookings_ledger'|t }}</a>
+                    <a href="{{ url_for('admin.commissions') }}" class="nav-link">{{ 'commissions'|t }}</a>
+                    <a href="{{ url_for('coupons.list_coupons') }}" class="nav-link">{{ 'promo_coupons'|t }}</a>
+                    <a href="{{ url_for('admin.audit_logs') }}" class="nav-link">{{ 'audit_trail'|t }}</a>
 
-                    <!-- Currency Switcher -->
-                    <div style="display:flex; gap:4px; margin-left:6px;">
-                        <select class="form-control" style="padding:4px 8px; font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; box-shadow:2px 2px 0px #000; width:auto;" onchange="window.location.href='/set-currency/' + this.value">
-                            <option value="INR" {% if session.get('currency', 'INR') == 'INR' %}selected{% endif %}>INR (₹)</option>
-                            <option value="USD" {% if session.get('currency') == 'USD' %}selected{% endif %}>USD ($)</option>
-                            <option value="EUR" {% if session.get('currency') == 'EUR' %}selected{% endif %}>EUR (€)</option>
-                            <option value="GBP" {% if session.get('currency') == 'GBP' %}selected{% endif %}>GBP (£)</option>
-                        </select>
-                    </div>
+                    <select class="form-control" style="padding:4px 8px; font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; box-shadow:2px 2px 0px #000; width:auto;" onchange="window.location.href='/set-currency/' + this.value" title="Currency">
+                        <option value="INR" {% if (current_currency or session.get('currency', 'INR')) == 'INR' %}selected{% endif %}>INR (₹)</option>
+                        <option value="USD" {% if (current_currency or session.get('currency', 'INR')) == 'USD' %}selected{% endif %}>USD ($)</option>
+                        <option value="EUR" {% if (current_currency or session.get('currency', 'INR')) == 'EUR' %}selected{% endif %}>EUR (€)</option>
+                        <option value="GBP" {% if (current_currency or session.get('currency', 'INR')) == 'GBP' %}selected{% endif %}>GBP (£)</option>
+                        <option value="AED" {% if (current_currency or session.get('currency', 'INR')) == 'AED' %}selected{% endif %}>AED</option>
+                    </select>
 
-                    <a href="{{ url_for('admin.logout') }}" class="btn btn-outline btn-sm">Sign Out ({{ session.get('admin_username') }})</a>
+                    <select class="form-control roamly-lang-select" style="padding:4px 8px; font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; box-shadow:2px 2px 0px #000; width:auto;" onchange="setRoamlyLanguage(this.value)" title="Language">
+                        <option value="en" {% if (current_lang or session.get('lang', 'en')) == 'en' %}selected{% endif %}>🌐 English</option>
+                        <option value="ta" {% if (current_lang or session.get('lang', 'en')) == 'ta' %}selected{% endif %}>தமிழ்</option>
+                        <option value="hi" {% if (current_lang or session.get('lang', 'en')) == 'hi' %}selected{% endif %}>हिन्दी</option>
+                        <option value="te" {% if (current_lang or session.get('lang', 'en')) == 'te' %}selected{% endif %}>తెలుగు</option>
+                        <option value="ml" {% if (current_lang or session.get('lang', 'en')) == 'ml' %}selected{% endif %}>മലയാളം</option>
+                        <option value="kn" {% if (current_lang or session.get('lang', 'en')) == 'kn' %}selected{% endif %}>ಕನ್ನಡ</option>
+                        <option value="fr" {% if (current_lang or session.get('lang', 'en')) == 'fr' %}selected{% endif %}>Français</option>
+                        <option value="de" {% if (current_lang or session.get('lang', 'en')) == 'de' %}selected{% endif %}>Deutsch</option>
+                        <option value="es" {% if (current_lang or session.get('lang', 'en')) == 'es' %}selected{% endif %}>Español</option>
+                        <option value="ja" {% if (current_lang or session.get('lang', 'en')) == 'ja' %}selected{% endif %}>日本語</option>
+                        <option value="ar" {% if (current_lang or session.get('lang', 'en')) == 'ar' %}selected{% endif %}>العربية</option>
+                    </select>
+
+                    <a href="{{ url_for('admin.logout') }}" class="btn btn-outline btn-sm">{{ 'logout'|t }}</a>
                 </nav>
 
             {% elif session.get('agency_id') %}
@@ -68,30 +89,43 @@
                 <div class="header-brand">
                     <a href="{{ url_for('agency.dashboard') }}" class="logo-link">
                         <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Roamly Logo" class="brand-logo-img">
-                        <span class="brand-title-badge" style="background:var(--pastel-mint);">PARTNER DESK</span>
+                        <span class="brand-title-badge" style="background:var(--pastel-mint);">ROAMLY</span>
                     </a>
-                    <span class="badge badge-mint" style="font-size:11px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ session.get('agency_name') }}</span>
+                    <span class="badge badge-mint" style="font-size:11px; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ session.get('agency_name') }}</span>
                 </div>
 
                 <nav class="nav-menu">
-                    <a href="{{ url_for('agency.dashboard') }}" class="nav-link">Workspace</a>
-                    <a href="{{ url_for('agency.manage_packages') }}" class="nav-link">Packages Catalog</a>
-                    <a href="/agency/payouts" class="nav-link">Payouts &amp; Settlements</a>
-                    <a href="/agency/reviews" class="nav-link">Reviews</a>
-                    <a href="/agency/messages" class="nav-link">Guest Inbox</a>
-                    <a href="{{ url_for('agency.add_package') }}" class="btn btn-yellow btn-sm">+ New Tour</a>
+                    <a href="{{ url_for('agency.dashboard') }}" class="nav-link">{{ 'workspace'|t }}</a>
+                    <a href="{{ url_for('agency.manage_packages') }}" class="nav-link">{{ 'packages_catalog'|t }}</a>
+                    <a href="/agency/payouts" class="nav-link">{{ 'payouts'|t }}</a>
+                    <a href="/agency/reviews" class="nav-link">{{ 'reviews'|t }}</a>
+                    <a href="/agency/messages" class="nav-link">{{ 'guest_inbox'|t }}</a>
 
-                    <!-- Currency Switcher -->
-                    <div style="display:flex; gap:4px; margin-left:6px;">
-                        <select class="form-control" style="padding:4px 8px; font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; box-shadow:2px 2px 0px #000; width:auto;" onchange="window.location.href='/set-currency/' + this.value">
-                            <option value="INR" {% if session.get('currency', 'INR') == 'INR' %}selected{% endif %}>INR (₹)</option>
-                            <option value="USD" {% if session.get('currency') == 'USD' %}selected{% endif %}>USD ($)</option>
-                            <option value="EUR" {% if session.get('currency') == 'EUR' %}selected{% endif %}>EUR (€)</option>
-                            <option value="GBP" {% if session.get('currency') == 'GBP' %}selected{% endif %}>GBP (£)</option>
-                        </select>
-                    </div>
+                    <a href="{{ url_for('agency.add_package') }}" class="btn btn-yellow btn-sm">{{ 'new_tour'|t }}</a>
 
-                    <a href="{{ url_for('agency.logout') }}" class="btn btn-outline btn-sm">Sign Out</a>
+                    <select class="form-control" style="padding:4px 8px; font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; box-shadow:2px 2px 0px #000; width:auto;" onchange="window.location.href='/set-currency/' + this.value" title="Currency">
+                        <option value="INR" {% if (current_currency or session.get('currency', 'INR')) == 'INR' %}selected{% endif %}>INR (₹)</option>
+                        <option value="USD" {% if (current_currency or session.get('currency', 'INR')) == 'USD' %}selected{% endif %}>USD ($)</option>
+                        <option value="EUR" {% if (current_currency or session.get('currency', 'INR')) == 'EUR' %}selected{% endif %}>EUR (€)</option>
+                        <option value="GBP" {% if (current_currency or session.get('currency', 'INR')) == 'GBP' %}selected{% endif %}>GBP (£)</option>
+                        <option value="AED" {% if (current_currency or session.get('currency', 'INR')) == 'AED' %}selected{% endif %}>AED</option>
+                    </select>
+
+                    <select class="form-control roamly-lang-select" style="padding:4px 8px; font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; box-shadow:2px 2px 0px #000; width:auto;" onchange="setRoamlyLanguage(this.value)" title="Language">
+                        <option value="en" {% if (current_lang or session.get('lang', 'en')) == 'en' %}selected{% endif %}>🌐 English</option>
+                        <option value="ta" {% if (current_lang or session.get('lang', 'en')) == 'ta' %}selected{% endif %}>தமிழ்</option>
+                        <option value="hi" {% if (current_lang or session.get('lang', 'en')) == 'hi' %}selected{% endif %}>हिन्दी</option>
+                        <option value="te" {% if (current_lang or session.get('lang', 'en')) == 'te' %}selected{% endif %}>తెలుగు</option>
+                        <option value="ml" {% if (current_lang or session.get('lang', 'en')) == 'ml' %}selected{% endif %}>മലയാളം</option>
+                        <option value="kn" {% if (current_lang or session.get('lang', 'en')) == 'kn' %}selected{% endif %}>ಕನ್ನಡ</option>
+                        <option value="fr" {% if (current_lang or session.get('lang', 'en')) == 'fr' %}selected{% endif %}>Français</option>
+                        <option value="de" {% if (current_lang or session.get('lang', 'en')) == 'de' %}selected{% endif %}>Deutsch</option>
+                        <option value="es" {% if (current_lang or session.get('lang', 'en')) == 'es' %}selected{% endif %}>Español</option>
+                        <option value="ja" {% if (current_lang or session.get('lang', 'en')) == 'ja' %}selected{% endif %}>日本語</option>
+                        <option value="ar" {% if (current_lang or session.get('lang', 'en')) == 'ar' %}selected{% endif %}>العربية</option>
+                    </select>
+
+                    <a href="{{ url_for('agency.logout') }}" class="btn btn-outline btn-sm">{{ 'logout'|t }}</a>
                 </nav>
 
             {% elif session.get('user_id') %}
@@ -105,28 +139,40 @@
                 </div>
 
                 <nav class="nav-menu">
-                    <a href="{{ url_for('packages.packages') }}" class="nav-link">Packages</a>
-                    <a href="{{ url_for('hotels.hotels') }}" class="nav-link">Hotels</a>
-                    <a href="{{ url_for('transports.transports') }}" class="nav-link">Transports</a>
-                    <a href="/itinerary/builder" class="nav-link">Custom Itinerary</a>
-                    <a href="{{ url_for('packages.compare') }}" class="nav-link">Compare {% if compare_count > 0 %}<span class="badge badge-yellow">{{ compare_count }}</span>{% endif %}</a>
-                    <a href="{{ url_for('dashboard.saved_destinations') }}" class="nav-link">Wishlist {% if saved_count > 0 %}<span class="badge badge-yellow">{{ saved_count }}</span>{% endif %}</a>
-                    <a href="/wallet" class="nav-link">Wallet</a>
-                    <a href="/messages" class="nav-link">Messages</a>
-                    <a href="{{ url_for('payments.notifications') }}" class="nav-link">Alerts {% if unread_notifications_count > 0 %}<span class="badge badge-pink">{{ unread_notifications_count }}</span>{% endif %}</a>
+                    <a href="{{ url_for('packages.packages') }}" class="nav-link">{{ 'packages'|t }}</a>
+                    <a href="{{ url_for('hotels.hotels') }}" class="nav-link">{{ 'hotels'|t }}</a>
+                    <a href="{{ url_for('transports.transports') }}" class="nav-link">{{ 'transports'|t }}</a>
+                    <a href="/itinerary/builder" class="nav-link">{{ 'trip_builder'|t }}</a>
+                    <a href="{{ url_for('packages.compare') }}" class="nav-link">{{ 'compare'|t }} {% if compare_count > 0 %}<span class="badge badge-yellow">{{ compare_count }}</span>{% endif %}</a>
+                    <a href="{{ url_for('dashboard.saved_destinations') }}" class="nav-link">{{ 'wishlist'|t }} {% if saved_count > 0 %}<span class="badge badge-yellow">{{ saved_count }}</span>{% endif %}</a>
+                    <a href="/wallet" class="nav-link">{{ 'wallet'|t }}</a>
+                    <a href="/messages" class="nav-link">{{ 'messages'|t }}</a>
+                    <a href="{{ url_for('payments.notifications') }}" class="nav-link">{{ 'alerts'|t }} {% if unread_notifications_count > 0 %}<span class="badge badge-pink">{{ unread_notifications_count }}</span>{% endif %}</a>
 
-                    <!-- Currency Switcher -->
-                    <div style="display:flex; gap:4px; margin-left:6px;">
-                        <select class="form-control" style="padding:4px 8px; font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; box-shadow:2px 2px 0px #000; width:auto;" onchange="window.location.href='/set-currency/' + this.value">
-                            <option value="INR" {% if session.get('currency', 'INR') == 'INR' %}selected{% endif %}>INR (₹)</option>
-                            <option value="USD" {% if session.get('currency') == 'USD' %}selected{% endif %}>USD ($)</option>
-                            <option value="EUR" {% if session.get('currency') == 'EUR' %}selected{% endif %}>EUR (€)</option>
-                            <option value="GBP" {% if session.get('currency') == 'GBP' %}selected{% endif %}>GBP (£)</option>
-                        </select>
-                    </div>
+                    <select class="form-control" style="padding:4px 8px; font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; box-shadow:2px 2px 0px #000; width:auto;" onchange="window.location.href='/set-currency/' + this.value" title="Currency">
+                        <option value="INR" {% if (current_currency or session.get('currency', 'INR')) == 'INR' %}selected{% endif %}>INR (₹)</option>
+                        <option value="USD" {% if (current_currency or session.get('currency', 'INR')) == 'USD' %}selected{% endif %}>USD ($)</option>
+                        <option value="EUR" {% if (current_currency or session.get('currency', 'INR')) == 'EUR' %}selected{% endif %}>EUR (€)</option>
+                        <option value="GBP" {% if (current_currency or session.get('currency', 'INR')) == 'GBP' %}selected{% endif %}>GBP (£)</option>
+                        <option value="AED" {% if (current_currency or session.get('currency', 'INR')) == 'AED' %}selected{% endif %}>AED</option>
+                    </select>
 
-                    <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-yellow btn-sm">Explorer Desk</a>
-                    <a href="{{ url_for('auth.logout') }}" class="btn btn-outline btn-sm">Sign Out ({{ session.get('username') }})</a>
+                    <select class="form-control roamly-lang-select" style="padding:4px 8px; font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; box-shadow:2px 2px 0px #000; width:auto;" onchange="setRoamlyLanguage(this.value)" title="Language">
+                        <option value="en" {% if (current_lang or session.get('lang', 'en')) == 'en' %}selected{% endif %}>🌐 English</option>
+                        <option value="ta" {% if (current_lang or session.get('lang', 'en')) == 'ta' %}selected{% endif %}>தமிழ்</option>
+                        <option value="hi" {% if (current_lang or session.get('lang', 'en')) == 'hi' %}selected{% endif %}>हिन्दी</option>
+                        <option value="te" {% if (current_lang or session.get('lang', 'en')) == 'te' %}selected{% endif %}>తెలుగు</option>
+                        <option value="ml" {% if (current_lang or session.get('lang', 'en')) == 'ml' %}selected{% endif %}>മലയാളം</option>
+                        <option value="kn" {% if (current_lang or session.get('lang', 'en')) == 'kn' %}selected{% endif %}>ಕನ್ನಡ</option>
+                        <option value="fr" {% if (current_lang or session.get('lang', 'en')) == 'fr' %}selected{% endif %}>Français</option>
+                        <option value="de" {% if (current_lang or session.get('lang', 'en')) == 'de' %}selected{% endif %}>Deutsch</option>
+                        <option value="es" {% if (current_lang or session.get('lang', 'en')) == 'es' %}selected{% endif %}>Español</option>
+                        <option value="ja" {% if (current_lang or session.get('lang', 'en')) == 'ja' %}selected{% endif %}>日本語</option>
+                        <option value="ar" {% if (current_lang or session.get('lang', 'en')) == 'ar' %}selected{% endif %}>العربية</option>
+                    </select>
+
+                    <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-yellow btn-sm">{{ 'explorer_desk'|t }}</a>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-outline btn-sm">{{ 'logout'|t }}</a>
                 </nav>
 
             {% else %}
@@ -140,24 +186,36 @@
                 </div>
 
                 <nav class="nav-menu">
-                    <a href="{{ url_for('packages.packages') }}" class="nav-link">Packages</a>
-                    <a href="{{ url_for('hotels.hotels') }}" class="nav-link">Hotels</a>
-                    <a href="{{ url_for('transports.transports') }}" class="nav-link">Transports</a>
-                    <a href="/itinerary/builder" class="nav-link">Custom Itinerary</a>
-                    <a href="{{ url_for('packages.compare') }}" class="nav-link">Compare {% if compare_count > 0 %}<span class="badge badge-yellow">{{ compare_count }}</span>{% endif %}</a>
+                    <a href="{{ url_for('packages.packages') }}" class="nav-link">{{ 'packages'|t }}</a>
+                    <a href="{{ url_for('hotels.hotels') }}" class="nav-link">{{ 'hotels'|t }}</a>
+                    <a href="{{ url_for('transports.transports') }}" class="nav-link">{{ 'transports'|t }}</a>
+                    <a href="/itinerary/builder" class="nav-link">{{ 'trip_builder'|t }}</a>
+                    <a href="{{ url_for('packages.compare') }}" class="nav-link">{{ 'compare'|t }} {% if compare_count > 0 %}<span class="badge badge-yellow">{{ compare_count }}</span>{% endif %}</a>
 
-                    <!-- Currency Switcher -->
-                    <div style="display:flex; gap:4px; margin-left:6px;">
-                        <select class="form-control" style="padding:4px 8px; font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; box-shadow:2px 2px 0px #000; width:auto;" onchange="window.location.href='/set-currency/' + this.value">
-                            <option value="INR" {% if session.get('currency', 'INR') == 'INR' %}selected{% endif %}>INR (₹)</option>
-                            <option value="USD" {% if session.get('currency') == 'USD' %}selected{% endif %}>USD ($)</option>
-                            <option value="EUR" {% if session.get('currency') == 'EUR' %}selected{% endif %}>EUR (€)</option>
-                            <option value="GBP" {% if session.get('currency') == 'GBP' %}selected{% endif %}>GBP (£)</option>
-                        </select>
-                    </div>
+                    <select class="form-control" style="padding:4px 8px; font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; box-shadow:2px 2px 0px #000; width:auto;" onchange="window.location.href='/set-currency/' + this.value" title="Currency">
+                        <option value="INR" {% if (current_currency or session.get('currency', 'INR')) == 'INR' %}selected{% endif %}>INR (₹)</option>
+                        <option value="USD" {% if (current_currency or session.get('currency', 'INR')) == 'USD' %}selected{% endif %}>USD ($)</option>
+                        <option value="EUR" {% if (current_currency or session.get('currency', 'INR')) == 'EUR' %}selected{% endif %}>EUR (€)</option>
+                        <option value="GBP" {% if (current_currency or session.get('currency', 'INR')) == 'GBP' %}selected{% endif %}>GBP (£)</option>
+                        <option value="AED" {% if (current_currency or session.get('currency', 'INR')) == 'AED' %}selected{% endif %}>AED</option>
+                    </select>
 
-                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-sm">Sign In</a>
-                    <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">Join Caravan →</a>
+                    <select class="form-control roamly-lang-select" style="padding:4px 8px; font-size:12px; font-family:'Space Grotesk',sans-serif; font-weight:700; box-shadow:2px 2px 0px #000; width:auto;" onchange="setRoamlyLanguage(this.value)" title="Language">
+                        <option value="en" {% if (current_lang or session.get('lang', 'en')) == 'en' %}selected{% endif %}>🌐 English</option>
+                        <option value="ta" {% if (current_lang or session.get('lang', 'en')) == 'ta' %}selected{% endif %}>தமிழ்</option>
+                        <option value="hi" {% if (current_lang or session.get('lang', 'en')) == 'hi' %}selected{% endif %}>हिन्दी</option>
+                        <option value="te" {% if (current_lang or session.get('lang', 'en')) == 'te' %}selected{% endif %}>తెలుగు</option>
+                        <option value="ml" {% if (current_lang or session.get('lang', 'en')) == 'ml' %}selected{% endif %}>മലയാളം</option>
+                        <option value="kn" {% if (current_lang or session.get('lang', 'en')) == 'kn' %}selected{% endif %}>ಕನ್ನಡ</option>
+                        <option value="fr" {% if (current_lang or session.get('lang', 'en')) == 'fr' %}selected{% endif %}>Français</option>
+                        <option value="de" {% if (current_lang or session.get('lang', 'en')) == 'de' %}selected{% endif %}>Deutsch</option>
+                        <option value="es" {% if (current_lang or session.get('lang', 'en')) == 'es' %}selected{% endif %}>Español</option>
+                        <option value="ja" {% if (current_lang or session.get('lang', 'en')) == 'ja' %}selected{% endif %}>日本語</option>
+                        <option value="ar" {% if (current_lang or session.get('lang', 'en')) == 'ar' %}selected{% endif %}>العربية</option>
+                    </select>
+
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-sm">{{ 'login'|t }}</a>
+                    <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">{{ 'signup'|t }}</a>
                 </nav>
             {% endif %}
         </div>

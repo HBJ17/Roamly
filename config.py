@@ -58,8 +58,17 @@ class Config:
         'AED': {'symbol': 'AED ', 'rate': 0.044, 'name': 'UAE Dirham'}
     }
     
-    # Localization Languages
+    # Localization Languages (5 Indian + 5 Foreign + English)
     SUPPORTED_LANGUAGES = {
         'en': 'English',
-        'ta': 'தமிழ் (Tamil)'
+        'ta': 'தமிழ் (Tamil)',
+        'hi': 'हिन्दी (Hindi)',
+        'te': 'తెలుగు (Telugu)',
+        'ml': 'മലയാളം (Malayalam)',
+        'kn': 'ಕನ್ನಡ (Kannada)',
+        'fr': 'Français (French)',
+        'de': 'Deutsch (German)',
+        'es': 'Español (Spanish)',
+        'ja': '日本語 (Japanese)',
+        'ar': 'العربية (Arabic)'
     }

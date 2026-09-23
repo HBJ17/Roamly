@@ -83,10 +83,14 @@ def format_currency_filter(amount):
         return f"{curr_info['symbol']}{converted:,.2f}"
     return f"{curr_info['symbol']}{converted:,.2f}"
 
+from jinja2 import pass_context
+
 @app.template_filter('t')
-def translate_filter(key):
+@pass_context
+def translate_filter(context, key):
     """Translate dictionary keys into current session language."""
-    lang = session.get('lang', 'en')
+    session_obj = context.get('session', session)
+    lang = session_obj.get('lang', 'en') if session_obj else 'en'
     return translate(key, lang)
 
 # currency switcher route
@@ -95,7 +99,11 @@ def set_currency(curr_code):
     curr_code = curr_code.upper()
     if curr_code in Config.SUPPORTED_CURRENCIES:
         session['currency'] = curr_code
-    return redirect(request.referrer or url_for('packages.packages'))
+        session.modified = True
+    ref = request.referrer
+    if not ref or '/set-currency/' in ref or '/set-lang/' in ref:
+        ref = url_for('packages.packages')
+    return redirect(ref)
 
 # language switcher route
 @app.route('/set-lang/<lang_code>')
@@ -103,7 +111,11 @@ def set_language(lang_code):
     lang_code = lang_code.lower()
     if lang_code in Config.SUPPORTED_LANGUAGES:
         session['lang'] = lang_code
-    return redirect(request.referrer or url_for('packages.packages'))
+        session.modified = True
+    ref = request.referrer
+    if not ref or '/set-lang/' in ref or '/set-currency/' in ref:
+        ref = url_for('packages.packages')
+    return redirect(ref)
 
 # global template context
 @app.context_processor
@@ -131,6 +143,8 @@ def inject_global_data():
         compare_count=len(compare_list),
         unread_notifications_count=unread_notifs,
         saved_count=saved_count,
+        current_lang=session.get('lang', 'en'),
+        current_currency=session.get('currency', 'INR'),
         is_admin=bool(session.get('admin_id')),
         is_agency=bool(session.get('agency_id')),
         admin_username=session.get('admin_username'),
