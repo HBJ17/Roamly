@@ -158,7 +158,10 @@ def checkout(booking_type, item_id):
         subtotal = base_rate * nights
     elif booking_type == 'Transport':
         base_rate = float(item['price'])
-        subtotal = base_rate if item['transport_type'] == 'Cab' else base_rate * num_travelers
+        if item['transport_type'] in ['Cab', 'Taxi', 'Rental'] or (item.get('service_type') in ['Taxi Service', 'Self-Drive Rental']):
+            subtotal = float(item.get('daily_rate') or base_rate)
+        else:
+            subtotal = base_rate * num_travelers
     else:
         base_rate = float(item['price'])
         subtotal = base_rate * num_travelers

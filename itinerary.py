@@ -88,34 +88,26 @@ def builder():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # fetch hotels strictly for this destination/region
+    # fetch hotels strictly for this destination/city only
     cursor.execute('''
         SELECT h.*, a.name as agency_name 
         FROM hotels h 
         LEFT JOIN agencies a ON h.agency_id = a.id
-        WHERE h.city LIKE %s
+        WHERE LOWER(h.city) LIKE %s
         ORDER BY h.star_rating DESC, h.price_per_night ASC
-    ''', (f'%{canonical_dest}%',))
+    ''', (f'%{dest_key}%',))
     hotels = cursor.fetchall()
-    
-    # if none found with exact wildcard, fallback to all hotels
-    if not hotels:
-        cursor.execute('SELECT h.*, a.name as agency_name FROM hotels h LEFT JOIN agencies a ON h.agency_id = a.id ORDER BY h.star_rating DESC')
-        hotels = cursor.fetchall()
 
-    # fetch transports (Taxis and Self-Drive Rentals) available for this region
+    # fetch only local taxis and self-drive rentals operating in this destination city
     cursor.execute('''
         SELECT t.*, a.name as agency_name 
         FROM transports t 
         LEFT JOIN agencies a ON t.agency_id = a.id
-        WHERE t.source_city LIKE %s OR t.destination_city LIKE %s OR t.title LIKE %s
+        WHERE (LOWER(t.source_city) LIKE %s OR LOWER(t.destination_city) LIKE %s)
+          AND (t.transport_type IN ('Taxi', 'Rental', 'Cab') OR t.service_type IN ('Taxi Service', 'Self-Drive Rental'))
         ORDER BY t.daily_rate ASC, t.price ASC
-    ''', (f'%{canonical_dest}%', f'%{canonical_dest}%', f'%{canonical_dest}%'))
+    ''', (f'%{dest_key}%', f'%{dest_key}%'))
     transports = cursor.fetchall()
-    
-    if not transports:
-        cursor.execute('SELECT t.*, a.name as agency_name FROM transports t LEFT JOIN agencies a ON t.agency_id = a.id ORDER BY t.price ASC')
-        transports = cursor.fetchall()
         
     conn.close()
     

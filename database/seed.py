@@ -64,12 +64,169 @@ def seed_users(cursor):
             VALUES (2, 'Private Car', 'Non-Vegetarian', 'Luxury', 'Heritage & Culture, Coastal & Beach, Nature & Wellness')
         ''')
 
-# seed 6 partner agencies (Cab, Hotel, Travel)
+# seed partner agencies (Destination-specific Hotel & Cab Agencies + Intercity Transit + Tour Operators)
 def seed_agencies(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM agencies')
     count = cursor.fetchone()['count']
     if count == 0:
         seed_agencies_data = [
+            # 1. Bangalore Agencies
+            (
+                'bangalore_stays',
+                hash_password('agency123'),
+                'Bengaluru Garden City Hospitality & Suites',
+                'Hotel Agency',
+                'stays@bangalorehospitality.in',
+                '+91 80 41234567',
+                'MG Road & Indiranagar, Bengaluru, Karnataka',
+                'Active'
+            ),
+            (
+                'bangalore_cabs',
+                hash_password('agency123'),
+                'Namma Bengaluru Cabs & ZoomFleet',
+                'Cab Agency',
+                'cabs@bangalorefleet.in',
+                '+91 80 49876543',
+                '100 Feet Road, Indiranagar, Bengaluru, Karnataka',
+                'Active'
+            ),
+
+            # 2. Chennai Agencies
+            (
+                'chennai_hotels',
+                hash_password('agency123'),
+                'Marina Bay Stays & Heritage Resorts',
+                'Hotel Agency',
+                'reservations@chennaistays.in',
+                '+91 44 28551122',
+                'MRC Nagar & Mylapore, Chennai, Tamil Nadu',
+                'Active'
+            ),
+            (
+                'chennai_cabs',
+                hash_password('agency123'),
+                'Madras City Cabs & Coastline Rentals',
+                'Cab Agency',
+                'support@madrascabs.in',
+                '+91 44 28443322',
+                'Mount Road & ECR, Chennai, Tamil Nadu',
+                'Active'
+            ),
+
+            # 3. Kodaikanal Agencies
+            (
+                'kodai_resorts',
+                hash_password('agency123'),
+                'Kodai Mist Luxury Retreats & Chalets',
+                'Hotel Agency',
+                'stay@kodaimistretreats.in',
+                '+91 4542 245678',
+                'Observatory Road, Kodaikanal, Tamil Nadu',
+                'Active'
+            ),
+            (
+                'kodai_cabs',
+                hash_password('agency123'),
+                'Kodai Pine Hills Taxi & 4x4 Fleet',
+                'Cab Agency',
+                'rides@kodaipinefleet.in',
+                '+91 4542 241122',
+                'Lake Road, Kodaikanal, Tamil Nadu',
+                'Active'
+            ),
+
+            # 4. Madurai Agencies
+            (
+                'madurai_stays',
+                hash_password('agency123'),
+                'Temple City Heritage Palaces & Residency',
+                'Hotel Agency',
+                'hospitality@maduraipalaces.in',
+                '+91 452 2334455',
+                'Pasumalai & West Perumal Street, Madurai, Tamil Nadu',
+                'Active'
+            ),
+            (
+                'madurai_cabs',
+                hash_password('agency123'),
+                'Meenakshi City Taxis & Self-Drive',
+                'Cab Agency',
+                'booking@meenakshicabs.in',
+                '+91 452 2399887',
+                'Town Hall Road, Madurai, Tamil Nadu',
+                'Active'
+            ),
+
+            # 5. Thanjavur Agencies
+            (
+                'thanjavur_stays',
+                hash_password('agency123'),
+                'Chola Heritage Mansions & Resorts',
+                'Hotel Agency',
+                'welcome@cholastays.in',
+                '+91 4362 278899',
+                'South Rampart, Thanjavur, Tamil Nadu',
+                'Active'
+            ),
+            (
+                'thanjavur_cabs',
+                hash_password('agency123'),
+                'Chola Delta Travels & Cabs',
+                'Cab Agency',
+                'travel@choladeltacabs.in',
+                '+91 4362 271133',
+                'Big Temple Road, Thanjavur, Tamil Nadu',
+                'Active'
+            ),
+
+            # 6. Kanyakumari Agencies
+            (
+                'kanyakumari_stays',
+                hash_password('agency123'),
+                'Lands End Oceanfront Resorts & Inns',
+                'Hotel Agency',
+                'booking@capeoceanfront.in',
+                '+91 4652 246677',
+                'Beach Road, Kanyakumari, Tamil Nadu',
+                'Active'
+            ),
+            (
+                'kanyakumari_cabs',
+                hash_password('agency123'),
+                'Cape Ocean Drive Cabs & Rentals',
+                'Cab Agency',
+                'fleet@capeoceancabs.in',
+                '+91 4652 248899',
+                'Main Road, Kanyakumari, Tamil Nadu',
+                'Active'
+            ),
+
+            # 7. Intercity Bus Agency (RedBus style)
+            (
+                'redbus_express',
+                hash_password('agency123'),
+                'RedBus Intercity Express Coaches',
+                'Bus Agency',
+                'dispatch@redbusexpress.in',
+                '+91 1800 1039876',
+                'Kallada & Zingbus Transit Hubs, Bangalore / Chennai',
+                'Active'
+            ),
+
+            # 8. Rail & Air Transit Agency (IRCTC & Regional Air Connect)
+            (
+                'rail_flight_connect',
+                hash_password('agency123'),
+                'Southern Railways & Regional Air Connect',
+                'Transit Agency',
+                'booking@southtransitconnect.in',
+                '+91 1800 111139',
+                'Central Railway & Airport Stations, Chennai & Bangalore',
+                'Active'
+            ),
+
+            # 9. Tour & Legacy Agencies
             (
                 'fasttrack_cabs',
                 hash_password('agency123'),
@@ -400,15 +557,29 @@ def seed_packages(cursor):
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', seed_packages_data)
 
+# helper to fetch agency id by username
+def _get_agency_id(cursor, username):
+    cursor.execute('SELECT id FROM agencies WHERE username = %s', (username,))
+    row = cursor.fetchone()
+    return row['id'] if row else None
+
 # seed hotels for each of the 6 core destinations with AC, Pet, Bed, and Capacity options
 def seed_hotels(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM hotels')
     count = cursor.fetchone()['count']
     if count == 0:
+        # Resolve agency IDs
+        bangalore_aid = _get_agency_id(cursor, 'bangalore_stays') or 1
+        chennai_aid = _get_agency_id(cursor, 'chennai_hotels') or 3
+        kodai_aid = _get_agency_id(cursor, 'kodai_resorts') or 5
+        madurai_aid = _get_agency_id(cursor, 'madurai_stays') or 7
+        thanjavur_aid = _get_agency_id(cursor, 'thanjavur_stays') or 9
+        kanyakumari_aid = _get_agency_id(cursor, 'kanyakumari_stays') or 11
+
         hotels_data = [
             # Madurai Hotels
             (
-                3,
+                madurai_aid,
                 'Heritage Madurai Palace & Banyan Resort',
                 'Madurai',
                 '11 Melakkal Main Road, Kochadai, Madurai 625016',
@@ -425,7 +596,7 @@ def seed_hotels(cursor):
                 2
             ),
             (
-                3,
+                madurai_aid,
                 'The Gateway Hotel Pasumalai Madurai',
                 'Madurai',
                 'Pasumalai Hills, Madurai 625004',
@@ -442,7 +613,7 @@ def seed_hotels(cursor):
                 4
             ),
             (
-                4,
+                madurai_aid,
                 'Meenakshi Heritage Residency & Suites',
                 'Madurai',
                 'West Perumal Maistry Street, Madurai 625001',
@@ -461,7 +632,7 @@ def seed_hotels(cursor):
 
             # Kodaikanal Hotels
             (
-                4,
+                kodai_aid,
                 'The Tamara Kodai Luxury Hill Retreat',
                 'Kodaikanal',
                 'St Marys Road, Kodaikanal 624101',
@@ -478,7 +649,7 @@ def seed_hotels(cursor):
                 4
             ),
             (
-                4,
+                kodai_aid,
                 'Sterling Kodai Valley & Pines Resort',
                 'Kodaikanal',
                 'Pallangi Road, Attuvampatti, Kodaikanal 624101',
@@ -495,7 +666,7 @@ def seed_hotels(cursor):
                 3
             ),
             (
-                3,
+                kodai_aid,
                 'Kodai Misty Mountain Chalet & Homestay',
                 'Kodaikanal',
                 'Observatory Road, Kodaikanal 624103',
@@ -514,7 +685,7 @@ def seed_hotels(cursor):
 
             # Chennai Hotels
             (
-                3,
+                chennai_aid,
                 'The Leela Palace Seaside Marina',
                 'Chennai',
                 'Adyar Seaface, MRC Nagar, Chennai 600028',
@@ -531,7 +702,7 @@ def seed_hotels(cursor):
                 2
             ),
             (
-                3,
+                chennai_aid,
                 'Taj Connemara Heritage Hotel',
                 'Chennai',
                 'Binny Road, Anna Salai, Chennai 600002',
@@ -548,7 +719,7 @@ def seed_hotels(cursor):
                 3
             ),
             (
-                4,
+                chennai_aid,
                 'Mylapore Courtyard Heritage Inn',
                 'Chennai',
                 'Luz Church Road, Mylapore, Chennai 600004',
@@ -567,7 +738,7 @@ def seed_hotels(cursor):
 
             # Thanjavur Hotels
             (
-                3,
+                thanjavur_aid,
                 'Svatma Luxury Heritage Sanctuary',
                 'Thanjavur',
                 'Blake Higher Secondary Road, Thanjavur 613007',
@@ -584,7 +755,7 @@ def seed_hotels(cursor):
                 3
             ),
             (
-                4,
+                thanjavur_aid,
                 'Great Chola Palace & Garden Resort',
                 'Thanjavur',
                 'Trichy-Thanjavur Highway, Thanjavur 613005',
@@ -601,7 +772,7 @@ def seed_hotels(cursor):
                 4
             ),
             (
-                4,
+                thanjavur_aid,
                 'Tanjore Heritage Homestay & Lodge',
                 'Thanjavur',
                 'South Rampart, Near Palace, Thanjavur 613001',
@@ -620,7 +791,7 @@ def seed_hotels(cursor):
 
             # Bangalore Hotels
             (
-                3,
+                bangalore_aid,
                 'The Oberoi Bengaluru Garden City',
                 'Bangalore',
                 '37-39 MG Road, Bengaluru 560001',
@@ -637,7 +808,7 @@ def seed_hotels(cursor):
                 2
             ),
             (
-                3,
+                bangalore_aid,
                 'ITC Windsor, a Luxury Collection Palace Hotel',
                 'Bangalore',
                 '25 Golf Course Road, Bengaluru 560052',
@@ -654,7 +825,7 @@ def seed_hotels(cursor):
                 3
             ),
             (
-                4,
+                bangalore_aid,
                 'Silicon Valley Boutique Suites & Studios',
                 'Bangalore',
                 '100 Feet Road, Indiranagar, Bengaluru 560038',
@@ -673,7 +844,7 @@ def seed_hotels(cursor):
 
             # Kanyakumari Hotels
             (
-                3,
+                kanyakumari_aid,
                 'The Seashore Grand Resort & Spa',
                 'Kanyakumari',
                 'East Car Street, Beach Road, Kanyakumari 629702',
@@ -690,7 +861,7 @@ def seed_hotels(cursor):
                 2
             ),
             (
-                4,
+                kanyakumari_aid,
                 'Cape Heritage Ocean View Chalet & Resort',
                 'Kanyakumari',
                 'Kovalam Road, Kanyakumari 629702',
@@ -707,7 +878,7 @@ def seed_hotels(cursor):
                 4
             ),
             (
-                4,
+                kanyakumari_aid,
                 'Vivekananda Sunrise Inn & Residency',
                 'Kanyakumari',
                 'Main Road, Near Bus Stand, Kanyakumari 629702',
@@ -729,15 +900,29 @@ def seed_hotels(cursor):
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', hotels_data)
 
-# seed transports (Taxi services and Self-drive rentals) across all 6 core destinations
+# seed transports (Local Taxis & Rentals per city + Intercity Buses, Trains, and Flights)
 def seed_transports(cursor):
     cursor.execute('SELECT COUNT(*) as count FROM transports')
     count = cursor.fetchone()['count']
     if count == 0:
+        # Resolve agency IDs
+        bangalore_cab_aid = _get_agency_id(cursor, 'bangalore_cabs') or 2
+        chennai_cab_aid = _get_agency_id(cursor, 'chennai_cabs') or 4
+        kodai_cab_aid = _get_agency_id(cursor, 'kodai_cabs') or 6
+        madurai_cab_aid = _get_agency_id(cursor, 'madurai_cabs') or 8
+        thanjavur_cab_aid = _get_agency_id(cursor, 'thanjavur_cabs') or 10
+        kanyakumari_cab_aid = _get_agency_id(cursor, 'kanyakumari_cabs') or 12
+        bus_aid = _get_agency_id(cursor, 'redbus_express') or 13
+        rail_flight_aid = _get_agency_id(cursor, 'rail_flight_connect') or 14
+
         transports_data = [
-            # Madurai Taxis & Rentals
+            # =========================================================================
+            # SECTION A: LOCAL CABS & SELF-DRIVE RENTALS (Place-Specific)
+            # =========================================================================
+
+            # 1. Madurai Local Taxis & Rentals
             (
-                1,
+                madurai_cab_aid,
                 'Madurai Swift Dzire Chauffeur Taxi',
                 'Taxi',
                 'Madurai',
@@ -754,7 +939,7 @@ def seed_transports(cursor):
                 2200.0
             ),
             (
-                1,
+                madurai_cab_aid,
                 'Madurai Toyota Innova Crysta Family Cab',
                 'Taxi',
                 'Madurai',
@@ -771,7 +956,7 @@ def seed_transports(cursor):
                 3800.0
             ),
             (
-                2,
+                madurai_cab_aid,
                 'Madurai Mahindra Thar 4x4 Self-Drive Rental',
                 'Rental',
                 'Madurai',
@@ -788,7 +973,7 @@ def seed_transports(cursor):
                 2900.0
             ),
             (
-                1,
+                madurai_cab_aid,
                 'Madurai Budget City Taxi (Non-AC)',
                 'Taxi',
                 'Madurai',
@@ -801,13 +986,13 @@ def seed_transports(cursor):
                 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80',
                 'Taxi Service',
                 'Non-AC',
-                3,
+                4,
                 1400.0
             ),
 
-            # Kodaikanal Taxis & Rentals
+            # 2. Kodaikanal Local Taxis & Rentals
             (
-                1,
+                kodai_cab_aid,
                 'Kodai Mountain Chauffeur Scorpio 4x4 Taxi',
                 'Taxi',
                 'Kodaikanal',
@@ -824,7 +1009,7 @@ def seed_transports(cursor):
                 3400.0
             ),
             (
-                2,
+                kodai_cab_aid,
                 'Kodai Hyundai Creta Self-Drive Mountain Rental',
                 'Rental',
                 'Kodaikanal',
@@ -841,7 +1026,7 @@ def seed_transports(cursor):
                 2700.0
             ),
             (
-                1,
+                kodai_cab_aid,
                 'Kodai Toyota Fortuner Luxury Chauffeur SUV',
                 'Taxi',
                 'Kodaikanal',
@@ -858,7 +1043,7 @@ def seed_transports(cursor):
                 4800.0
             ),
             (
-                2,
+                kodai_cab_aid,
                 'Kodai Budget Eco Hatchback Self-Drive',
                 'Rental',
                 'Kodaikanal',
@@ -875,9 +1060,9 @@ def seed_transports(cursor):
                 1800.0
             ),
 
-            # Chennai Taxis & Rentals
+            # 3. Chennai Local Taxis & Rentals
             (
-                1,
+                chennai_cab_aid,
                 'Chennai Honda City Chauffeur Executive Sedan',
                 'Taxi',
                 'Chennai',
@@ -894,7 +1079,7 @@ def seed_transports(cursor):
                 2500.0
             ),
             (
-                2,
+                chennai_cab_aid,
                 'Chennai Mahindra XUV700 Self-Drive Rental',
                 'Rental',
                 'Chennai',
@@ -911,7 +1096,7 @@ def seed_transports(cursor):
                 3600.0
             ),
             (
-                2,
+                chennai_cab_aid,
                 'Chennai Tata Nexon EV Eco Self-Drive Rental',
                 'Rental',
                 'Chennai',
@@ -928,7 +1113,7 @@ def seed_transports(cursor):
                 2800.0
             ),
             (
-                1,
+                chennai_cab_aid,
                 'Chennai Force Urbania Luxury 12-Seater Van',
                 'Taxi',
                 'Chennai',
@@ -945,9 +1130,9 @@ def seed_transports(cursor):
                 6500.0
             ),
 
-            # Thanjavur Taxis & Rentals
+            # 4. Thanjavur Local Taxis & Rentals
             (
-                1,
+                thanjavur_cab_aid,
                 'Thanjavur Chola Temple Tour Chauffeur Sedan',
                 'Taxi',
                 'Thanjavur',
@@ -964,7 +1149,7 @@ def seed_transports(cursor):
                 2100.0
             ),
             (
-                1,
+                thanjavur_cab_aid,
                 'Thanjavur Maruti Ertiga 7-Seater Chauffeur Cab',
                 'Taxi',
                 'Thanjavur',
@@ -981,7 +1166,7 @@ def seed_transports(cursor):
                 3200.0
             ),
             (
-                2,
+                thanjavur_cab_aid,
                 'Thanjavur Maruti Baleno Self-Drive Rental',
                 'Rental',
                 'Thanjavur',
@@ -998,9 +1183,9 @@ def seed_transports(cursor):
                 2200.0
             ),
 
-            # Bangalore Taxis & Rentals
+            # 5. Bangalore Local Taxis & Rentals
             (
-                1,
+                bangalore_cab_aid,
                 'Bengaluru Toyota Camry / Ciaz Chauffeur Sedan',
                 'Taxi',
                 'Bangalore',
@@ -1017,7 +1202,7 @@ def seed_transports(cursor):
                 2800.0
             ),
             (
-                2,
+                bangalore_cab_aid,
                 'Bengaluru ZoomWheels Thar 4x4 Self-Drive Rental',
                 'Rental',
                 'Bangalore',
@@ -1034,7 +1219,7 @@ def seed_transports(cursor):
                 3200.0
             ),
             (
-                1,
+                bangalore_cab_aid,
                 'Bengaluru Innova Hycross Hybrid Chauffeur Taxi',
                 'Taxi',
                 'Bangalore',
@@ -1051,7 +1236,7 @@ def seed_transports(cursor):
                 4200.0
             ),
             (
-                2,
+                bangalore_cab_aid,
                 'Bengaluru Compact Kia Sonet Self-Drive',
                 'Rental',
                 'Bangalore',
@@ -1068,9 +1253,9 @@ def seed_transports(cursor):
                 2400.0
             ),
 
-            # Kanyakumari Taxis & Rentals
+            # 6. Kanyakumari Local Taxis & Rentals
             (
-                1,
+                kanyakumari_cab_aid,
                 'Kanyakumari Ocean Drive Chauffeur Sedan',
                 'Taxi',
                 'Kanyakumari',
@@ -1087,7 +1272,7 @@ def seed_transports(cursor):
                 2300.0
             ),
             (
-                1,
+                kanyakumari_cab_aid,
                 'Kanyakumari Innova Coastal Safari Cab',
                 'Taxi',
                 'Kanyakumari',
@@ -1104,7 +1289,7 @@ def seed_transports(cursor):
                 3600.0
             ),
             (
-                2,
+                kanyakumari_cab_aid,
                 'Kanyakumari Open-Air Beach Gypsy / Jeep Self-Drive',
                 'Rental',
                 'Kanyakumari',
@@ -1119,6 +1304,237 @@ def seed_transports(cursor):
                 'Non-AC',
                 4,
                 2000.0
+            ),
+
+            # =========================================================================
+            # SECTION B: INTERCITY BUSES, TRAINS & FLIGHTS (RedBus / MMT Style)
+            # =========================================================================
+
+            # Intercity Buses (RedBus Express)
+            (
+                bus_aid,
+                'Zingbus Multi-Axle Volvo AC Sleeper (Bangalore to Chennai)',
+                'Bus',
+                'Bangalore',
+                'Chennai',
+                850.0,
+                6.0,
+                'AC Sleeper Berths, Individual Charging Ports, Sanitized Blankets & Pillows, Live GPS Tracking, Reading Lights, Experienced Highway Captains',
+                '10:30 PM (Overnight)',
+                'Complimentary Mineral Water & Biscuit Pack',
+                'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+                'Intercity Bus',
+                'AC',
+                36,
+                850.0
+            ),
+            (
+                bus_aid,
+                'IntrCity SmartBus Volvo 2+1 AC Sleeper (Chennai to Madurai)',
+                'Bus',
+                'Chennai',
+                'Madurai',
+                790.0,
+                7.5,
+                'AC Sleeper, Clean Fresh Linens, SOS Emergency Button, Punctual Boarding, Automatic Climate Control, Air Suspension',
+                '09:45 PM (Overnight)',
+                'Bottled Water & Wet Wipes',
+                'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+                'Intercity Bus',
+                'AC',
+                36,
+                790.0
+            ),
+            (
+                bus_aid,
+                'KPN Premium Sleeper Coach (Bangalore to Kodaikanal)',
+                'Bus',
+                'Bangalore',
+                'Kodaikanal',
+                980.0,
+                8.5,
+                'AC Sleeper, Mountain Road Suspension, Push-Back Berths, Scenic Ghat Arrival, Luggage Assistance',
+                '09:00 PM (Overnight)',
+                'Bottled Mineral Water',
+                'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+                'Intercity Bus',
+                'AC',
+                32,
+                980.0
+            ),
+            (
+                bus_aid,
+                'SRS Travels Semi-Sleeper Non-AC (Chennai to Thanjavur)',
+                'Bus',
+                'Chennai',
+                'Thanjavur',
+                450.0,
+                6.5,
+                'Non-AC Semi-Sleeper, Reclining Pushback Seats, USB Phone Charger, Economical & Fast Highway Connect',
+                '10:00 PM (Overnight)',
+                'None',
+                'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+                'Intercity Bus',
+                'Non-AC',
+                40,
+                450.0
+            ),
+            (
+                bus_aid,
+                'GreenLine Travels AC Multi-Axle (Madurai to Kanyakumari)',
+                'Bus',
+                'Madurai',
+                'Kanyakumari',
+                550.0,
+                4.0,
+                'AC Seater/Sleeper, High Speed Onboard WiFi, Live Journey Tracking, Chilled AC, NH44 Expressway Express',
+                '06:30 AM (Morning)',
+                'Refreshment Kit & Juice Box',
+                'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+                'Intercity Bus',
+                'AC',
+                38,
+                550.0
+            ),
+            (
+                bus_aid,
+                'Orange Travels Luxury Sleeper (Bangalore to Madurai)',
+                'Bus',
+                'Bangalore',
+                'Madurai',
+                890.0,
+                7.0,
+                'Luxury AC Sleeper, Individual LCD Entertainment Screens, Sanitized Blankets, Fast NH44 Highway Route',
+                '10:15 PM (Overnight)',
+                'Mineral Water & Snack Box',
+                'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+                'Intercity Bus',
+                'AC',
+                34,
+                890.0
+            ),
+            (
+                bus_aid,
+                'SETC Ultra Deluxe Non-AC (Chennai to Kanyakumari)',
+                'Bus',
+                'Chennai',
+                'Kanyakumari',
+                650.0,
+                12.0,
+                'State Express Transport Coach, Ergonomic Pushback Seats, Direct Long-Haul Coastal Corridor',
+                '06:00 PM (Evening)',
+                'None',
+                'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+                'Intercity Bus',
+                'Non-AC',
+                42,
+                650.0
+            ),
+
+            # Intercity Trains (Southern Railways Express & Vande Bharat)
+            (
+                rail_flight_aid,
+                'Vande Bharat Superfast Express 20607 (Chennai to Bangalore)',
+                'Train',
+                'Chennai',
+                'Bangalore',
+                1080.0,
+                4.2,
+                'Executive AC Chair Car, 160 kmph Top Speed, Bio-Vacuum Toilets, 180° Rotating Seats, CCTV Surveillance, Infotainment Screens',
+                '05:50 AM (Morning Express)',
+                'Hot Gourmet Breakfast & Traditional Filter Coffee Included',
+                'https://images.unsplash.com/photo-1532105956626-9569c03602f6?auto=format&fit=crop&w=800&q=80',
+                'Express Train',
+                'AC',
+                78,
+                1080.0
+            ),
+            (
+                rail_flight_aid,
+                'Vande Bharat Express 20635 (Chennai to Madurai)',
+                'Train',
+                'Chennai',
+                'Madurai',
+                1365.0,
+                5.8,
+                'AC Chair Car, High-Speed Aerodynamic Train, Touch-Free Automatic Doors, Real-Time Passenger Information GPS Displays',
+                '05:15 AM (Morning Express)',
+                'Traditional South Indian Breakfast & High Tea Included',
+                'https://images.unsplash.com/photo-1532105956626-9569c03602f6?auto=format&fit=crop&w=800&q=80',
+                'Express Train',
+                'AC',
+                78,
+                1365.0
+            ),
+            (
+                rail_flight_aid,
+                'Kanyakumari Superfast Express 12633 (Chennai to Kanyakumari)',
+                'Train',
+                'Chennai',
+                'Kanyakumari',
+                520.0,
+                12.5,
+                '3-Tier AC & Sleeper Coach, Overnight Scenic Coastal Track, Clean Bedrolls, Dedicated Security Staff',
+                '05:20 PM (Evening Express)',
+                'Pantry Catering Available on Order',
+                'https://images.unsplash.com/photo-1532105956626-9569c03602f6?auto=format&fit=crop&w=800&q=80',
+                'Express Train',
+                'AC',
+                72,
+                520.0
+            ),
+            (
+                rail_flight_aid,
+                'Mysuru - Thanjavur Express 16232 (Bangalore to Thanjavur)',
+                'Train',
+                'Bangalore',
+                'Thanjavur',
+                460.0,
+                9.0,
+                'AC 3-Tier & Non-AC Sleeper, Clean Bedrolls, Scenic Cauvery Delta Route, Punctual Track Schedule',
+                '07:00 PM (Night Express)',
+                'Pantry Meal Service Available',
+                'https://images.unsplash.com/photo-1532105956626-9569c03602f6?auto=format&fit=crop&w=800&q=80',
+                'Express Train',
+                'AC',
+                72,
+                460.0
+            ),
+
+            # Regional Flights (Air Connect)
+            (
+                rail_flight_aid,
+                'IndiGo Regional Air Connect 6E-7215 (Bangalore to Chennai)',
+                'Flight',
+                'Bangalore',
+                'Chennai',
+                2850.0,
+                0.9,
+                'Direct Jet ATR-72 / A320, 15kg Check-in Baggage Allowance, 7kg Cabin Baggage, Express Boarding & Seamless Web Check-in',
+                '08:15 AM (Morning Flight)',
+                'In-flight Cafe Menu for Purchase',
+                'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80',
+                'Regional Flight',
+                'AC',
+                72,
+                2850.0
+            ),
+            (
+                rail_flight_aid,
+                'Air India Regional Connect AI-542 (Chennai to Madurai)',
+                'Flight',
+                'Chennai',
+                'Madurai',
+                3200.0,
+                1.1,
+                'Direct Jet A320neo, Complimentary Refreshments, 15kg Check-in Luggage, Priority Baggage Handling, Rapid Transit',
+                '11:30 AM (Noon Flight)',
+                'Complimentary Sandwich & Beverage Service',
+                'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80',
+                'Regional Flight',
+                'AC',
+                150,
+                3200.0
             )
         ]
         cursor.executemany('''

@@ -4,13 +4,17 @@ from reviews import get_item_reviews_summary
 
 transports_bp = Blueprint('transports', __name__)
 
-# transports catalog
+# transports catalog (Standalone Local Cabs & Rentals + RedBus/MMT-style Intercity Transit)
 @transports_bp.route('/transports')
 def transports():
     query = request.args.get('q', '').strip()
+    service_mode = request.args.get('mode', 'all').strip() # 'all', 'cabs', 'intercity'
     transport_type = request.args.get('type', '').strip()
+    city = request.args.get('city', '').strip()
     source_city = request.args.get('source', '').strip()
     destination_city = request.args.get('destination', '').strip()
+    ac_type = request.args.get('ac_type', '').strip()
+    min_capacity = request.args.get('capacity', '').strip()
     max_price = request.args.get('max_price', '').strip()
     sort_by = request.args.get('sort_by', 'price_asc').strip()
 
@@ -24,24 +28,47 @@ def transports():
 
     # search query
     if query:
-        sql += ' AND (t.title LIKE %s OR t.features LIKE %s)'
+        sql += ' AND (t.title LIKE %s OR t.features LIKE %s OR t.source_city LIKE %s OR t.destination_city LIKE %s)'
         wildcard_q = f'%{query}%'
-        params.extend([wildcard_q, wildcard_q])
+        params.extend([wildcard_q, wildcard_q, wildcard_q, wildcard_q])
 
-    # type filter
+    # service mode filter
+    if service_mode == 'cabs':
+        sql += " AND (t.transport_type IN ('Taxi', 'Rental', 'Cab') OR t.service_type IN ('Taxi Service', 'Self-Drive Rental'))"
+    elif service_mode == 'intercity':
+        sql += " AND (t.transport_type IN ('Bus', 'Train', 'Flight') OR t.service_type IN ('Intercity Bus', 'Express Train', 'Regional Flight'))"
+
+    # transport type filter
     if transport_type:
         sql += ' AND t.transport_type = %s'
         params.append(transport_type)
 
-    # origin filter
+    # local city filter (for local cabs)
+    if city:
+        sql += ' AND (t.source_city = %s OR t.destination_city LIKE %s)'
+        params.extend([city, f'%{city}%'])
+
+    # origin filter (for intercity)
     if source_city:
         sql += ' AND t.source_city = %s'
         params.append(source_city)
 
-    # destination filter
+    # destination filter (for intercity)
     if destination_city:
-        sql += ' AND t.destination_city = %s'
-        params.append(destination_city)
+        sql += ' AND (t.destination_city = %s OR t.destination_city LIKE %s)'
+        params.extend([destination_city, f'%{destination_city}%'])
+
+    # AC filter
+    if ac_type:
+        if ac_type == 'AC':
+            sql += " AND (t.ac_type = 'AC' OR t.ac_type = 'Both')"
+        elif ac_type == 'Non-AC':
+            sql += " AND (t.ac_type = 'Non-AC' OR t.ac_type = 'Both')"
+
+    # Capacity filter
+    if min_capacity and min_capacity.isdigit():
+        sql += ' AND t.seating_capacity >= %s'
+        params.append(int(min_capacity))
 
     # price filter
     if max_price and max_price.isdigit():
@@ -53,6 +80,8 @@ def transports():
         sql += ' ORDER BY t.price DESC'
     elif sort_by == 'duration_asc':
         sql += ' ORDER BY t.duration_hours ASC'
+    elif sort_by == 'capacity_desc':
+        sql += ' ORDER BY t.seating_capacity DESC, t.price ASC'
     else:
         sql += ' ORDER BY t.price ASC'
 
@@ -61,12 +90,28 @@ def transports():
     cursor.execute(sql, params)
     transports_list = cursor.fetchall()
 
-    # distinct origins
-    cursor.execute('SELECT DISTINCT source_city FROM transports ORDER BY source_city ASC')
+    # distinct local cities (where taxis/rentals operate)
+    cursor.execute('''
+        SELECT DISTINCT source_city FROM transports 
+        WHERE transport_type IN ('Taxi', 'Rental', 'Cab') 
+        ORDER BY source_city ASC
+    ''')
+    local_cities = [row['source_city'] for row in cursor.fetchall()]
+
+    # distinct intercity origins
+    cursor.execute('''
+        SELECT DISTINCT source_city FROM transports 
+        WHERE transport_type IN ('Bus', 'Train', 'Flight') 
+        ORDER BY source_city ASC
+    ''')
     sources = [row['source_city'] for row in cursor.fetchall()]
 
-    # distinct destinations
-    cursor.execute('SELECT DISTINCT destination_city FROM transports ORDER BY destination_city ASC')
+    # distinct intercity destinations
+    cursor.execute('''
+        SELECT DISTINCT destination_city FROM transports 
+        WHERE transport_type IN ('Bus', 'Train', 'Flight') 
+        ORDER BY destination_city ASC
+    ''')
     destinations = [row['destination_city'] for row in cursor.fetchall()]
 
     conn.close()
@@ -74,12 +119,17 @@ def transports():
     return render_template(
         'transports.html',
         transports=transports_list,
+        local_cities=local_cities,
         sources=sources,
         destinations=destinations,
         query=query,
+        service_mode=service_mode,
         selected_type=transport_type,
+        selected_city=city,
         selected_source=source_city,
         selected_dest=destination_city,
+        selected_ac=ac_type,
+        selected_capacity=min_capacity,
         max_price=max_price,
         sort_by=sort_by
     )

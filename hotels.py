@@ -4,11 +4,17 @@ from reviews import get_item_reviews_summary
 
 hotels_bp = Blueprint('hotels', __name__)
 
-# hotels catalog
+# hotels catalog (Airbnb-style standalone hotel search & filtering)
 @hotels_bp.route('/hotels')
 def hotels():
     query = request.args.get('q', '').strip()
     city = request.args.get('city', '').strip()
+    ac_type = request.args.get('ac_type', '').strip()
+    pet_friendly = request.args.get('pet_friendly', '').strip()
+    bed_type = request.args.get('bed_type', '').strip()
+    capacity = request.args.get('capacity', '').strip()
+    check_in = request.args.get('check_in', '').strip()
+    check_out = request.args.get('check_out', '').strip()
     min_price = request.args.get('min_price', '').strip()
     max_price = request.args.get('max_price', '').strip()
     sort_by = request.args.get('sort_by', 'rating_desc').strip()
@@ -23,14 +29,37 @@ def hotels():
 
     # search query
     if query:
-        sql += ' AND (h.name LIKE %s OR h.city LIKE %s OR h.amenities LIKE %s)'
+        sql += ' AND (h.name LIKE %s OR h.city LIKE %s OR h.amenities LIKE %s OR h.description LIKE %s)'
         wildcard_q = f'%{query}%'
-        params.extend([wildcard_q, wildcard_q, wildcard_q])
+        params.extend([wildcard_q, wildcard_q, wildcard_q, wildcard_q])
 
-    # city filter
+    # city filter (strict location scoping)
     if city:
-        sql += ' AND h.city = %s'
-        params.append(city)
+        sql += ' AND (LOWER(h.city) = %s OR LOWER(h.city) LIKE %s)'
+        params.extend([city.lower(), f'%{city.lower()}%'])
+
+    # AC filter
+    if ac_type:
+        if ac_type == 'AC':
+            sql += " AND (h.ac_type = 'AC' OR h.ac_type = 'Both')"
+        elif ac_type == 'Non-AC':
+            sql += " AND (h.ac_type = 'Non-AC' OR h.ac_type = 'Both')"
+
+    # Pet Friendly filter
+    if pet_friendly == '1':
+        sql += ' AND h.pet_friendly = 1'
+    elif pet_friendly == '0':
+        sql += ' AND h.pet_friendly = 0'
+
+    # Bed type filter
+    if bed_type:
+        sql += ' AND h.bed_type LIKE %s'
+        params.append(f'%{bed_type}%')
+
+    # Capacity filter (guests)
+    if capacity and capacity.isdigit():
+        sql += ' AND h.max_capacity >= %s'
+        params.append(int(capacity))
 
     # price filters
     if min_price and min_price.isdigit():
@@ -46,6 +75,8 @@ def hotels():
         sql += ' ORDER BY h.price_per_night ASC'
     elif sort_by == 'price_desc':
         sql += ' ORDER BY h.price_per_night DESC'
+    elif sort_by == 'capacity_desc':
+        sql += ' ORDER BY h.max_capacity DESC, h.star_rating DESC'
     else:
         sql += ' ORDER BY h.star_rating DESC, h.price_per_night ASC'
 
@@ -66,6 +97,12 @@ def hotels():
         cities=cities,
         query=query,
         selected_city=city,
+        selected_ac=ac_type,
+        selected_pets=pet_friendly,
+        selected_bed=bed_type,
+        selected_capacity=capacity,
+        check_in=check_in,
+        check_out=check_out,
         min_price=min_price,
         max_price=max_price,
         sort_by=sort_by

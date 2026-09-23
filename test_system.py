@@ -177,5 +177,94 @@ class RoamlySystemTestSuite(unittest.TestCase):
         self.assertEqual(data['code'], 'ROAMFIRST')
         self.assertEqual(data['discount'], 750.0)
 
+    def test_09_strict_itinerary_destination_scoping(self):
+        # When Bangalore is chosen, only Bangalore hotels and Bangalore vehicles must be present
+        resp = self.client.get('/itinerary/builder?destination=Bangalore')
+        self.assertEqual(resp.status_code, 200)
+        html = resp.data.decode('utf-8')
+        
+        # Bangalore stays and vehicles must be present
+        self.assertIn('The Oberoi Bengaluru', html)
+        self.assertIn('Bengaluru Toyota Camry', html)
+        self.assertIn('Bengaluru ZoomWheels Thar', html)
+
+        # Madurai, Kodai, Chennai vehicles/hotels must NOT be present in options
+        self.assertNotIn('Madurai Swift Dzire', html)
+        self.assertNotIn('Heritage Madurai Palace', html)
+        self.assertNotIn('Kodai Mountain Chauffeur', html)
+        self.assertNotIn('The Tamara Kodai', html)
+        self.assertNotIn('Chennai Honda City', html)
+        self.assertNotIn('The Leela Palace Seaside', html)
+
+        # When Kodaikanal is chosen, only Kodaikanal stays and vehicles must appear
+        resp_kodai = self.client.get('/itinerary/builder?destination=Kodaikanal')
+        self.assertEqual(resp_kodai.status_code, 200)
+        html_kodai = resp_kodai.data.decode('utf-8')
+        self.assertIn('The Tamara Kodai', html_kodai)
+        self.assertIn('Kodai Mountain Chauffeur', html_kodai)
+        self.assertNotIn('The Oberoi Bengaluru', html_kodai)
+        self.assertNotIn('Bengaluru Toyota Camry', html_kodai)
+
+    def test_10_standalone_transports_modes(self):
+        # 1. Local Cabs mode
+        resp_cabs = self.client.get('/transports?mode=cabs&city=Bangalore')
+        self.assertEqual(resp_cabs.status_code, 200)
+        html_cabs = resp_cabs.data.decode('utf-8')
+        self.assertIn('Bengaluru Toyota Camry', html_cabs)
+        self.assertNotIn('Zingbus Multi-Axle Volvo', html_cabs)
+
+        # 2. Intercity Transit mode (RedBus / MMT style)
+        resp_intercity = self.client.get('/transports?mode=intercity&type=Bus')
+        self.assertEqual(resp_intercity.status_code, 200)
+        html_intercity = resp_intercity.data.decode('utf-8')
+        self.assertIn('Zingbus Multi-Axle Volvo', html_intercity)
+        self.assertIn('IntrCity SmartBus', html_intercity)
+
+        # 3. Intercity Trains
+        resp_train = self.client.get('/transports?mode=intercity&type=Train')
+        self.assertEqual(resp_train.status_code, 200)
+        html_train = resp_train.data.decode('utf-8')
+        self.assertIn('Vande Bharat Superfast Express', html_train)
+
+    def test_11_standalone_hotels_airbnb_filters(self):
+        # City filter
+        resp_blr = self.client.get('/hotels?city=Bangalore')
+        self.assertEqual(resp_blr.status_code, 200)
+        html_blr = resp_blr.data.decode('utf-8')
+        self.assertIn('The Oberoi Bengaluru', html_blr)
+        self.assertNotIn('Heritage Madurai Palace', html_blr)
+
+        # Pet Friendly filter
+        resp_pets = self.client.get('/hotels?city=Bangalore&pet_friendly=1')
+        self.assertEqual(resp_pets.status_code, 200)
+        html_pets = resp_pets.data.decode('utf-8')
+        self.assertIn('ITC Windsor', html_pets)
+
+    def test_12_location_specific_agency_logins(self):
+        agency_users = [
+            'bangalore_stays',
+            'bangalore_cabs',
+            'chennai_hotels',
+            'chennai_cabs',
+            'kodai_resorts',
+            'kodai_cabs',
+            'madurai_stays',
+            'madurai_cabs',
+            'thanjavur_stays',
+            'thanjavur_cabs',
+            'kanyakumari_stays',
+            'kanyakumari_cabs',
+            'redbus_express',
+            'rail_flight_connect'
+        ]
+
+        for u in agency_users:
+            resp = self.client.post('/agency/login', data={'username': u, 'password': 'agency123'}, follow_redirects=True)
+            self.assertEqual(resp.status_code, 200, f"Failed login for {u}")
+            self.assertIn(b'Agency Partner', resp.data, f"Partner badge missing for {u}")
+            self.assertIn(u.encode('utf-8'), resp.data, f"Username missing in dashboard for {u}")
+            # log out before next
+            self.client.get('/agency/logout')
+
 if __name__ == '__main__':
     unittest.main()
