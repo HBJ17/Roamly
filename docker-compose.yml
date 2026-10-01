@@ -1,43 +1,46 @@
 services:
-  # web application service
-  web:
-    build: .
-    container_name: roamly_web
+  # MongoDB Database Service
+  mongo:
+    image: mongo:7.0
+    container_name: roamly_mongo
     restart: always
     ports:
-      - "5000:5000"
-    environment:
-      - MYSQL_HOST=db
-      - MYSQL_PORT=3306
-      - MYSQL_USER=roamly_user
-      - MYSQL_PASSWORD=roamly_password
-      - MYSQL_DB=roamly_db
-      - SECRET_KEY=roamly_secure_production_secret_2026
-      - FLASK_ENV=production
-    depends_on:
-      db:
-        condition: service_healthy
-
-  # mysql database service
-  db:
-    image: mysql:8.0
-    container_name: roamly_db
-    restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=root_password
-      - MYSQL_DATABASE=roamly_db
-      - MYSQL_USER=roamly_user
-      - MYSQL_PASSWORD=roamly_password
-    ports:
-      - "3306:3306"
+      - "27017:27017"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mongo_data:/data/db
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 5s
       timeout: 5s
       retries: 10
 
-# persistent volumes
+  # Express REST API Server
+  server:
+    build: ./server
+    container_name: roamly_server
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongo:27017/roamly_db
+      - JWT_SECRET=roamly_jwt_super_secret_key_2026_expedition_co
+      - CLIENT_URL=http://localhost
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  # React Single Page App (Vite + Nginx)
+  client:
+    build: ./client
+    container_name: roamly_client
+    restart: always
+    ports:
+      - "80:80"
+      - "5173:80"
+    depends_on:
+      - server
+
 volumes:
-  mysql_data:
+  mongo_data:
