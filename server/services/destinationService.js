@@ -6,7 +6,7 @@ const slugify = require('../utils/slugify');
 // Accepts an ObjectId, slug or display name and returns the matching active destination (or null).
 const findDestination = async (ref) => {
   if (!ref) return null;
-  if (typeof ref === 'object' && ref._id) return ref;
+  if (ref instanceof Destination) return ref;
   const value = String(ref).trim();
   if (mongoose.isValidObjectId(value) && /^[a-f\d]{24}$/i.test(value)) {
     return Destination.findOne({ _id: value, isActive: true });

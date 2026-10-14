@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('../utils/slugify');
 
-const ATTRACTION_CATEGORIES = ['Temple', 'Heritage', 'Nature', 'Viewpoint', 'Lake', 'Beach', 'Museum', 'Market', 'Wildlife', 'Adventure', 'Food', 'Park', 'Waterfall'];
+const ATTRACTION_CATEGORIES = ['Temple', 'Heritage', 'Nature', 'Viewpoint', 'Lake', 'Beach', 'Museum', 'Market', 'Wildlife', 'Adventure', 'Food', 'Park', 'Waterfall', 'Activity'];
 const TIME_SLOTS = ['Morning', 'Afternoon', 'Evening', 'Any'];
 
 const AttractionSchema = new mongoose.Schema({

@@ -1,0 +1,793 @@
+[
+  {
+    "agency": "madurai_stays",
+    "city": "Madurai",
+    "name": "Heritage Madurai Palace & Banyan Resort",
+    "address": "11 Melakkal Main Road, Kochadai, Madurai 625016",
+    "starRating": 5,
+    "description": "Sprawling 17-acre heritage sanctuary designed by Geoffrey Bawa blending ancient Tamil craftsmanship with modern five-star comfort.",
+    "rooms": [
+      {
+        "name": "Heritage Deluxe Room",
+        "pricePerNight": 5200,
+        "maxGuests": 2,
+        "totalRooms": 10,
+        "bedType": "King Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Luxury Plunge Pool Villa",
+        "pricePerNight": 7300,
+        "maxGuests": 2,
+        "totalRooms": 6,
+        "bedType": "King Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Royal Suite",
+        "pricePerNight": 10900,
+        "maxGuests": 2,
+        "totalRooms": 3,
+        "bedType": "King Bed",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "Olympic-Sized Temple-Style Pool",
+      "Traditional Ayurvedic Spa",
+      "300-Year-Old Banyan Tree Courtyard",
+      "Free WiFi",
+      "24/7 Butler"
+    ],
+    "diningOptions": [
+      "Banyan Multi-Cuisine Fine Dining",
+      "Madurai Kari Dosa Live Counter",
+      "Traditional South Indian Filter Coffee Bar"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": false,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "madurai_stays",
+    "city": "Madurai",
+    "name": "The Gateway Hotel Pasumalai Madurai",
+    "address": "Pasumalai Hills, Madurai 625004",
+    "starRating": 5,
+    "description": "Perched atop Pasumalai hill amidst 62 acres of lush gardens with wandering peacocks and serene sunset vistas.",
+    "rooms": [
+      {
+        "name": "Executive Hill View Room",
+        "pricePerNight": 6400,
+        "maxGuests": 3,
+        "totalRooms": 10,
+        "bedType": "Queen Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Garden Cottage",
+        "pricePerNight": 8950,
+        "maxGuests": 4,
+        "totalRooms": 6,
+        "bedType": "Queen Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Suite",
+        "pricePerNight": 13450,
+        "maxGuests": 4,
+        "totalRooms": 3,
+        "bedType": "Queen Bed",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "Panoramic City & Temple Views",
+      "Swimming Pool",
+      "Pet-Friendly Cottages",
+      "Lawn Tennis",
+      "Fitness Center"
+    ],
+    "diningOptions": [
+      "Gadam Multi-Cuisine",
+      "High Point Lounge Bar",
+      "Authentic Chettinad & Madurai Special Menus"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": true,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "madurai_stays",
+    "city": "Madurai",
+    "name": "Meenakshi Heritage Residency & Suites",
+    "address": "West Perumal Maistry Street, Madurai 625001",
+    "starRating": 4,
+    "description": "Comfortable, budget-friendly heritage accommodation situated just 400m from Meenakshi Amman Temple Golden Towers.",
+    "rooms": [
+      {
+        "name": "Standard Double Room",
+        "pricePerNight": 2400,
+        "maxGuests": 3,
+        "totalRooms": 10,
+        "bedType": "Twin Beds",
+        "acType": "AC"
+      },
+      {
+        "name": "Family 4-Bed Suite",
+        "pricePerNight": 3350,
+        "maxGuests": 4,
+        "totalRooms": 6,
+        "bedType": "Twin Beds",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "Walking Distance to Meenakshi Temple",
+      "Free WiFi",
+      "Lift",
+      "24-hr Travel Desk",
+      "Room Service"
+    ],
+    "diningOptions": [
+      "Annapoorna Pure Vegetarian South Indian Restaurant"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": false,
+    "cancellationPolicy": "Flexible"
+  },
+  {
+    "agency": "kodai_resorts",
+    "city": "Kodaikanal",
+    "name": "The Tamara Kodai Luxury Hill Retreat",
+    "address": "St Marys Road, Kodaikanal 624101",
+    "starRating": 5,
+    "description": "A restored 1840s French monastic heritage retreat nestled high in the misty pine hills with breathtaking valley panoramas.",
+    "rooms": [
+      {
+        "name": "Luxury Pine Suite",
+        "pricePerNight": 11500,
+        "maxGuests": 3,
+        "totalRooms": 10,
+        "bedType": "King Suite",
+        "acType": "AC"
+      },
+      {
+        "name": "Mountain View Suite",
+        "pricePerNight": 16100,
+        "maxGuests": 4,
+        "totalRooms": 6,
+        "bedType": "King Suite",
+        "acType": "AC"
+      },
+      {
+        "name": "Presidential Grand Suite",
+        "pricePerNight": 24150,
+        "maxGuests": 4,
+        "totalRooms": 3,
+        "bedType": "King Suite",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "Heated Outdoor Pool",
+      "Spa Elevation",
+      "Fireplace in All Suites",
+      "French Architectural Heritage",
+      "High-Speed WiFi"
+    ],
+    "diningOptions": [
+      "La Providence (Multi-Cuisine Buffet) & Bistro 1845 with Mountain Valley Views"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": false,
+    "cancellationPolicy": "Strict"
+  },
+  {
+    "agency": "kodai_resorts",
+    "city": "Kodaikanal",
+    "name": "Sterling Kodai Valley & Pines Resort",
+    "address": "Pallangi Road, Attuvampatti, Kodaikanal 624101",
+    "starRating": 5,
+    "description": "Overlooking the terraced valley of Villpatti, offering pure pine mountain air, quiet gardens, and star-filled night skies.",
+    "rooms": [
+      {
+        "name": "Classic Room",
+        "pricePerNight": 5400,
+        "maxGuests": 3,
+        "totalRooms": 10,
+        "bedType": "Queen Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Premiere Valley Suite",
+        "pricePerNight": 7550,
+        "maxGuests": 3,
+        "totalRooms": 6,
+        "bedType": "Queen Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Pet-Friendly Family Chalet",
+        "pricePerNight": 11350,
+        "maxGuests": 4,
+        "totalRooms": 3,
+        "bedType": "Twin Beds",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "Ship-Shaped Architecture",
+      "Pet-Friendly Grounds",
+      "Children Activity Zone",
+      "Campfire Evenings",
+      "Trekking Desk"
+    ],
+    "diningOptions": [
+      "Valley View Restaurant with South Indian & Continental Buffet Delicacies"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": true,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "kodai_resorts",
+    "city": "Kodaikanal",
+    "name": "Kodai Misty Mountain Chalet & Homestay",
+    "address": "Observatory Road, Kodaikanal 624103",
+    "starRating": 4,
+    "description": "Cozy mountain chalet surrounded by eucalyptus and silver oak trees, ideal for peaceful hill station stays.",
+    "rooms": [
+      {
+        "name": "Mountain Double Room",
+        "pricePerNight": 2800,
+        "maxGuests": 2,
+        "totalRooms": 10,
+        "bedType": "Twin Beds",
+        "acType": "Non-AC"
+      },
+      {
+        "name": "Pine Wood Cottage",
+        "pricePerNight": 3900,
+        "maxGuests": 2,
+        "totalRooms": 6,
+        "bedType": "Twin Beds",
+        "acType": "Non-AC"
+      }
+    ],
+    "amenities": [
+      "Pure Mountain Breeze",
+      "Campfire by Request",
+      "Lawn Gardens",
+      "Pet Welcoming",
+      "Homemade Breakfast"
+    ],
+    "diningOptions": [
+      "Home-Cooked Warm Soups",
+      "Fresh Bread",
+      "Dosa & Filter Coffee"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": true,
+    "cancellationPolicy": "Flexible"
+  },
+  {
+    "agency": "chennai_hotels",
+    "city": "Chennai",
+    "name": "The Leela Palace Seaside Marina",
+    "address": "Adyar Seaface, MRC Nagar, Chennai 600028",
+    "starRating": 5,
+    "description": "Chennai’s only seafront palace hotel, inspired by Chettinad royal architecture and regal Tamil splendor.",
+    "rooms": [
+      {
+        "name": "Deluxe Sea Facing Room",
+        "pricePerNight": 11800,
+        "maxGuests": 2,
+        "totalRooms": 10,
+        "bedType": "King Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Grand Heritage Suite",
+        "pricePerNight": 16500,
+        "maxGuests": 2,
+        "totalRooms": 6,
+        "bedType": "King Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Presidential Bay Suite",
+        "pricePerNight": 24800,
+        "maxGuests": 2,
+        "totalRooms": 3,
+        "bedType": "King Bed",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "Bay of Bengal Ocean Panorama",
+      "Infinity Pool",
+      "ESPA Royal Spa",
+      "6 Specialty Restaurants",
+      "Valet Parking"
+    ],
+    "diningOptions": [
+      "Spectra (Seven Global Kitchens)",
+      "China XO",
+      "Jamavar (Royal Indian)",
+      "Library Blu Lounge"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": false,
+    "cancellationPolicy": "Strict"
+  },
+  {
+    "agency": "chennai_hotels",
+    "city": "Chennai",
+    "name": "Taj Connemara Heritage Hotel",
+    "address": "Binny Road, Anna Salai, Chennai 600002",
+    "starRating": 5,
+    "description": "South India’s oldest heritage hotel dating to 1891, combining art deco architecture and legendary hospitality.",
+    "rooms": [
+      {
+        "name": "Heritage Superior Room",
+        "pricePerNight": 8200,
+        "maxGuests": 3,
+        "totalRooms": 10,
+        "bedType": "King Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Colonial Deluxe Suite",
+        "pricePerNight": 11500,
+        "maxGuests": 3,
+        "totalRooms": 6,
+        "bedType": "King Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Luxury Suite",
+        "pricePerNight": 17200,
+        "maxGuests": 3,
+        "totalRooms": 3,
+        "bedType": "King Bed",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "130-Year-Old Historic Heritage",
+      "Pet-Friendly Lawns",
+      "Jiva Spa",
+      "Large Swimming Pool",
+      "Fitness Center"
+    ],
+    "diningOptions": [
+      "Raintree (Authentic Chettinad Open-Air Dining) & The Verandah 24-hr Cafe"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": true,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "chennai_hotels",
+    "city": "Chennai",
+    "name": "Mylapore Courtyard Heritage Inn",
+    "address": "Luz Church Road, Mylapore, Chennai 600004",
+    "starRating": 4,
+    "description": "Traditional Tamil courtyard architecture located right in the cultural heart of Mylapore.",
+    "rooms": [
+      {
+        "name": "Executive AC Room",
+        "pricePerNight": 3200,
+        "maxGuests": 2,
+        "totalRooms": 10,
+        "bedType": "Twin Beds",
+        "acType": "AC"
+      },
+      {
+        "name": "Cultural Family Room",
+        "pricePerNight": 4500,
+        "maxGuests": 4,
+        "totalRooms": 6,
+        "bedType": "Twin Beds",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "Close to Kapaleeshwarar Temple & Music Academies",
+      "Free WiFi",
+      "Travel Desk",
+      "Sanitized Rooms"
+    ],
+    "diningOptions": [
+      "Mylapore Tiffin Room serving Hot Idli",
+      "Vada",
+      "Poori & Fresh Filter Coffee"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": false,
+    "cancellationPolicy": "Flexible"
+  },
+  {
+    "agency": "thanjavur_stays",
+    "city": "Thanjavur",
+    "name": "Svatma Luxury Heritage Sanctuary",
+    "address": "Blake Higher Secondary Road, Thanjavur 613007",
+    "starRating": 5,
+    "description": "An ultra-exclusive luxury sanctuary dedicated to Tamil art, architecture, bronze casting, and ancient healing.",
+    "rooms": [
+      {
+        "name": "Heritage Deluxe Suite",
+        "pricePerNight": 7900,
+        "maxGuests": 3,
+        "totalRooms": 10,
+        "bedType": "King Suite",
+        "acType": "AC"
+      },
+      {
+        "name": "Svatma Royal Villa",
+        "pricePerNight": 11050,
+        "maxGuests": 3,
+        "totalRooms": 6,
+        "bedType": "King Suite",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "Restored 100-Year-Old Brahmin Mansion",
+      "Aromatherapy Spa",
+      "Classical Carnatic Music Concerts",
+      "Rooftop Pool"
+    ],
+    "diningOptions": [
+      "Aaharam (Pure Gourmet Vegetarian Flavors) & Nila Rooftop Dining"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": false,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "thanjavur_stays",
+    "city": "Thanjavur",
+    "name": "Great Chola Palace & Garden Resort",
+    "address": "Trichy-Thanjavur Highway, Thanjavur 613005",
+    "starRating": 5,
+    "description": "Grand hotel reflecting Chola pillars and courtyard designs, ideal for visiting the Big Temple and palace.",
+    "rooms": [
+      {
+        "name": "Executive Club Room",
+        "pricePerNight": 4200,
+        "maxGuests": 3,
+        "totalRooms": 10,
+        "bedType": "Queen Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Chola Suite",
+        "pricePerNight": 5900,
+        "maxGuests": 4,
+        "totalRooms": 6,
+        "bedType": "Queen Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Pet Family Room",
+        "pricePerNight": 8800,
+        "maxGuests": 4,
+        "totalRooms": 3,
+        "bedType": "Twin Beds",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "Swimming Pool",
+      "Pet Welcoming Grounds",
+      "Free High-Speed WiFi",
+      "Banquet Lawns",
+      "Travel Desk"
+    ],
+    "diningOptions": [
+      "Rajarajan Multi-Cuisine Restaurant serving Traditional Thanjavur Feast & Continental favorites"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": true,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "thanjavur_stays",
+    "city": "Thanjavur",
+    "name": "Tanjore Heritage Homestay & Lodge",
+    "address": "South Rampart, Near Palace, Thanjavur 613001",
+    "starRating": 4,
+    "description": "Warm family-run homestay with traditional red oxide floors and wood-carved verandas.",
+    "rooms": [
+      {
+        "name": "Standard AC Room",
+        "pricePerNight": 2100,
+        "maxGuests": 2,
+        "totalRooms": 10,
+        "bedType": "Twin Beds",
+        "acType": "AC"
+      },
+      {
+        "name": "Traditional Non-AC Double",
+        "pricePerNight": 2950,
+        "maxGuests": 2,
+        "totalRooms": 6,
+        "bedType": "Twin Beds",
+        "acType": "Non-AC"
+      }
+    ],
+    "amenities": [
+      "Walk to Royal Palace & Saraswathi Mahal",
+      "Free WiFi",
+      "Travel Information Desk",
+      "Authentic Hospitality"
+    ],
+    "diningOptions": [
+      "Homemade Thanjavur Sambhar Rice",
+      "Poriyal",
+      "Rasam & Curd with Appalam"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": true,
+    "cancellationPolicy": "Flexible"
+  },
+  {
+    "agency": "bangalore_stays",
+    "city": "Bangalore",
+    "name": "The Oberoi Bengaluru Garden City",
+    "address": "37-39 MG Road, Bengaluru 560001",
+    "starRating": 5,
+    "description": "A tranquil tropical garden oasis set in the heart of Bangalore’s commercial district, famous for bespoke hospitality.",
+    "rooms": [
+      {
+        "name": "Premier Garden View Room",
+        "pricePerNight": 12500,
+        "maxGuests": 2,
+        "totalRooms": 10,
+        "bedType": "King Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Deluxe Balcony Room",
+        "pricePerNight": 17500,
+        "maxGuests": 2,
+        "totalRooms": 6,
+        "bedType": "King Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Presidential Suite",
+        "pricePerNight": 26250,
+        "maxGuests": 2,
+        "totalRooms": 3,
+        "bedType": "King Bed",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "Centenary Rain Tree Gardens",
+      "Heated Outdoor Pool",
+      "Oberoi Spa",
+      "Private Garden Balconies",
+      "High-Speed WiFi"
+    ],
+    "diningOptions": [
+      "Rim Naam (Alfresco Thai by Koi Pond)",
+      "Le Jardin (All-Day Dining)",
+      "Polo Club Bar"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": false,
+    "cancellationPolicy": "Strict"
+  },
+  {
+    "agency": "bangalore_stays",
+    "city": "Bangalore",
+    "name": "ITC Windsor, a Luxury Collection Palace Hotel",
+    "address": "25 Golf Course Road, Bengaluru 560052",
+    "starRating": 5,
+    "description": "Evokes the charm of the Victorian era with white pillared verandas, chandeliers, and manicured gardens.",
+    "rooms": [
+      {
+        "name": "Executive Club Room",
+        "pricePerNight": 8800,
+        "maxGuests": 3,
+        "totalRooms": 10,
+        "bedType": "Queen Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "The Manor Luxury Suite",
+        "pricePerNight": 12300,
+        "maxGuests": 3,
+        "totalRooms": 6,
+        "bedType": "Queen Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Presidential Suite",
+        "pricePerNight": 18500,
+        "maxGuests": 3,
+        "totalRooms": 3,
+        "bedType": "Queen Bed",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "British Regency Architecture",
+      "Pet-Friendly Lawns",
+      "Kaya Kalp Spa",
+      "Swimming Pool",
+      "Golf Course Views"
+    ],
+    "diningOptions": [
+      "Dakshin (Southern Indian Masterpieces)",
+      "Dum Pukht Jolly Nabobs (Awadhi Cuisine)",
+      "Royal Afghan"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": true,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "bangalore_stays",
+    "city": "Bangalore",
+    "name": "Silicon Valley Boutique Suites & Studios",
+    "address": "100 Feet Road, Indiranagar, Bengaluru 560038",
+    "starRating": 4,
+    "description": "Trendy boutique suites right next to Indiranagar’s premier cafes, craft breweries, and shopping high streets.",
+    "rooms": [
+      {
+        "name": "Studio Suite",
+        "pricePerNight": 3600,
+        "maxGuests": 2,
+        "totalRooms": 10,
+        "bedType": "Twin Beds",
+        "acType": "AC"
+      },
+      {
+        "name": "One-Bedroom Executive Apartment",
+        "pricePerNight": 5050,
+        "maxGuests": 2,
+        "totalRooms": 6,
+        "bedType": "Twin Beds",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "Kitchenette",
+      "Pet Friendly",
+      "Workstation with Ergonomic Chair",
+      "High-Speed Fiber WiFi",
+      "Gym"
+    ],
+    "diningOptions": [
+      "Rooftop Cafe serving Artisan Coffee",
+      "Avocado Toast",
+      "South Indian Breakfast Bowls"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": true,
+    "cancellationPolicy": "Flexible"
+  },
+  {
+    "agency": "kanyakumari_stays",
+    "city": "Kanyakumari",
+    "name": "The Seashore Grand Resort & Spa",
+    "address": "East Car Street, Beach Road, Kanyakumari 629702",
+    "starRating": 5,
+    "description": "Positioned right on the shore, offering unmatched direct views of Vivekananda Rock and early morning sunrises.",
+    "rooms": [
+      {
+        "name": "Ocean Front Deluxe Room",
+        "pricePerNight": 4800,
+        "maxGuests": 2,
+        "totalRooms": 10,
+        "bedType": "King Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Sunrise Panorama Suite",
+        "pricePerNight": 6700,
+        "maxGuests": 2,
+        "totalRooms": 6,
+        "bedType": "King Bed",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "Direct Ocean Views from Balcony",
+      "Swimming Pool",
+      "Rooftop Sunrise Observation Deck",
+      "Spa",
+      "Free WiFi"
+    ],
+    "diningOptions": [
+      "Ocean Whisper Multi-Cuisine Restaurant with Fresh Catch Seafood Specialties"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": false,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "kanyakumari_stays",
+    "city": "Kanyakumari",
+    "name": "Cape Heritage Ocean View Chalet & Resort",
+    "address": "Kovalam Road, Kanyakumari 629702",
+    "starRating": 5,
+    "description": "Relaxing coastal resort surrounded by swaying coconut palms and soothing Arabian Sea breeze.",
+    "rooms": [
+      {
+        "name": "Heritage Beach Villa",
+        "pricePerNight": 5600,
+        "maxGuests": 3,
+        "totalRooms": 10,
+        "bedType": "Queen Bed",
+        "acType": "AC"
+      },
+      {
+        "name": "Family Sea Chalet",
+        "pricePerNight": 7850,
+        "maxGuests": 4,
+        "totalRooms": 6,
+        "bedType": "Twin Beds",
+        "acType": "AC"
+      }
+    ],
+    "amenities": [
+      "Private Beach Access",
+      "Pet Friendly Lawns",
+      "Children Play Area",
+      "Ayurvedic Wellness",
+      "Campfire"
+    ],
+    "diningOptions": [
+      "Sea Wave Restaurant serving Authentic Coastal Fish Curry Meals & Kerala Parottas"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": true,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "kanyakumari_stays",
+    "city": "Kanyakumari",
+    "name": "Vivekananda Sunrise Inn & Residency",
+    "address": "Main Road, Near Bus Stand, Kanyakumari 629702",
+    "starRating": 4,
+    "description": "Comfortable, budget-friendly lodging ideal for pilgrims and weekend coastal tourists.",
+    "rooms": [
+      {
+        "name": "Standard AC Room",
+        "pricePerNight": 2200,
+        "maxGuests": 3,
+        "totalRooms": 10,
+        "bedType": "Twin Beds",
+        "acType": "AC"
+      },
+      {
+        "name": "Budget Non-AC Triple Room",
+        "pricePerNight": 3100,
+        "maxGuests": 4,
+        "totalRooms": 6,
+        "bedType": "Twin Beds",
+        "acType": "Non-AC"
+      }
+    ],
+    "amenities": [
+      "500m to Triveni Sangam",
+      "Free WiFi",
+      "24-hr Front Desk",
+      "Travel Assistance Desk"
+    ],
+    "diningOptions": [
+      "Annai Pure Vegetarian Mess serving Hot Dosas",
+      "Idlis",
+      "Meals"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80",
+    "petFriendly": false,
+    "cancellationPolicy": "Flexible"
+  }
+]

@@ -19,6 +19,12 @@ const resolveListingOwner = async (req, capability, destinationRef) => {
       return { agency: req.user, destination: await requireDestination(destinationRef) };
     }
     const destination = await requireDestination(req.user.city, 'Your home city');
+    if (destinationRef) {
+      const requested = await requireDestination(destinationRef);
+      if (String(requested._id) !== String(destination._id)) {
+        throw ApiError.forbidden(`Your agency operates in ${destination.name}, so you can only list inventory there`);
+      }
+    }
     return { agency: req.user, destination };
   }
 
