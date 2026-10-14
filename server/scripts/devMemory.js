@@ -17,6 +17,8 @@ const start = async () => {
   const result = await seedDatabase();
   console.log(`[dev:memory] Seeded ${result.destinations.length} destinations, ${result.hotels.length} hotels, ${result.transports.length} transports, ${result.packages.length} packages`);
 
+  const { sweepBookings } = require('../services/bookingService');
+  setInterval(() => sweepBookings().catch(() => {}), 60000).unref();
   app.listen(env.PORT, () => console.log(`[dev:memory] API on http://localhost:${env.PORT}`));
 
   const stop = async () => {
