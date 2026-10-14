@@ -19,6 +19,17 @@ const OffersPage = lazy(() => import('./pages/listings/OffersPage'));
 const CheckoutPage = lazy(() => import('./pages/checkout/CheckoutPage'));
 const BookingDetailPage = lazy(() => import('./pages/account/BookingDetailPage'));
 const PlannerPage = lazy(() => import('./pages/planner/PlannerPage'));
+const AccountLayout = lazy(() => import('./pages/account/AccountLayout'));
+const accountPage = (name) => lazy(() => import('./pages/account/AccountPages').then((m) => ({ default: m[name] })));
+const AccountOverview = accountPage('AccountOverview');
+const MyBookings = accountPage('MyBookings');
+const MyTrips = accountPage('MyTrips');
+const WalletPage = accountPage('WalletPage');
+const SavedPage = accountPage('SavedPage');
+const ReviewsPage = accountPage('ReviewsPage');
+const ProfilePage = accountPage('ProfilePage');
+const Messenger = lazy(() => import('./components/portal/Messenger'));
+const NotificationsList = lazy(() => import('./components/portal/NotificationsList'));
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 const PartnerRegisterPage = lazy(() => import('./pages/auth/PartnerRegisterPage'));
@@ -67,6 +78,18 @@ export default function App() {
             <Route path="/plan/:id" element={<RequireRole roles={['user']}><PlannerPage /></RequireRole>} />
             <Route path="/checkout/:id" element={<RequireRole roles={['user']}><CheckoutPage /></RequireRole>} />
             <Route path="/account/bookings/:id" element={<RequireRole roles={['user']}><BookingDetailPage /></RequireRole>} />
+            <Route path="/account" element={<RequireRole roles={['user']}><AccountLayout /></RequireRole>}>
+              <Route index element={<AccountOverview />} />
+              <Route path="bookings" element={<MyBookings />} />
+              <Route path="trips" element={<MyTrips />} />
+              <Route path="wallet" element={<WalletPage />} />
+              <Route path="saved" element={<SavedPage />} />
+              <Route path="messages" element={<Messenger basePath="/account/messages" />} />
+              <Route path="messages/:id" element={<Messenger basePath="/account/messages" />} />
+              <Route path="notifications" element={<NotificationsList />} />
+              <Route path="reviews" element={<ReviewsPage />} />
+              <Route path="profile" element={<ProfilePage />} />
+            </Route>
 
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
