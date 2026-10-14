@@ -45,7 +45,7 @@ app.use('/api/payments', require('./routes/payments'));
 app.use('/api/wallet', require('./routes/wallet'));
 app.use('/api/agency', require('./routes/agency'));
 app.use('/api/admin', require('./routes/admin'));
-app.use('/api/itinerary', require('./routes/itinerary'));
+app.use('/api/itineraries', require('./routes/itinerary'));
 app.use('/api', require('./routes/extras'));
 
 app.use('/api', notFound);

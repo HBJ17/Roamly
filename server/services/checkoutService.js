@@ -2,6 +2,7 @@ const Booking = require('../models/Booking');
 const Payment = require('../models/Payment');
 const Invoice = require('../models/Invoice');
 const User = require('../models/User');
+const Itinerary = require('../models/Itinerary');
 const ApiError = require('../utils/ApiError');
 const gateway = require('./paymentGateway');
 const wallet = require('./walletService');
@@ -61,6 +62,7 @@ const confirmBooking = async (bookingId, payment) => {
   await User.updateOne({ _id: booking.user }, { $inc: { loyaltyPoints: points } });
 
   if (booking.pricing.couponCode) await recordRedemption(booking.pricing.couponCode);
+  if (booking.itinerary) await Itinerary.updateOne({ _id: booking.itinerary }, { status: 'Booked', booking: booking._id });
   await settleBooking(booking);
 
   await Invoice.create({
