@@ -40,6 +40,19 @@ const AgencyCheckIn = agencyPage('AgencyCheckIn');
 const AgencyReviews = agencyPage('AgencyReviews');
 const AgencyPayouts = agencyPage('AgencyPayouts');
 const AgencyProfile = agencyPage('AgencyProfile');
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
+const adminPage = (name) => lazy(() => import('./pages/admin/AdminPages').then((m) => ({ default: m[name] })));
+const AdminDashboard = adminPage('AdminDashboard');
+const AdminAgencies = adminPage('AdminAgencies');
+const AdminUsers = adminPage('AdminUsers');
+const AdminListings = adminPage('AdminListings');
+const AdminBookings = adminPage('AdminBookings');
+const AdminDestinations = adminPage('AdminDestinations');
+const AdminCoupons = adminPage('AdminCoupons');
+const AdminPayouts = adminPage('AdminPayouts');
+const AdminReviews = adminPage('AdminReviews');
+const AdminSettings = adminPage('AdminSettings');
+const AdminAudit = adminPage('AdminAudit');
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 const PartnerRegisterPage = lazy(() => import('./pages/auth/PartnerRegisterPage'));
@@ -112,6 +125,19 @@ export default function App() {
               <Route path="payouts" element={<AgencyPayouts />} />
               <Route path="notifications" element={<NotificationsList />} />
               <Route path="profile" element={<AgencyProfile />} />
+            </Route>
+            <Route path="/admin" element={<RequireRole roles={['admin']}><AdminLayout /></RequireRole>}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="agencies" element={<AdminAgencies />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="listings" element={<AdminListings />} />
+              <Route path="bookings" element={<AdminBookings />} />
+              <Route path="destinations" element={<AdminDestinations />} />
+              <Route path="coupons" element={<AdminCoupons />} />
+              <Route path="payouts" element={<AdminPayouts />} />
+              <Route path="reviews" element={<AdminReviews />} />
+              <Route path="settings" element={<AdminSettings />} />
+              <Route path="audit" element={<AdminAudit />} />
             </Route>
 
             <Route path="/login" element={<LoginPage />} />
