@@ -8,6 +8,14 @@ import { PageLoader, EmptyState } from './components/ui';
 const HomePage = lazy(() => import('./pages/HomePage'));
 const DestinationsPage = lazy(() => import('./pages/DestinationsPage'));
 const DestinationPage = lazy(() => import('./pages/DestinationPage'));
+const HotelsPage = lazy(() => import('./pages/listings/HotelsPage'));
+const HotelDetailPage = lazy(() => import('./pages/listings/HotelDetailPage'));
+const TransportsPage = lazy(() => import('./pages/listings/TransportsPage'));
+const TransportDetailPage = lazy(() => import('./pages/listings/TransportDetailPage'));
+const PackagesPage = lazy(() => import('./pages/listings/PackagesPage'));
+const PackageDetailPage = lazy(() => import('./pages/listings/PackageDetailPage'));
+const ComparePage = lazy(() => import('./pages/listings/ComparePage'));
+const OffersPage = lazy(() => import('./pages/listings/OffersPage'));
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 const PartnerRegisterPage = lazy(() => import('./pages/auth/PartnerRegisterPage'));
@@ -44,6 +52,14 @@ export default function App() {
 
             <Route path="/destinations" element={<TravellerOnly><DestinationsPage /></TravellerOnly>} />
             <Route path="/destinations/:slug" element={<TravellerOnly><DestinationPage /></TravellerOnly>} />
+            <Route path="/hotels" element={<TravellerOnly><HotelsPage /></TravellerOnly>} />
+            <Route path="/hotels/:id" element={<TravellerOnly><HotelDetailPage /></TravellerOnly>} />
+            <Route path="/transports" element={<TravellerOnly><TransportsPage /></TravellerOnly>} />
+            <Route path="/transports/:id" element={<TravellerOnly><TransportDetailPage /></TravellerOnly>} />
+            <Route path="/packages" element={<TravellerOnly><PackagesPage /></TravellerOnly>} />
+            <Route path="/packages/:id" element={<TravellerOnly><PackageDetailPage /></TravellerOnly>} />
+            <Route path="/compare" element={<TravellerOnly><ComparePage /></TravellerOnly>} />
+            <Route path="/offers" element={<OffersPage />} />
 
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
