@@ -14,7 +14,12 @@ const getSettings = async () => {
   return cache;
 };
 
-const updateSettings = async (updates) => {
+const updateSettings = async (input) => {
+  // Flatten tiers so updating one policy does not wipe the others.
+  const { cancellationTiers, ...updates } = input;
+  Object.entries(cancellationTiers || {}).forEach(([policy, tiers]) => {
+    updates[`cancellationTiers.${policy}`] = tiers;
+  });
   const doc = await Setting.findOneAndUpdate(
     { key: 'platform' },
     { $set: { ...updates, updatedAt: new Date() } },

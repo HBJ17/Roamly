@@ -195,6 +195,7 @@ const seedPastTrips = async ({ users, hotels, transports, packages }) => {
   const Booking = require('../models/Booking');
   const Review = require('../models/Review');
   const { refreshItemRating } = require('../services/reviewService');
+  const { settleBooking } = require('../services/settlementService');
   const { addDays, today } = require('../utils/dates');
 
   const picks = [
@@ -245,8 +246,10 @@ const seedPastTrips = async ({ users, hotels, transports, packages }) => {
         paymentStatus: 'Paid',
         confirmedAt: new Date(`${start}T09:00:00Z`),
         completedAt: new Date(`${end}T18:00:00Z`),
-        reviewed: true
+        reviewed: true,
+        commissionPercent: 10
       });
+      await settleBooking(booking);
       const [rating, title, comment] = REVIEW_LINES[(i + r) % REVIEW_LINES.length];
       await Review.create({
         user: reviewer._id,
