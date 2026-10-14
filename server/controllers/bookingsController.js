@@ -1,5 +1,7 @@
 const Booking = require('../models/Booking');
 const Hotel = require('../models/Hotel');
+const Invoice = require('../models/Invoice');
+const { voucherCode, voucherQrDataUrl, writeInvoicePdf, parseVoucherCode } = require('../services/documentService');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const { diffDays, range } = require('../utils/dates');
@@ -121,6 +123,57 @@ exports.cancelBooking = asyncHandler(async (req, res) => {
   const role = cancellerRole(req, access.booking, access);
   const booking = await cancelBookingFor(access.booking, { cancelledBy: role, reason: req.body.reason });
   res.status(200).json({ success: true, data: booking });
+});
+
+const assertTicketable = (booking) => {
+  if (!['Confirmed', 'Completed'].includes(booking.status)) {
+    throw ApiError.badRequest('Vouchers and invoices are available once the booking is paid');
+  }
+};
+
+// @route GET /api/bookings/:id/voucher
+exports.getVoucher = asyncHandler(async (req, res) => {
+  const { booking } = await loadAccessibleBooking(req);
+  assertTicketable(booking);
+  res.status(200).json({
+    success: true,
+    data: { code: voucherCode(booking), qr: await voucherQrDataUrl(booking), reference: booking.reference }
+  });
+});
+
+// @route GET /api/bookings/:id/invoice.pdf
+exports.getInvoicePdf = asyncHandler(async (req, res) => {
+  const { booking, isAgency } = await loadAccessibleBooking(req);
+  if (isAgency) throw ApiError.forbidden('Invoices are issued to the traveller');
+  assertTicketable(booking);
+  const invoice = await Invoice.findOne({ booking: booking._id });
+  if (!invoice) throw ApiError.notFound('Invoice not found');
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `inline; filename="${invoice.invoiceNumber}.pdf"`);
+  await writeInvoicePdf(res, { booking, invoice, user: booking.user });
+});
+
+// @route POST /api/agency/vouchers/verify   { code }
+// Partners scan a traveller's QR at check-in; only their own bookings verify.
+exports.verifyVoucher = asyncHandler(async (req, res) => {
+  const parsed = parseVoucherCode(req.body.code);
+  if (!parsed) throw ApiError.badRequest('This is not a valid Roamly voucher');
+  const booking = await Booking.findById(parsed.bookingId).populate('user', 'fullName phone').lean();
+  if (!booking || booking.reference !== parsed.reference) throw ApiError.badRequest('This is not a valid Roamly voucher');
+  const items = booking.items.filter((i) => String(i.agency) === String(req.user._id));
+  if (!items.length) throw ApiError.forbidden('This booking is not with your agency');
+  res.status(200).json({
+    success: true,
+    data: {
+      reference: booking.reference,
+      status: booking.status,
+      valid: booking.status === 'Confirmed',
+      traveller: booking.contact?.name || booking.user?.fullName,
+      phone: booking.contact?.phone || booking.user?.phone,
+      travelers: booking.travelers,
+      items
+    }
+  });
 });
 
 exports.loadAccessibleBooking = loadAccessibleBooking;

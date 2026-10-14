@@ -12,6 +12,8 @@ router.post('/quote', authorize('user'), validate(schemas.bookingRequestSchema),
 router.post('/', authorize('user'), validate(schemas.bookingRequestSchema), ctrl.createBooking);
 router.get('/my', authorize('user'), ctrl.getMyBookings);
 router.get('/:id', ctrl.getBooking);
+router.get('/:id/voucher', ctrl.getVoucher);
+router.get('/:id/invoice.pdf', ctrl.getInvoicePdf);
 router.get('/:id/cancellation', ctrl.previewCancellation);
 router.put('/:id/cancel', validate(schemas.cancelSchema), ctrl.cancelBooking);
 

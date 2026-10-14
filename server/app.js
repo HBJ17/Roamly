@@ -9,6 +9,8 @@ const { apiLimiter } = require('./middleware/rateLimit');
 
 const app = express();
 
+require('./services/mailListeners').register();
+
 app.set('trust proxy', 1);
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(cors({

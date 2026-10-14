@@ -3,6 +3,7 @@ const validate = require('../middleware/validate');
 const { protect, authorize, requireActiveAgency } = require('../middleware/auth');
 const { z } = require('../validators/common');
 const ctrl = require('../controllers/agencyController');
+const { verifyVoucher } = require('../controllers/bookingsController');
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.get('/dashboard', ctrl.getDashboard);
 router.get('/bookings', ctrl.getBookings);
 router.get('/earnings', ctrl.getEarnings);
 router.get('/payouts', ctrl.getPayouts);
+router.post('/vouchers/verify', validate(z.object({ code: z.string().trim().min(10).max(200) })), verifyVoucher);
 router.post('/payouts', validate(z.object({
   amount: z.coerce.number().int().min(1),
   note: z.string().trim().max(300).optional().default('')

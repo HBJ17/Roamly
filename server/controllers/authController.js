@@ -25,6 +25,7 @@ exports.register = asyncHandler(async (req, res) => {
   // Welcome credit goes through the wallet ledger so it shows on the statement.
   await credit(user._id, WELCOME_CREDIT, { reason: 'welcome', description: 'Welcome travel credit' });
   user.walletBalance = WELCOME_CREDIT;
+  require('./accountRecoveryController').sendVerification(user).catch((err) => console.error('[verify email]', err.message));
 
   await AuditLog.create({
     action: 'USER_REGISTERED',
