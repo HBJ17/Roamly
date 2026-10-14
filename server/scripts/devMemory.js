@@ -19,7 +19,9 @@ const start = async () => {
 
   const { sweepBookings } = require('../services/bookingService');
   setInterval(() => sweepBookings().catch(() => {}), 60000).unref();
-  app.listen(env.PORT, () => console.log(`[dev:memory] API on http://localhost:${env.PORT}`));
+  const server = require('http').createServer(app);
+  require('../services/realtime').init(server);
+  server.listen(env.PORT, () => console.log(`[dev:memory] API on http://localhost:${env.PORT}`));
 
   const stop = async () => {
     await mongoose.disconnect();

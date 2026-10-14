@@ -46,6 +46,8 @@ app.use('/api/wallet', require('./routes/wallet'));
 app.use('/api/agency', require('./routes/agency'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/itineraries', require('./routes/itinerary'));
+app.use('/api/conversations', require('./routes/conversations'));
+app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/saved', require('./routes/saved'));
 app.use('/api/coupons', require('./routes/coupons'));

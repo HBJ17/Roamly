@@ -115,3 +115,4 @@ exports.clearTokenCookie = (res) => {
 };
 
 exports.COOKIE_NAME = COOKIE_NAME;
+exports.resolveAccount = resolveAccount;
