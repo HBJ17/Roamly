@@ -26,3 +26,9 @@ yarn-error.log*
 # OS / IDE
 .DS_Store
 Thumbs.db
+credentials.txt
+
+# Secrets
+*.pem
+.env.*
+!.env.example

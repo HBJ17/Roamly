@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Agency = require('../models/Agency');
 const Admin = require('../models/Admin');
+const env = require('../config/env');
 
 // Protect routes with JWT
 exports.protect = async (req, res, next) => {
@@ -18,7 +19,7 @@ exports.protect = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'roamly_jwt_super_secret_key_2026_expedition_co');
+    const decoded = jwt.verify(token, env.JWT_SECRET);
 
     if (decoded.role === 'admin') {
       req.user = await Admin.findById(decoded.id);
@@ -52,7 +53,7 @@ exports.optionalAuth = async (req, res, next) => {
 
   if (token) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'roamly_jwt_super_secret_key_2026_expedition_co');
+      const decoded = jwt.verify(token, env.JWT_SECRET);
       if (decoded.role === 'admin') {
         req.user = await Admin.findById(decoded.id);
         req.userRole = 'admin';
@@ -87,15 +88,15 @@ exports.authorize = (...roles) => {
 exports.sendTokenResponse = (user, role, statusCode, res) => {
   const token = jwt.sign(
     { id: user._id, role, username: user.username },
-    process.env.JWT_SECRET || 'roamly_jwt_super_secret_key_2026_expedition_co',
-    { expiresIn: process.env.JWT_EXPIRE || '7d' }
+    env.JWT_SECRET,
+    { expiresIn: env.JWT_EXPIRE }
   );
 
   const options = {
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     httpOnly: true,
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production'
+    secure: env.isProd
   };
 
   res
