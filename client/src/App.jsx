@@ -18,6 +18,7 @@ const ComparePage = lazy(() => import('./pages/listings/ComparePage'));
 const OffersPage = lazy(() => import('./pages/listings/OffersPage'));
 const CheckoutPage = lazy(() => import('./pages/checkout/CheckoutPage'));
 const BookingDetailPage = lazy(() => import('./pages/account/BookingDetailPage'));
+const PlannerPage = lazy(() => import('./pages/planner/PlannerPage'));
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 const PartnerRegisterPage = lazy(() => import('./pages/auth/PartnerRegisterPage'));
@@ -62,6 +63,8 @@ export default function App() {
             <Route path="/packages/:id" element={<TravellerOnly><PackageDetailPage /></TravellerOnly>} />
             <Route path="/compare" element={<TravellerOnly><ComparePage /></TravellerOnly>} />
             <Route path="/offers" element={<OffersPage />} />
+            <Route path="/plan" element={<TravellerOnly><PlannerPage /></TravellerOnly>} />
+            <Route path="/plan/:id" element={<RequireRole roles={['user']}><PlannerPage /></RequireRole>} />
             <Route path="/checkout/:id" element={<RequireRole roles={['user']}><CheckoutPage /></RequireRole>} />
             <Route path="/account/bookings/:id" element={<RequireRole roles={['user']}><BookingDetailPage /></RequireRole>} />
 
