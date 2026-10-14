@@ -8,6 +8,7 @@ const schemas = require('../validators/auth');
 const router = express.Router();
 
 router.post('/register', authLimiter, validate(schemas.registerSchema), auth.register);
+router.post('/agency/register', authLimiter, validate(schemas.registerAgencySchema), auth.registerAgency);
 router.post('/login', authLimiter, validate(schemas.loginSchema), auth.login);
 router.post('/logout', auth.logout);
 router.get('/me', protect, auth.getMe);

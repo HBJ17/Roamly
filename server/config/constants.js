@@ -19,7 +19,19 @@ module.exports = {
     ja: '日本語 (Japanese)',
     ar: 'العربية (Arabic)'
   },
+
+  // What each kind of partner is allowed to list. Local partners are tied to their home city.
+  AGENCY_TYPES: ['Hotel Partner', 'Cab Operator', 'Intercity Transit', 'Tour Operator'],
+  AGENCY_CAPABILITIES: {
+    'Hotel Partner': ['hotel'],
+    'Cab Operator': ['local-transport'],
+    'Intercity Transit': ['intercity-transport'],
+    'Tour Operator': ['package']
+  },
+  CITY_BOUND_AGENCY_TYPES: ['Hotel Partner', 'Cab Operator', 'Tour Operator'],
+
   DEFAULT_COMMISSION_PERCENT: 10.0,
   LOYALTY_POINTS_PER_100_INR: 5,
-  LOYALTY_POINT_VALUE_INR: 1.0
+  LOYALTY_POINT_VALUE_INR: 1.0,
+  MAX_LOYALTY_REDEEM_PERCENT: 20
 };

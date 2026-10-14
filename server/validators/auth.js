@@ -39,3 +39,16 @@ exports.changePasswordSchema = z.object({
   currentPassword: z.string().min(1),
   newPassword: password
 });
+
+exports.registerAgencySchema = z.object({
+  username,
+  email: z.string().trim().toLowerCase().email('Enter a valid email'),
+  password,
+  name: z.string().trim().min(3, 'Enter your business name').max(120),
+  agencyType: z.enum(['Hotel Partner', 'Cab Operator', 'Intercity Transit', 'Tour Operator']),
+  city: z.string().trim().optional(),
+  phone: z.string().trim().min(8, 'Enter a contact number').max(20),
+  address: z.string().trim().min(5, 'Enter your business address').max(200),
+  gstin: z.string().trim().max(20).optional().default(''),
+  description: z.string().trim().max(1000).optional().default('')
+});

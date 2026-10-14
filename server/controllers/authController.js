@@ -4,6 +4,8 @@ const Admin = require('../models/Admin');
 const AuditLog = require('../models/AuditLog');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
+const { CITY_BOUND_AGENCY_TYPES } = require('../config/constants');
+const { requireDestination } = require('../services/destinationService');
 const { sendTokenResponse, serializeAccount, clearTokenCookie } = require('../middleware/auth');
 
 const MODELS = { user: User, agency: Agency, admin: Admin };
@@ -31,6 +33,38 @@ exports.register = asyncHandler(async (req, res) => {
   });
 
   sendTokenResponse(user, 'user', 201, res);
+});
+
+// @route POST /api/auth/agency/register
+// New partners start as Pending and can sign in, but cannot list inventory until approved.
+exports.registerAgency = asyncHandler(async (req, res) => {
+  const { username, email, agencyType } = req.body;
+  const exists = await Agency.exists({ $or: [{ email }, { username }] });
+  if (exists) throw ApiError.conflict('That username or email is already registered');
+
+  const data = { ...req.body, status: 'Pending' };
+  if (CITY_BOUND_AGENCY_TYPES.includes(agencyType)) {
+    if (!req.body.city) throw ApiError.badRequest(`${agencyType}s must choose the city they operate in`);
+    const city = await requireDestination(req.body.city, 'City');
+    data.city = city._id;
+    data.cityName = city.name;
+  } else {
+    delete data.city;
+  }
+
+  const agency = await Agency.create(data);
+  await AuditLog.create({
+    action: 'AGENCY_REGISTERED',
+    actorType: 'agency',
+    actorId: agency._id,
+    actorName: agency.username,
+    targetEntity: 'Agency',
+    targetId: agency._id.toString(),
+    details: { agencyType, city: data.cityName || null },
+    ipAddress: req.ip
+  });
+
+  sendTokenResponse(agency, 'agency', 201, res);
 });
 
 // @route POST /api/auth/login
