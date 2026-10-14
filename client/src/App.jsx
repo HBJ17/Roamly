@@ -1,92 +1,57 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect } from 'react';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
-import HomePage from './pages/HomePage';
-import PackagesPage from './pages/PackagesPage';
-import PackageDetailPage from './pages/PackageDetailPage';
-import HotelsPage from './pages/HotelsPage';
-import TransportsPage from './pages/TransportsPage';
-import ItineraryBuilderPage from './pages/ItineraryBuilderPage';
-import ComparePage from './pages/ComparePage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
-import AgencyPortalPage from './pages/AgencyPortalPage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
-import { useAuth } from './context/AuthContext';
+import { RequireRole, TravellerOnly } from './components/layout/RouteGuards';
+import { PageLoader, EmptyState } from './components/ui';
 
-// Protected Route Guard
-const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, role, loading } = useAuth();
-  if (loading) return null;
-  if (!user) return <Navigate to="/login" replace />;
-  if (allowedRoles && !allowedRoles.includes(role)) {
-    return <Navigate to="/" replace />;
-  }
-  return children;
-};
+const HomePage = lazy(() => import('./pages/HomePage'));
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
+const PartnerRegisterPage = lazy(() => import('./pages/auth/PartnerRegisterPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/auth/RecoveryPages').then((m) => ({ default: m.ForgotPasswordPage })));
+const ResetPasswordPage = lazy(() => import('./pages/auth/RecoveryPages').then((m) => ({ default: m.ResetPasswordPage })));
+const VerifyEmailPage = lazy(() => import('./pages/auth/RecoveryPages').then((m) => ({ default: m.VerifyEmailPage })));
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => window.scrollTo(0, 0), [pathname]);
+  return null;
+}
+
+const NotFound = () => (
+  <div className="main-container">
+    <EmptyState title="This page took a wrong turn" action={<Link to="/" className="btn btn-primary">Back to Roamly</Link>}>
+      The page you are looking for does not exist or has moved.
+    </EmptyState>
+  </div>
+);
 
 export default function App() {
   return (
     <>
-      <div className="halftone-bg"></div>
+      <div className="halftone-bg" />
+      <ScrollToTop />
       <Navbar />
-      <main style={{ minHeight: 'calc(100vh - 280px)' }}>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/packages" element={<PackagesPage />} />
-          <Route path="/packages/:id" element={<PackageDetailPage />} />
-          <Route path="/hotels" element={<HotelsPage />} />
-          <Route path="/transports" element={<TransportsPage />} />
-          <Route path="/compare" element={<ComparePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+      <main style={{ minHeight: 'calc(100vh - 280px)', position: 'relative', zIndex: 1 }}>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<TravellerOnly><HomePage /></TravellerOnly>} />
 
-          {/* User / Explorer Desk */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={['user', 'agency', 'admin']}>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/itinerary"
-            element={
-              <ProtectedRoute allowedRoles={['user', 'agency', 'admin']}>
-                <ItineraryBuilderPage />
-              </ProtectedRoute>
-            }
-          />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/partner/register" element={<PartnerRegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+            <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
 
-          {/* Partner Agency Desk */}
-          <Route
-            path="/agency/*"
-            element={
-              <ProtectedRoute allowedRoles={['agency', 'admin']}>
-                <AgencyPortalPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Central Admin Console */}
-          <Route
-            path="/admin/*"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminDashboardPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* 404 Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </main>
       <Footer />
     </>
   );
 }
+
+

@@ -1,169 +1,140 @@
-import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Compass, Hotel, Car, Map, MapPin, Package, User, LogOut, Menu, ChevronDown, Shield, Briefcase, Scale } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
-import { Compass, Hotel, Car, Map, Scale, User, Shield, Briefcase, LogOut } from 'lucide-react';
+import { useTrip } from '../../context/TripContext';
+import NotificationBell from './NotificationBell';
+
+const TRAVELLER_LINKS = [
+  { to: '/destinations', key: 'destinations', icon: Compass },
+  { to: '/hotels', key: 'hotels', icon: Hotel },
+  { to: '/transports', key: 'transports', icon: Car },
+  { to: '/packages', key: 'packages', icon: Package },
+  { to: '/plan', key: 'trip_builder', icon: Map }
+];
+
+function DestinationSwitcher() {
+  const { destinations, destination, updateTrip } = useTrip();
+  const { t } = useApp();
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const close = (e) => ref.current && !ref.current.contains(e.target) && setOpen(false);
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, []);
+
+  const choose = (slug) => {
+    updateTrip({ destination: slug });
+    setOpen(false);
+    // Listing pages follow the new city; elsewhere, go to the city's page.
+    if (!/^\/(hotels|transports|packages)/.test(location.pathname)) navigate(`/destinations/${slug}`);
+  };
+
+  return (
+    <div className="dropdown" ref={ref}>
+      <button type="button" className="dest-chip" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+        <MapPin size={13} /> {destination ? `${t('exploring')}: ${destination.name}` : t('choose_destination')} <ChevronDown size={13} />
+      </button>
+      {open && (
+        <div className="dropdown-panel">
+          {destinations.map((d) => (
+            <button key={d.slug} type="button" className="menu-item" onClick={() => choose(d.slug)}>
+              <MapPin size={14} /> <b>{d.name}</b> <span className="muted small">{d.state}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Navbar() {
   const { user, role, logout } = useAuth();
   const { currency, setCurrency, currencies, lang, setLang, languages, compareList, t } = useApp();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    setMenuOpen(false);
+    setAccountOpen(false);
+  }, [location.pathname]);
+
   const handleLogout = async () => {
     await logout();
-    navigate('/login');
+    navigate('/');
   };
 
-  const isActive = (path) => location.pathname === path;
+  const portalLink = role === 'admin' ? '/admin' : role === 'agency' ? '/agency' : '/account';
+  const portalLabel = role === 'admin' ? t('central_control') : role === 'agency' ? t('partner_desk') : t('my_account');
 
   return (
     <header>
       <div className="header-inner">
-        {/* Brand Logo & Badges */}
         <div className="header-brand">
-          <Link to="/" className="logo-link">
-            <img src="/roamly_logo.png" alt="Roamly Logo" className="brand-logo-img" onError={(e) => { e.target.src = '/logo.png'; }} />
+          <Link to="/" className="logo-link" aria-label="Roamly home">
+            <img src="/roamly_logo.png" alt="" className="brand-logo-img" onError={(e) => { e.currentTarget.src = '/logo.png'; }} />
             <span className="brand-title-badge">ROAMLY</span>
           </Link>
-
-          {role === 'admin' && (
-            <span className="badge badge-peach" style={{ fontSize: '11px' }}>
-              <Shield size={12} /> {t('central_control')}
-            </span>
-          )}
-          {role === 'agency' && (
-            <span className="badge badge-blue" style={{ fontSize: '11px' }}>
-              <Briefcase size={12} /> {t('partner_desk')}
-            </span>
-          )}
-          {(!role || role === 'user') && (
-            <span className="brand-est-badge">EST. 2026</span>
-          )}
+          {role === 'admin' && <span className="badge badge-peach"><Shield size={12} /> Admin</span>}
+          {role === 'agency' && <span className="badge badge-blue"><Briefcase size={12} /> Partner</span>}
+          {(!role || role === 'user') && <DestinationSwitcher />}
+          <button type="button" className="btn btn-sm btn-outline menu-toggle" onClick={() => setMenuOpen((o) => !o)} aria-label="Menu">
+            <Menu size={16} />
+          </button>
         </div>
 
-        {/* Main Navigation Links */}
-        <nav className="nav-menu">
-          {role === 'admin' ? (
-            <>
-              <Link to="/admin" className={`nav-link ${isActive('/admin') ? 'active' : ''}`}>
-                Dashboard
-              </Link>
-              <Link to="/admin/agencies" className={`nav-link ${isActive('/admin/agencies') ? 'active' : ''}`}>
-                Agencies
-              </Link>
-              <Link to="/admin/bookings" className={`nav-link ${isActive('/admin/bookings') ? 'active' : ''}`}>
-                Bookings Ledger
-              </Link>
-              <Link to="/admin/logs" className={`nav-link ${isActive('/admin/logs') ? 'active' : ''}`}>
-                Audit Trail
-              </Link>
-            </>
-          ) : role === 'agency' ? (
-            <>
-              <Link to="/agency" className={`nav-link ${isActive('/agency') ? 'active' : ''}`}>
-                Workspace
-              </Link>
-              <Link to="/agency/inventory" className={`nav-link ${isActive('/agency/inventory') ? 'active' : ''}`}>
-                Inventory
-              </Link>
-              <Link to="/agency/bookings" className={`nav-link ${isActive('/agency/bookings') ? 'active' : ''}`}>
-                Bookings
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link to="/packages" className={`nav-link ${isActive('/packages') ? 'active' : ''}`}>
-                <Compass size={14} /> {t('packages')}
-              </Link>
-              <Link to="/hotels" className={`nav-link ${isActive('/hotels') ? 'active' : ''}`}>
-                <Hotel size={14} /> {t('hotels')}
-              </Link>
-              <Link to="/transports" className={`nav-link ${isActive('/transports') ? 'active' : ''}`}>
-                <Car size={14} /> {t('transports')}
-              </Link>
-              <Link to="/itinerary" className={`nav-link ${isActive('/itinerary') ? 'active' : ''}`}>
-                <Map size={14} /> {t('trip_builder')}
-              </Link>
-              <Link to="/compare" className={`nav-link ${isActive('/compare') ? 'active' : ''}`}>
-                <Scale size={14} /> {t('compare')}
-                {compareList.length > 0 && (
-                  <span className="badge badge-yellow" style={{ padding: '1px 5px', fontSize: '10px' }}>
-                    {compareList.length}
-                  </span>
-                )}
-              </Link>
-            </>
+        <nav className={`nav-menu ${menuOpen ? '' : 'collapsed'}`}>
+          {(!role || role === 'user') && TRAVELLER_LINKS.map(({ to, key, icon: Icon }) => (
+            <NavLink key={to} to={to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <Icon size={14} /> {t(key)}
+            </NavLink>
+          ))}
+          {(!role || role === 'user') && compareList.length > 0 && (
+            <NavLink to="/compare" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <Scale size={14} /> {t('compare')} ({compareList.length})
+            </NavLink>
           )}
 
-          {/* Currency Switcher */}
-          <select
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value)}
-            style={{
-              padding: '4px 8px',
-              fontWeight: '700',
-              fontSize: '12px',
-              borderRadius: '6px',
-              border: '1.5px solid #000',
-              boxShadow: '2px 2px 0px #000',
-              cursor: 'pointer',
-              background: '#fff'
-            }}
-          >
-            {Object.entries(currencies).map(([code, info]) => (
-              <option key={code} value={code}>
-                {info.symbol} {code}
-              </option>
-            ))}
-          </select>
+          <div className="nav-tools">
+            <select className="nav-select" value={currency} onChange={(e) => setCurrency(e.target.value)} aria-label="Currency">
+              {Object.keys(currencies).map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <select className="nav-select" value={lang} onChange={(e) => setLang(e.target.value)} aria-label="Language">
+              {Object.entries(languages).map(([code, name]) => <option key={code} value={code}>{name}</option>)}
+            </select>
 
-          {/* Language Switcher */}
-          <select
-            value={lang}
-            onChange={(e) => setLang(e.target.value)}
-            style={{
-              padding: '4px 8px',
-              fontWeight: '700',
-              fontSize: '12px',
-              borderRadius: '6px',
-              border: '1.5px solid #000',
-              boxShadow: '2px 2px 0px #000',
-              cursor: 'pointer',
-              background: '#fff'
-            }}
-          >
-            {Object.entries(languages).map(([code, label]) => (
-              <option key={code} value={code}>
-                {label}
-              </option>
-            ))}
-          </select>
-
-          {/* User Account / Auth Actions */}
-          {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Link
-                to={role === 'admin' ? '/admin' : role === 'agency' ? '/agency' : '/dashboard'}
-                className="btn btn-sm btn-yellow"
-                style={{ textDecoration: 'none' }}
-              >
-                <User size={13} /> {user.name || user.username}
-              </Link>
-              <button onClick={handleLogout} className="btn btn-sm btn-outline" title="Logout">
-                <LogOut size={13} />
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Link to="/login" className="btn btn-sm btn-outline">
-                {t('login')}
-              </Link>
-              <Link to="/register" className="btn btn-sm btn-primary">
-                {t('signup')}
-              </Link>
-            </div>
-          )}
+            {user ? (
+              <>
+                <NotificationBell />
+                <div className="dropdown">
+                  <button type="button" className="nav-link" onClick={() => setAccountOpen((o) => !o)} aria-expanded={accountOpen}>
+                    <User size={14} /> {user.name?.split(' ')[0] || user.username} <ChevronDown size={12} />
+                  </button>
+                  {accountOpen && (
+                    <div className="dropdown-panel">
+                      <Link to={portalLink}><User size={14} /> {portalLabel}</Link>
+                      {role === 'user' && <Link to="/account/bookings">{t('bookings')}</Link>}
+                      {role === 'user' && <Link to="/account/trips">{t('trips')}</Link>}
+                      {role === 'user' && <Link to="/account/wallet">{t('wallet')}</Link>}
+                      <button type="button" className="menu-item" onClick={handleLogout}><LogOut size={14} /> {t('logout')}</button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="nav-link">{t('login')}</Link>
+                <Link to="/register" className="btn btn-sm btn-primary">{t('signup')}</Link>
+              </>
+            )}
+          </div>
         </nav>
       </div>
     </header>
