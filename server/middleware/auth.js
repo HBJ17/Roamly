@@ -87,6 +87,7 @@ exports.serializeAccount = (account, role) => ({
   agencyType: account.agencyType || null,
   agencyStatus: role === 'agency' ? account.status : undefined,
   city: account.city || undefined,
+  cityName: role === 'agency' ? account.cityName || '' : undefined,
   walletBalance: role === 'user' ? account.walletBalance : undefined,
   loyaltyPoints: role === 'user' ? account.loyaltyPoints : undefined,
   emailVerified: role === 'user' ? account.emailVerified : true,

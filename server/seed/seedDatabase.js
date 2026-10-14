@@ -196,6 +196,7 @@ const seedPastTrips = async ({ users, hotels, transports, packages }) => {
   const Review = require('../models/Review');
   const { refreshItemRating } = require('../services/reviewService');
   const { settleBooking } = require('../services/settlementService');
+  const AgencyTransaction = require('../models/AgencyTransaction');
   const { addDays, today } = require('../utils/dates');
 
   const picks = [
@@ -245,11 +246,13 @@ const seedPastTrips = async ({ users, hotels, transports, packages }) => {
         status: 'Completed',
         paymentStatus: 'Paid',
         confirmedAt: new Date(`${start}T09:00:00Z`),
+        createdAt: new Date(new Date(`${start}T09:00:00Z`).getTime() - 14 * 86400000),
         completedAt: new Date(`${end}T18:00:00Z`),
         reviewed: true,
         commissionPercent: 10
       });
       await settleBooking(booking);
+      await AgencyTransaction.updateMany({ booking: booking._id }, { createdAt: new Date(`${end}T18:00:00Z`) });
       const [rating, title, comment] = REVIEW_LINES[(i + r) % REVIEW_LINES.length];
       await Review.create({
         user: reviewer._id,

@@ -30,6 +30,16 @@ const ReviewsPage = accountPage('ReviewsPage');
 const ProfilePage = accountPage('ProfilePage');
 const Messenger = lazy(() => import('./components/portal/Messenger'));
 const NotificationsList = lazy(() => import('./components/portal/NotificationsList'));
+const AgencyLayout = lazy(() => import('./pages/agency/AgencyLayout'));
+const agencyPage = (name) => lazy(() => import('./pages/agency/AgencyPages').then((m) => ({ default: m[name] })));
+const AgencyDashboard = agencyPage('AgencyDashboard');
+const AgencyListings = agencyPage('AgencyListings');
+const AgencyBookings = agencyPage('AgencyBookings');
+const AgencyBookingRedirect = agencyPage('AgencyBookingRedirect');
+const AgencyCheckIn = agencyPage('AgencyCheckIn');
+const AgencyReviews = agencyPage('AgencyReviews');
+const AgencyPayouts = agencyPage('AgencyPayouts');
+const AgencyProfile = agencyPage('AgencyProfile');
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 const PartnerRegisterPage = lazy(() => import('./pages/auth/PartnerRegisterPage'));
@@ -89,6 +99,19 @@ export default function App() {
               <Route path="notifications" element={<NotificationsList />} />
               <Route path="reviews" element={<ReviewsPage />} />
               <Route path="profile" element={<ProfilePage />} />
+            </Route>
+            <Route path="/agency" element={<RequireRole roles={['agency']}><AgencyLayout /></RequireRole>}>
+              <Route index element={<AgencyDashboard />} />
+              <Route path="listings" element={<AgencyListings />} />
+              <Route path="bookings" element={<AgencyBookings />} />
+              <Route path="bookings/:id" element={<AgencyBookingRedirect />} />
+              <Route path="check-in" element={<AgencyCheckIn />} />
+              <Route path="reviews" element={<AgencyReviews />} />
+              <Route path="messages" element={<Messenger basePath="/agency/messages" />} />
+              <Route path="messages/:id" element={<Messenger basePath="/agency/messages" />} />
+              <Route path="payouts" element={<AgencyPayouts />} />
+              <Route path="notifications" element={<NotificationsList />} />
+              <Route path="profile" element={<AgencyProfile />} />
             </Route>
 
             <Route path="/login" element={<LoginPage />} />
