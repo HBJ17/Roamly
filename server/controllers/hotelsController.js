@@ -1,125 +1,124 @@
 const Hotel = require('../models/Hotel');
 const Review = require('../models/Review');
+const asyncHandler = require('../utils/asyncHandler');
+const ApiError = require('../utils/ApiError');
+const escapeRegex = require('../utils/escapeRegex');
+const { parsePagination, paginatedResponse } = require('../utils/paginate');
+const { findDestination } = require('../services/destinationService');
+const { resolveListingOwner, assertCanManage } = require('../services/listingAccess');
 
-// @desc    Get all hotels with search & filters
-// @route   GET /api/hotels
-// @access  Public
-exports.getHotels = async (req, res) => {
-  try {
-    const { city, search, min_price, max_price, star_rating, ac_type, pet_friendly, bed_type, capacity, sort_by } = req.query;
-    let query = {};
-
-    if (city || search) {
-      const term = city || search;
-      query.$or = [
-        { city: { $regex: term, $options: 'i' } },
-        { name: { $regex: term, $options: 'i' } },
-        { address: { $regex: term, $options: 'i' } }
-      ];
-    }
-
-    if (min_price || max_price) {
-      query.pricePerNight = {};
-      if (min_price) query.pricePerNight.$gte = Number(min_price);
-      if (max_price) query.pricePerNight.$lte = Number(max_price);
-    }
-
-    if (star_rating) {
-      query.starRating = { $gte: Number(star_rating) };
-    }
-
-    if (ac_type && ac_type !== 'all' && ac_type !== '') {
-      query.acType = ac_type;
-    }
-
-    if (pet_friendly !== undefined && pet_friendly !== '') {
-      query.petFriendly = pet_friendly === '1' || pet_friendly === 'true' || pet_friendly === true;
-    }
-
-    if (bed_type && bed_type !== 'all' && bed_type !== '') {
-      query.bedType = { $regex: bed_type, $options: 'i' };
-    }
-
-    if (capacity && Number(capacity) > 0) {
-      query.maxCapacity = { $gte: Number(capacity) };
-    }
-
-    let sortObj = { starRating: -1 };
-    if (sort_by === 'price_asc') sortObj = { pricePerNight: 1 };
-    else if (sort_by === 'price_desc') sortObj = { pricePerNight: -1 };
-    else if (sort_by === 'rating_desc') sortObj = { starRating: -1 };
-
-    const hotels = await Hotel.find(query).populate('agency', 'name email phone').sort(sortObj);
-    res.status(200).json({ success: true, count: hotels.length, data: hotels });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
+const SORTS = {
+  recommended: { rating: -1, starRating: -1 },
+  price_asc: { startingPrice: 1 },
+  price_desc: { startingPrice: -1 },
+  rating: { rating: -1, reviewCount: -1 },
+  stars: { starRating: -1 }
 };
 
-// @desc    Get single hotel
-// @route   GET /api/hotels/:id
-// @access  Public
-exports.getHotel = async (req, res) => {
-  try {
-    const hotel = await Hotel.findById(req.params.id).populate('agency', 'name email phone address');
-    if (!hotel) return res.status(404).json({ success: false, message: 'Hotel not found' });
+// @route GET /api/hotels?destination=chennai&...
+// Results are always confined to one city when a destination is given.
+exports.getHotels = asyncHandler(async (req, res) => {
+  const q = req.validatedQuery;
+  const filter = { isActive: true };
 
-    const reviews = await Review.find({ itemType: 'hotel', itemId: hotel._id }).populate('user', 'username fullName');
-    const nearby = await Hotel.find({ city: hotel.city, _id: { $ne: hotel._id } }).limit(3);
-
-    res.status(200).json({ success: true, data: hotel, reviews, nearby });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// @desc    Create Hotel
-// @route   POST /api/hotels
-// @access  Private (Agency/Admin)
-exports.createHotel = async (req, res) => {
-  try {
-    if (req.userRole === 'agency') req.body.agency = req.user._id;
-    const hotel = await Hotel.create(req.body);
-    res.status(201).json({ success: true, data: hotel });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// @desc    Update Hotel
-// @route   PUT /api/hotels/:id
-// @access  Private (Agency/Admin)
-exports.updateHotel = async (req, res) => {
-  try {
-    let hotel = await Hotel.findById(req.params.id);
-    if (!hotel) return res.status(404).json({ success: false, message: 'Hotel not found' });
-
-    if (req.userRole === 'agency' && hotel.agency && hotel.agency.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: 'Not authorized to edit this hotel' });
+  let destination = null;
+  if (q.destination) {
+    destination = await findDestination(q.destination);
+    if (!destination) {
+      return paginatedResponse(res, { data: [], total: 0, page: 1, limit: 12, extra: { destination: null } });
     }
-
-    hotel = await Hotel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.status(200).json({ success: true, data: hotel });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    filter.destination = destination._id;
   }
-};
+  if (q.q) filter.name = { $regex: escapeRegex(q.q), $options: 'i' };
+  if (q.stars) filter.starRating = { $gte: q.stars };
+  if (q.petFriendly) filter.petFriendly = q.petFriendly === 'true';
 
-// @desc    Delete Hotel
-// @route   DELETE /api/hotels/:id
-// @access  Private (Agency/Admin)
-exports.deleteHotel = async (req, res) => {
-  try {
-    const hotel = await Hotel.findById(req.params.id);
-    if (!hotel) return res.status(404).json({ success: false, message: 'Hotel not found' });
-
-    if (req.userRole === 'agency' && hotel.agency && hotel.agency.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: 'Not authorized to delete this hotel' });
-    }
-
-    await Hotel.findByIdAndDelete(req.params.id);
-    res.status(200).json({ success: true, message: 'Hotel removed' });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+  const roomMatch = {};
+  if (q.minPrice !== undefined || q.maxPrice !== undefined) {
+    roomMatch.pricePerNight = {};
+    if (q.minPrice !== undefined) roomMatch.pricePerNight.$gte = q.minPrice;
+    if (q.maxPrice !== undefined) roomMatch.pricePerNight.$lte = q.maxPrice;
   }
-};
+  if (q.ac) roomMatch.acType = q.ac;
+  if (q.guests) {
+    // Enough guests must fit in the requested number of rooms of a single type.
+    roomMatch.maxGuests = { $gte: Math.ceil(q.guests / (q.rooms || 1)) };
+  }
+  if (Object.keys(roomMatch).length) filter.rooms = { $elemMatch: roomMatch };
+
+  const { page, limit, skip } = parsePagination(q);
+  const [data, total] = await Promise.all([
+    Hotel.find(filter).sort(SORTS[q.sort]).skip(skip).limit(limit).lean(),
+    Hotel.countDocuments(filter)
+  ]);
+
+  paginatedResponse(res, {
+    data,
+    total,
+    page,
+    limit,
+    extra: { destination: destination ? { _id: destination._id, name: destination.name, slug: destination.slug } : null }
+  });
+});
+
+// @route GET /api/hotels/mine  (agency)
+exports.getMyHotels = asyncHandler(async (req, res) => {
+  const data = await Hotel.find({ agency: req.user._id }).sort({ createdAt: -1 }).lean();
+  res.status(200).json({ success: true, count: data.length, data });
+});
+
+// @route GET /api/hotels/:id
+exports.getHotel = asyncHandler(async (req, res) => {
+  const hotel = await Hotel.findById(req.params.id)
+    .populate('agency', 'name phone email cityName')
+    .populate('destination', 'name slug state coordinates');
+  if (!hotel || (!hotel.isActive && req.userRole !== 'admin')) throw ApiError.notFound('Hotel not found');
+
+  const [reviews, similar] = await Promise.all([
+    Review.find({ itemType: 'hotel', itemId: hotel._id, status: 'Published' })
+      .populate('user', 'username fullName')
+      .sort({ createdAt: -1 })
+      .limit(20),
+    // "Similar" stays in the same city.
+    Hotel.find({ destination: hotel.destination._id, _id: { $ne: hotel._id }, isActive: true })
+      .sort({ rating: -1 })
+      .limit(3)
+      .lean()
+  ]);
+
+  res.status(200).json({ success: true, data: hotel, reviews, similar });
+});
+
+// @route POST /api/hotels  (Hotel Partner or admin)
+exports.createHotel = asyncHandler(async (req, res) => {
+  const { agency, destination } = await resolveListingOwner(req, 'hotel', req.body.destination);
+  const hotel = await Hotel.create({
+    ...req.body,
+    agency: agency._id,
+    destination: destination._id,
+    destinationName: destination.name,
+    coordinates: req.body.coordinates || destination.coordinates
+  });
+  res.status(201).json({ success: true, data: hotel });
+});
+
+// @route PUT /api/hotels/:id
+exports.updateHotel = asyncHandler(async (req, res) => {
+  const hotel = await Hotel.findById(req.params.id);
+  if (!hotel) throw ApiError.notFound('Hotel not found');
+  assertCanManage(req, hotel);
+  hotel.set(req.body);
+  await hotel.save();
+  res.status(200).json({ success: true, data: hotel });
+});
+
+// @route DELETE /api/hotels/:id
+// Listings with booking history are archived rather than removed.
+exports.deleteHotel = asyncHandler(async (req, res) => {
+  const hotel = await Hotel.findById(req.params.id);
+  if (!hotel) throw ApiError.notFound('Hotel not found');
+  assertCanManage(req, hotel);
+  hotel.isActive = false;
+  await hotel.save();
+  res.status(200).json({ success: true, message: 'Hotel archived' });
+});
