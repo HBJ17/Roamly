@@ -4,6 +4,8 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const env = require('./config/env');
+const { notFound, errorHandler } = require('./middleware/error');
+const { apiLimiter } = require('./middleware/rateLimit');
 
 const app = express();
 
@@ -25,6 +27,12 @@ if (env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+app.use('/api', apiLimiter);
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/packages', require('./routes/packages'));
 app.use('/api/hotels', require('./routes/hotels'));
@@ -35,16 +43,7 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api/itinerary', require('./routes/itinerary'));
 app.use('/api', require('./routes/extras'));
 
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
-});
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.statusCode || 500).json({
-    success: false,
-    message: err.message || 'Server Internal Error'
-  });
-});
+app.use('/api', notFound);
+app.use(errorHandler);
 
 module.exports = app;
