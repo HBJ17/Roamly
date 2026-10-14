@@ -1,43 +1,20 @@
 const mongoose = require('mongoose');
 
 const PaymentSchema = new mongoose.Schema({
-  booking: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Booking',
-    required: true
-  },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  transactionId: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  paymentMethod: {
-    type: String,
-    enum: ['Card', 'UPI', 'NetBanking', 'Wallet', 'Razorpay', 'Stripe'],
-    required: true
-  },
-  amount: {
-    type: Number,
-    required: true
-  },
-  currency: {
-    type: String,
-    default: 'INR'
-  },
-  status: {
-    type: String,
-    enum: ['Success', 'Pending', 'Failed', 'Refunded'],
-    default: 'Success'
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  purpose: { type: String, enum: ['booking', 'wallet_topup'], required: true },
+  booking: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking', index: true },
+  provider: { type: String, enum: ['wallet', 'razorpay', 'sandbox'], required: true },
+  providerOrderId: { type: String, index: true },
+  providerPaymentId: { type: String },
+  method: { type: String, default: '' },
+  amount: { type: Number, required: true, min: 0 },
+  currency: { type: String, default: 'INR' },
+  status: { type: String, enum: ['Created', 'Success', 'Failed', 'Refunded'], default: 'Created' },
+  failureReason: { type: String, default: '' },
+  refundedAmount: { type: Number, default: 0 },
+  paidAt: { type: Date },
+  createdAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('Payment', PaymentSchema);

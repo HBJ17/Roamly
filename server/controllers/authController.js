@@ -6,6 +6,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const { CITY_BOUND_AGENCY_TYPES } = require('../config/constants');
 const { requireDestination } = require('../services/destinationService');
+const { credit } = require('../services/walletService');
 const { sendTokenResponse, serializeAccount, clearTokenCookie } = require('../middleware/auth');
 
 const MODELS = { user: User, agency: Agency, admin: Admin };
@@ -20,7 +21,10 @@ exports.register = asyncHandler(async (req, res) => {
   const exists = await User.exists({ $or: [{ email }, { username }] });
   if (exists) throw ApiError.conflict('That username or email is already registered');
 
-  const user = await User.create({ ...req.body, walletBalance: WELCOME_CREDIT });
+  const user = await User.create({ ...req.body, walletBalance: 0 });
+  // Welcome credit goes through the wallet ledger so it shows on the statement.
+  await credit(user._id, WELCOME_CREDIT, { reason: 'welcome', description: 'Welcome travel credit' });
+  user.walletBalance = WELCOME_CREDIT;
 
   await AuditLog.create({
     action: 'USER_REGISTERED',

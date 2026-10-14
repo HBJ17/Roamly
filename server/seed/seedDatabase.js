@@ -13,6 +13,7 @@ const Package = require('../models/Package');
 const Hotel = require('../models/Hotel');
 const Transport = require('../models/Transport');
 const Coupon = require('../models/Coupon');
+const WalletTransaction = require('../models/WalletTransaction');
 
 const data = {
   destinations: require('./data/destinations.json'),
@@ -81,6 +82,10 @@ const seedDatabase = async ({ log = () => {} } = {}) => {
       emailVerified: true
     }
   ]);
+
+  await WalletTransaction.create(users.map((u) => ({
+    user: u._id, type: 'credit', amount: u.walletBalance, balanceAfter: u.walletBalance, reason: 'welcome', description: 'Welcome travel credit'
+  })));
 
   const agencies = await Agency.create(
     data.agencies.map((a) => ({
