@@ -1,179 +1,139 @@
 const User = require('../models/User');
 const Agency = require('../models/Agency');
 const Admin = require('../models/Admin');
-const { sendTokenResponse } = require('../middleware/auth');
 const AuditLog = require('../models/AuditLog');
+const asyncHandler = require('../utils/asyncHandler');
+const ApiError = require('../utils/ApiError');
+const { CITY_BOUND_AGENCY_TYPES } = require('../config/constants');
+const { requireDestination } = require('../services/destinationService');
+const { credit } = require('../services/walletService');
+const { sendTokenResponse, serializeAccount, clearTokenCookie } = require('../middleware/auth');
 
-// @desc    Register user
-// @route   POST /api/auth/register
-// @access  Public
-exports.register = async (req, res) => {
-  try {
-    const { username, email, password, fullName, phone, address } = req.body;
+const MODELS = { user: User, agency: Agency, admin: Admin };
+const WELCOME_CREDIT = 1000;
 
-    // Check existing
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-    if (existingUser) {
-      return res.status(400).json({ success: false, message: 'Username or Email already registered' });
-    }
+const findAccount = (Model, identifier) =>
+  Model.findOne({ $or: [{ username: identifier }, { email: identifier }] }).select('+password');
 
-    const user = await User.create({
-      username,
-      email,
-      password,
-      fullName: fullName || username,
-      phone: phone || '',
-      address: address || '',
-      walletBalance: 1000 // Welcome credits
-    });
+// @route POST /api/auth/register
+exports.register = asyncHandler(async (req, res) => {
+  const { username, email } = req.body;
+  const exists = await User.exists({ $or: [{ email }, { username }] });
+  if (exists) throw ApiError.conflict('That username or email is already registered');
 
-    await AuditLog.create({
-      action: 'USER_REGISTERED',
-      actorType: 'user',
-      actorId: user._id,
-      actorName: user.username,
-      targetEntity: 'User',
-      targetId: user._id.toString()
-    });
+  const user = await User.create({ ...req.body, walletBalance: 0 });
+  // Welcome credit goes through the wallet ledger so it shows on the statement.
+  await credit(user._id, WELCOME_CREDIT, { reason: 'welcome', description: 'Welcome travel credit' });
+  user.walletBalance = WELCOME_CREDIT;
+  require('./accountRecoveryController').sendVerification(user).catch((err) => console.error('[verify email]', err.message));
 
-    sendTokenResponse(user, 'user', 201, res);
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// @desc    Login (User, Agency, or Admin)
-// @route   POST /api/auth/login
-// @access  Public
-exports.login = async (req, res) => {
-  try {
-    const { username, password, loginType } = req.body;
-
-    if (!username || !password) {
-      return res.status(400).json({ success: false, message: 'Please provide username and password' });
-    }
-
-    let account = null;
-    let role = loginType || 'user';
-
-    if (role === 'admin') {
-      account = await Admin.findOne({ username }).select('+password');
-    } else if (role === 'agency') {
-      account = await Agency.findOne({ username }).select('+password');
-    } else {
-      // Check user first, then fallback search across types
-      account = await User.findOne({ username }).select('+password');
-      if (!account) {
-        account = await Agency.findOne({ username }).select('+password');
-        if (account) role = 'agency';
-      }
-      if (!account) {
-        account = await Admin.findOne({ username }).select('+password');
-        if (account) role = 'admin';
-      }
-    }
-
-    if (!account) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
-
-    // Check password
-    const isMatch = await account.matchPassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
-
-    // Check status for agencies
-    if (role === 'agency' && account.status !== 'Active') {
-      return res.status(403).json({ success: false, message: 'Agency account is pending approval or suspended.' });
-    }
-
-    sendTokenResponse(account, role, 200, res);
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// @desc    Register Agency
-// @route   POST /api/auth/agency/register
-// @access  Public
-exports.registerAgency = async (req, res) => {
-  try {
-    const { username, password, name, agencyType, email, phone, address } = req.body;
-
-    const existing = await Agency.findOne({ $or: [{ email }, { username }] });
-    if (existing) {
-      return res.status(400).json({ success: false, message: 'Agency username or email already registered' });
-    }
-
-    const agency = await Agency.create({
-      username,
-      password,
-      name,
-      agencyType,
-      email,
-      phone,
-      address,
-      status: 'Active'
-    });
-
-    sendTokenResponse(agency, 'agency', 201, res);
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// @desc    Get current user profile
-// @route   GET /api/auth/me
-// @access  Private
-exports.getMe = async (req, res) => {
-  try {
-    res.status(200).json({
-      success: true,
-      user: req.user,
-      role: req.userRole
-    });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// @desc    Update profile
-// @route   PUT /api/auth/updatedetails
-// @access  Private
-exports.updateDetails = async (req, res) => {
-  try {
-    const { fullName, name, phone, address, bio, preferences } = req.body;
-    const fieldsToUpdate = {};
-    if (fullName) fieldsToUpdate.fullName = fullName;
-    if (name) fieldsToUpdate.name = name;
-    if (phone !== undefined) fieldsToUpdate.phone = phone;
-    if (address !== undefined) fieldsToUpdate.address = address;
-    if (bio !== undefined) fieldsToUpdate.bio = bio;
-    if (preferences) fieldsToUpdate.preferences = preferences;
-
-    let updated;
-    if (req.userRole === 'admin') {
-      updated = await Admin.findByIdAndUpdate(req.user.id, fieldsToUpdate, { new: true });
-    } else if (req.userRole === 'agency') {
-      updated = await Agency.findByIdAndUpdate(req.user.id, fieldsToUpdate, { new: true });
-    } else {
-      updated = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, { new: true });
-    }
-
-    res.status(200).json({ success: true, user: updated });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// @desc    Logout / clear cookie
-// @route   POST /api/auth/logout
-// @access  Private
-exports.logout = async (req, res) => {
-  res.cookie('token', 'none', {
-    expires: new Date(Date.now() + 10 * 1000),
-    httpOnly: true
+  await AuditLog.create({
+    action: 'USER_REGISTERED',
+    actorType: 'user',
+    actorId: user._id,
+    actorName: user.username,
+    targetEntity: 'User',
+    targetId: user._id.toString(),
+    ipAddress: req.ip
   });
-  res.status(200).json({ success: true, message: 'Logged out successfully' });
-};
+
+  sendTokenResponse(user, 'user', 201, res);
+});
+
+// @route POST /api/auth/agency/register
+// New partners start as Pending and can sign in, but cannot list inventory until approved.
+exports.registerAgency = asyncHandler(async (req, res) => {
+  const { username, email, agencyType } = req.body;
+  const exists = await Agency.exists({ $or: [{ email }, { username }] });
+  if (exists) throw ApiError.conflict('That username or email is already registered');
+
+  const data = { ...req.body, status: 'Pending' };
+  if (CITY_BOUND_AGENCY_TYPES.includes(agencyType)) {
+    if (!req.body.city) throw ApiError.badRequest(`${agencyType}s must choose the city they operate in`);
+    const city = await requireDestination(req.body.city, 'City');
+    data.city = city._id;
+    data.cityName = city.name;
+  } else {
+    delete data.city;
+  }
+
+  const agency = await Agency.create(data);
+  await AuditLog.create({
+    action: 'AGENCY_REGISTERED',
+    actorType: 'agency',
+    actorId: agency._id,
+    actorName: agency.username,
+    targetEntity: 'Agency',
+    targetId: agency._id.toString(),
+    details: { agencyType, city: data.cityName || null },
+    ipAddress: req.ip
+  });
+
+  sendTokenResponse(agency, 'agency', 201, res);
+});
+
+// @route POST /api/auth/login
+exports.login = asyncHandler(async (req, res) => {
+  const { username, password, loginType } = req.body;
+  const account = await findAccount(MODELS[loginType], username);
+
+  if (!account || !(await account.matchPassword(password))) {
+    throw ApiError.unauthorized('Invalid username or password');
+  }
+  if (account.status === 'Suspended') {
+    throw ApiError.forbidden('This account has been suspended. Contact support@roamly.travel.');
+  }
+
+  // Transparently upgrade legacy Flask hashes to bcrypt on successful login.
+  if (account.needsRehash()) {
+    account.password = password;
+  }
+  if (loginType === 'user') account.lastLoginAt = new Date();
+  await account.save({ validateBeforeSave: false });
+
+  sendTokenResponse(account, loginType, 200, res);
+});
+
+// @route GET /api/auth/me
+exports.getMe = asyncHandler(async (req, res) => {
+  res.status(200).json({ success: true, user: serializeAccount(req.user, req.userRole) });
+});
+
+// @route PUT /api/auth/profile
+exports.updateProfile = asyncHandler(async (req, res) => {
+  const updates = { ...req.body };
+  if (req.userRole !== 'agency') delete updates.name;
+  if (req.userRole === 'agency') {
+    delete updates.fullName;
+    delete updates.preferences;
+    delete updates.homeCity;
+  }
+  if (updates.preferences) {
+    for (const [key, value] of Object.entries(updates.preferences)) {
+      updates[`preferences.${key}`] = value;
+    }
+    delete updates.preferences;
+  }
+
+  const Model = MODELS[req.userRole];
+  const updated = await Model.findByIdAndUpdate(req.user._id, { $set: updates }, { new: true, runValidators: true });
+  res.status(200).json({ success: true, user: serializeAccount(updated, req.userRole) });
+});
+
+// @route PUT /api/auth/password
+exports.changePassword = asyncHandler(async (req, res) => {
+  const Model = MODELS[req.userRole];
+  const account = await Model.findById(req.user._id).select('+password');
+  if (!(await account.matchPassword(req.body.currentPassword))) {
+    throw ApiError.badRequest('Your current password is incorrect');
+  }
+  account.password = req.body.newPassword;
+  await account.save();
+  sendTokenResponse(account, req.userRole, 200, res);
+});
+
+// @route POST /api/auth/logout
+exports.logout = asyncHandler(async (req, res) => {
+  clearTokenCookie(res);
+  res.status(200).json({ success: true, message: 'Signed out' });
+});

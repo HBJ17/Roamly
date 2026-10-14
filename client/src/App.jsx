@@ -1,92 +1,163 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect } from 'react';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
-import HomePage from './pages/HomePage';
-import PackagesPage from './pages/PackagesPage';
-import PackageDetailPage from './pages/PackageDetailPage';
-import HotelsPage from './pages/HotelsPage';
-import TransportsPage from './pages/TransportsPage';
-import ItineraryBuilderPage from './pages/ItineraryBuilderPage';
-import ComparePage from './pages/ComparePage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
-import AgencyPortalPage from './pages/AgencyPortalPage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
-import { useAuth } from './context/AuthContext';
+import { RequireRole, TravellerOnly } from './components/layout/RouteGuards';
+import { PageLoader, EmptyState } from './components/ui';
+import ErrorBoundary from './components/layout/ErrorBoundary';
 
-// Protected Route Guard
-const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, role, loading } = useAuth();
-  if (loading) return null;
-  if (!user) return <Navigate to="/login" replace />;
-  if (allowedRoles && !allowedRoles.includes(role)) {
-    return <Navigate to="/" replace />;
-  }
-  return children;
-};
+const HomePage = lazy(() => import('./pages/HomePage'));
+const DestinationsPage = lazy(() => import('./pages/DestinationsPage'));
+const DestinationPage = lazy(() => import('./pages/DestinationPage'));
+const HotelsPage = lazy(() => import('./pages/listings/HotelsPage'));
+const HotelDetailPage = lazy(() => import('./pages/listings/HotelDetailPage'));
+const TransportsPage = lazy(() => import('./pages/listings/TransportsPage'));
+const TransportDetailPage = lazy(() => import('./pages/listings/TransportDetailPage'));
+const PackagesPage = lazy(() => import('./pages/listings/PackagesPage'));
+const PackageDetailPage = lazy(() => import('./pages/listings/PackageDetailPage'));
+const ComparePage = lazy(() => import('./pages/listings/ComparePage'));
+const OffersPage = lazy(() => import('./pages/listings/OffersPage'));
+const CheckoutPage = lazy(() => import('./pages/checkout/CheckoutPage'));
+const BookingDetailPage = lazy(() => import('./pages/account/BookingDetailPage'));
+const PlannerPage = lazy(() => import('./pages/planner/PlannerPage'));
+const AccountLayout = lazy(() => import('./pages/account/AccountLayout'));
+const accountPage = (name) => lazy(() => import('./pages/account/AccountPages').then((m) => ({ default: m[name] })));
+const AccountOverview = accountPage('AccountOverview');
+const MyBookings = accountPage('MyBookings');
+const MyTrips = accountPage('MyTrips');
+const WalletPage = accountPage('WalletPage');
+const SavedPage = accountPage('SavedPage');
+const ReviewsPage = accountPage('ReviewsPage');
+const ProfilePage = accountPage('ProfilePage');
+const Messenger = lazy(() => import('./components/portal/Messenger'));
+const NotificationsList = lazy(() => import('./components/portal/NotificationsList'));
+const AgencyLayout = lazy(() => import('./pages/agency/AgencyLayout'));
+const agencyPage = (name) => lazy(() => import('./pages/agency/AgencyPages').then((m) => ({ default: m[name] })));
+const AgencyDashboard = agencyPage('AgencyDashboard');
+const AgencyListings = agencyPage('AgencyListings');
+const AgencyBookings = agencyPage('AgencyBookings');
+const AgencyBookingRedirect = agencyPage('AgencyBookingRedirect');
+const AgencyCheckIn = agencyPage('AgencyCheckIn');
+const AgencyReviews = agencyPage('AgencyReviews');
+const AgencyPayouts = agencyPage('AgencyPayouts');
+const AgencyProfile = agencyPage('AgencyProfile');
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
+const adminPage = (name) => lazy(() => import('./pages/admin/AdminPages').then((m) => ({ default: m[name] })));
+const AdminDashboard = adminPage('AdminDashboard');
+const AdminAgencies = adminPage('AdminAgencies');
+const AdminUsers = adminPage('AdminUsers');
+const AdminListings = adminPage('AdminListings');
+const AdminBookings = adminPage('AdminBookings');
+const AdminDestinations = adminPage('AdminDestinations');
+const AdminCoupons = adminPage('AdminCoupons');
+const AdminPayouts = adminPage('AdminPayouts');
+const AdminReviews = adminPage('AdminReviews');
+const AdminSettings = adminPage('AdminSettings');
+const AdminAudit = adminPage('AdminAudit');
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
+const PartnerRegisterPage = lazy(() => import('./pages/auth/PartnerRegisterPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/auth/RecoveryPages').then((m) => ({ default: m.ForgotPasswordPage })));
+const ResetPasswordPage = lazy(() => import('./pages/auth/RecoveryPages').then((m) => ({ default: m.ResetPasswordPage })));
+const VerifyEmailPage = lazy(() => import('./pages/auth/RecoveryPages').then((m) => ({ default: m.VerifyEmailPage })));
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
+const NotFound = () => (
+  <div className="main-container">
+    <EmptyState title="This page took a wrong turn" action={<Link to="/" className="btn btn-primary">Back to Roamly</Link>}>
+      The page you are looking for does not exist or has moved.
+    </EmptyState>
+  </div>
+);
 
 export default function App() {
+  const { pathname } = useLocation();
   return (
     <>
-      <div className="halftone-bg"></div>
+      <div className="halftone-bg" />
+      <ScrollToTop />
       <Navbar />
-      <main style={{ minHeight: 'calc(100vh - 280px)' }}>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/packages" element={<PackagesPage />} />
-          <Route path="/packages/:id" element={<PackageDetailPage />} />
-          <Route path="/hotels" element={<HotelsPage />} />
-          <Route path="/transports" element={<TransportsPage />} />
-          <Route path="/compare" element={<ComparePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+      <main style={{ minHeight: 'calc(100vh - 280px)', position: 'relative', zIndex: 1 }}>
+        <ErrorBoundary resetKey={pathname}>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<TravellerOnly><HomePage /></TravellerOnly>} />
 
-          {/* User / Explorer Desk */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={['user', 'agency', 'admin']}>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/itinerary"
-            element={
-              <ProtectedRoute allowedRoles={['user', 'agency', 'admin']}>
-                <ItineraryBuilderPage />
-              </ProtectedRoute>
-            }
-          />
+            <Route path="/destinations" element={<TravellerOnly><DestinationsPage /></TravellerOnly>} />
+            <Route path="/destinations/:slug" element={<TravellerOnly><DestinationPage /></TravellerOnly>} />
+            <Route path="/hotels" element={<TravellerOnly><HotelsPage /></TravellerOnly>} />
+            <Route path="/hotels/:id" element={<TravellerOnly><HotelDetailPage /></TravellerOnly>} />
+            <Route path="/transports" element={<TravellerOnly><TransportsPage /></TravellerOnly>} />
+            <Route path="/transports/:id" element={<TravellerOnly><TransportDetailPage /></TravellerOnly>} />
+            <Route path="/packages" element={<TravellerOnly><PackagesPage /></TravellerOnly>} />
+            <Route path="/packages/:id" element={<TravellerOnly><PackageDetailPage /></TravellerOnly>} />
+            <Route path="/compare" element={<TravellerOnly><ComparePage /></TravellerOnly>} />
+            <Route path="/offers" element={<OffersPage />} />
+            <Route path="/plan" element={<TravellerOnly><PlannerPage /></TravellerOnly>} />
+            <Route path="/plan/:id" element={<RequireRole roles={['user']}><PlannerPage /></RequireRole>} />
+            <Route path="/checkout/:id" element={<RequireRole roles={['user']}><CheckoutPage /></RequireRole>} />
+            <Route path="/account/bookings/:id" element={<RequireRole roles={['user']}><BookingDetailPage /></RequireRole>} />
+            <Route path="/account" element={<RequireRole roles={['user']}><AccountLayout /></RequireRole>}>
+              <Route index element={<AccountOverview />} />
+              <Route path="bookings" element={<MyBookings />} />
+              <Route path="trips" element={<MyTrips />} />
+              <Route path="wallet" element={<WalletPage />} />
+              <Route path="saved" element={<SavedPage />} />
+              <Route path="messages" element={<Messenger basePath="/account/messages" />} />
+              <Route path="messages/:id" element={<Messenger basePath="/account/messages" />} />
+              <Route path="notifications" element={<NotificationsList />} />
+              <Route path="reviews" element={<ReviewsPage />} />
+              <Route path="profile" element={<ProfilePage />} />
+            </Route>
+            <Route path="/agency" element={<RequireRole roles={['agency']}><AgencyLayout /></RequireRole>}>
+              <Route index element={<AgencyDashboard />} />
+              <Route path="listings" element={<AgencyListings />} />
+              <Route path="bookings" element={<AgencyBookings />} />
+              <Route path="bookings/:id" element={<AgencyBookingRedirect />} />
+              <Route path="check-in" element={<AgencyCheckIn />} />
+              <Route path="reviews" element={<AgencyReviews />} />
+              <Route path="messages" element={<Messenger basePath="/agency/messages" />} />
+              <Route path="messages/:id" element={<Messenger basePath="/agency/messages" />} />
+              <Route path="payouts" element={<AgencyPayouts />} />
+              <Route path="notifications" element={<NotificationsList />} />
+              <Route path="profile" element={<AgencyProfile />} />
+            </Route>
+            <Route path="/admin" element={<RequireRole roles={['admin']}><AdminLayout /></RequireRole>}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="agencies" element={<AdminAgencies />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="listings" element={<AdminListings />} />
+              <Route path="bookings" element={<AdminBookings />} />
+              <Route path="destinations" element={<AdminDestinations />} />
+              <Route path="coupons" element={<AdminCoupons />} />
+              <Route path="payouts" element={<AdminPayouts />} />
+              <Route path="reviews" element={<AdminReviews />} />
+              <Route path="settings" element={<AdminSettings />} />
+              <Route path="audit" element={<AdminAudit />} />
+            </Route>
 
-          {/* Partner Agency Desk */}
-          <Route
-            path="/agency/*"
-            element={
-              <ProtectedRoute allowedRoles={['agency', 'admin']}>
-                <AgencyPortalPage />
-              </ProtectedRoute>
-            }
-          />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/partner/register" element={<PartnerRegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+            <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
 
-          {/* Central Admin Console */}
-          <Route
-            path="/admin/*"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminDashboardPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* 404 Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+        </ErrorBoundary>
       </main>
       <Footer />
     </>
   );
 }
+
+

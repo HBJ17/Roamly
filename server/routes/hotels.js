@@ -1,15 +1,20 @@
 const express = require('express');
+const validate = require('../middleware/validate');
+const { protect, authorize, optionalAuth, requireActiveAgency } = require('../middleware/auth');
+const ctrl = require('../controllers/hotelsController');
+const schemas = require('../validators/hotel');
+const { availabilityQuerySchema } = require('../validators/booking');
+const { getHotelAvailability } = require('../controllers/bookingsController');
+
 const router = express.Router();
-const { getHotels, getHotel, createHotel, updateHotel, deleteHotel } = require('../controllers/hotelsController');
-const { protect, authorize } = require('../middleware/auth');
+const manage = [protect, authorize('admin', 'agency'), requireActiveAgency];
 
-router.route('/')
-  .get(getHotels)
-  .post(protect, authorize('admin', 'agency'), createHotel);
-
-router.route('/:id')
-  .get(getHotel)
-  .put(protect, authorize('admin', 'agency'), updateHotel)
-  .delete(protect, authorize('admin', 'agency'), deleteHotel);
+router.get('/', validate(schemas.hotelQuerySchema, 'query'), ctrl.getHotels);
+router.get('/mine', protect, authorize('agency'), ctrl.getMyHotels);
+router.get('/:id', optionalAuth, ctrl.getHotel);
+router.get('/:id/availability', validate(availabilityQuerySchema, 'query'), getHotelAvailability);
+router.post('/', ...manage, validate(schemas.createHotelSchema), ctrl.createHotel);
+router.put('/:id', ...manage, validate(schemas.updateHotelSchema), ctrl.updateHotel);
+router.delete('/:id', ...manage, ctrl.deleteHotel);
 
 module.exports = router;

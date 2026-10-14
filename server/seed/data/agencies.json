@@ -1,0 +1,182 @@
+[
+  {
+    "username": "bangalore_stays",
+    "name": "Bengaluru Garden City Hospitality & Suites",
+    "agencyType": "Hotel Partner",
+    "city": "Bangalore",
+    "email": "stays@bangalorehospitality.in",
+    "phone": "+91 80 41234567",
+    "address": "MG Road & Indiranagar, Bengaluru, Karnataka"
+  },
+  {
+    "username": "bangalore_cabs",
+    "name": "Namma Bengaluru Cabs & ZoomFleet",
+    "agencyType": "Cab Operator",
+    "city": "Bangalore",
+    "email": "cabs@bangalorefleet.in",
+    "phone": "+91 80 49876543",
+    "address": "100 Feet Road, Indiranagar, Bengaluru, Karnataka"
+  },
+  {
+    "username": "chennai_hotels",
+    "name": "Marina Bay Stays & Heritage Resorts",
+    "agencyType": "Hotel Partner",
+    "city": "Chennai",
+    "email": "reservations@chennaistays.in",
+    "phone": "+91 44 28551122",
+    "address": "MRC Nagar & Mylapore, Chennai, Tamil Nadu"
+  },
+  {
+    "username": "chennai_cabs",
+    "name": "Madras City Cabs & Coastline Rentals",
+    "agencyType": "Cab Operator",
+    "city": "Chennai",
+    "email": "support@madrascabs.in",
+    "phone": "+91 44 28443322",
+    "address": "Mount Road & ECR, Chennai, Tamil Nadu"
+  },
+  {
+    "username": "kodai_resorts",
+    "name": "Kodai Mist Luxury Retreats & Chalets",
+    "agencyType": "Hotel Partner",
+    "city": "Kodaikanal",
+    "email": "stay@kodaimistretreats.in",
+    "phone": "+91 4542 245678",
+    "address": "Observatory Road, Kodaikanal, Tamil Nadu"
+  },
+  {
+    "username": "kodai_cabs",
+    "name": "Kodai Pine Hills Taxi & 4x4 Fleet",
+    "agencyType": "Cab Operator",
+    "city": "Kodaikanal",
+    "email": "rides@kodaipinefleet.in",
+    "phone": "+91 4542 241122",
+    "address": "Lake Road, Kodaikanal, Tamil Nadu"
+  },
+  {
+    "username": "madurai_stays",
+    "name": "Temple City Heritage Palaces & Residency",
+    "agencyType": "Hotel Partner",
+    "city": "Madurai",
+    "email": "hospitality@maduraipalaces.in",
+    "phone": "+91 452 2334455",
+    "address": "Pasumalai & West Perumal Street, Madurai, Tamil Nadu"
+  },
+  {
+    "username": "madurai_cabs",
+    "name": "Meenakshi City Taxis & Self-Drive",
+    "agencyType": "Cab Operator",
+    "city": "Madurai",
+    "email": "booking@meenakshicabs.in",
+    "phone": "+91 452 2399887",
+    "address": "Town Hall Road, Madurai, Tamil Nadu"
+  },
+  {
+    "username": "thanjavur_stays",
+    "name": "Chola Heritage Mansions & Resorts",
+    "agencyType": "Hotel Partner",
+    "city": "Thanjavur",
+    "email": "welcome@cholastays.in",
+    "phone": "+91 4362 278899",
+    "address": "South Rampart, Thanjavur, Tamil Nadu"
+  },
+  {
+    "username": "thanjavur_cabs",
+    "name": "Chola Delta Travels & Cabs",
+    "agencyType": "Cab Operator",
+    "city": "Thanjavur",
+    "email": "travel@choladeltacabs.in",
+    "phone": "+91 4362 271133",
+    "address": "Big Temple Road, Thanjavur, Tamil Nadu"
+  },
+  {
+    "username": "kanyakumari_stays",
+    "name": "Lands End Oceanfront Resorts & Inns",
+    "agencyType": "Hotel Partner",
+    "city": "Kanyakumari",
+    "email": "booking@capeoceanfront.in",
+    "phone": "+91 4652 246677",
+    "address": "Beach Road, Kanyakumari, Tamil Nadu"
+  },
+  {
+    "username": "kanyakumari_cabs",
+    "name": "Cape Ocean Drive Cabs & Rentals",
+    "agencyType": "Cab Operator",
+    "city": "Kanyakumari",
+    "email": "fleet@capeoceancabs.in",
+    "phone": "+91 4652 248899",
+    "address": "Main Road, Kanyakumari, Tamil Nadu"
+  },
+  {
+    "username": "redbus_express",
+    "name": "RedBus Intercity Express Coaches",
+    "agencyType": "Intercity Transit",
+    "city": null,
+    "email": "dispatch@redbusexpress.in",
+    "phone": "+91 1800 1039876",
+    "address": "Kallada & Zingbus Transit Hubs, Bangalore / Chennai"
+  },
+  {
+    "username": "rail_flight_connect",
+    "name": "Southern Railways & Regional Air Connect",
+    "agencyType": "Intercity Transit",
+    "city": null,
+    "email": "booking@southtransitconnect.in",
+    "phone": "+91 1800 111139",
+    "address": "Central Railway & Airport Stations, Chennai & Bangalore"
+  },
+  {
+    "username": "chennai_tours",
+    "name": "Roamly South Expeditions & Trails",
+    "agencyType": "Tour Operator",
+    "city": "Chennai",
+    "email": "tours@roamlysouth.in",
+    "phone": "+91 44 28460000",
+    "address": "Anna Salai, Chennai, Tamil Nadu"
+  },
+  {
+    "username": "madurai_tours",
+    "name": "Meenakshi Heritage Tours & Caravans",
+    "agencyType": "Tour Operator",
+    "city": "Madurai",
+    "email": "tours@maduraiheritage.in",
+    "phone": "+91 452 2334400",
+    "address": "West Masi Street, Madurai, Tamil Nadu"
+  },
+  {
+    "username": "kodai_tours",
+    "name": "Kodaikanal Mist & Pine Expeditions",
+    "agencyType": "Tour Operator",
+    "city": "Kodaikanal",
+    "email": "explore@kodaimist.in",
+    "phone": "+91 4542 245600",
+    "address": "Coaker's Walk Road, Kodaikanal, Tamil Nadu"
+  },
+  {
+    "username": "thanjavur_tours",
+    "name": "Dravidian Heritage Holidays",
+    "agencyType": "Tour Operator",
+    "city": "Thanjavur",
+    "email": "holidays@dravidianholidays.com",
+    "phone": "+91 4362 270000",
+    "address": "South Rampart, Thanjavur, Tamil Nadu"
+  },
+  {
+    "username": "bangalore_tours",
+    "name": "Garden City Trails & Getaways",
+    "agencyType": "Tour Operator",
+    "city": "Bangalore",
+    "email": "hello@gardencitytrails.in",
+    "phone": "+91 80 41110000",
+    "address": "Church Street, Bengaluru, Karnataka"
+  },
+  {
+    "username": "kanyakumari_tours",
+    "name": "Cape Comorin Journeys",
+    "agencyType": "Tour Operator",
+    "city": "Kanyakumari",
+    "email": "trips@capecomorin.in",
+    "phone": "+91 4652 246600",
+    "address": "Sannathi Street, Kanyakumari, Tamil Nadu"
+  }
+]

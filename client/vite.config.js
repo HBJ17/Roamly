@@ -1,14 +1,24 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+const API = process.env.VITE_PROXY_TARGET || 'http://localhost:5000';
+
 export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
     proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
+      '/api': { target: API, changeOrigin: true },
+      '/socket.io': { target: API, ws: true, changeOrigin: true }
+    }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          maps: ['leaflet']
+        }
       }
     }
   }

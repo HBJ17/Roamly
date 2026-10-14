@@ -1,232 +1,179 @@
 const Booking = require('../models/Booking');
-const Package = require('../models/Package');
 const Hotel = require('../models/Hotel');
-const Transport = require('../models/Transport');
-const Payment = require('../models/Payment');
 const Invoice = require('../models/Invoice');
-const Coupon = require('../models/Coupon');
-const Notification = require('../models/Notification');
-const User = require('../models/User');
+const { voucherCode, voucherQrDataUrl, writeInvoicePdf, parseVoucherCode } = require('../services/documentService');
+const asyncHandler = require('../utils/asyncHandler');
+const ApiError = require('../utils/ApiError');
+const { diffDays, range } = require('../utils/dates');
+const { parsePagination, paginatedResponse } = require('../utils/paginate');
+const { publicLine } = require('../services/pricingService');
+const { quoteSingle, createHold, sweepBookings } = require('../services/bookingService');
+const { remainingCapacity } = require('../services/availabilityService');
+const {
+  previewCancellation: previewCancellationFor,
+  cancelBooking: cancelBookingFor
+} = require('../services/cancellationService');
 
-// @desc    Create a new booking (Package, Hotel, or Transport)
-// @route   POST /api/bookings
-// @access  Private (User)
-exports.createBooking = async (req, res) => {
-  try {
-    const {
-      bookingType,
-      itemId,
-      travelDate,
-      checkOutDate,
-      numTravelers = 1,
-      roomType = 'Standard',
-      pickupLocation = '',
-      specialRequests = '',
-      couponCode = '',
-      paymentMethod = 'Card'
-    } = req.body;
+const quoteResponse = (quote) => ({
+  items: quote.lines.map(publicLine),
+  pricing: quote.pricing,
+  couponError: quote.couponError,
+  loyaltyPointsToEarn: quote.loyaltyPointsToEarn,
+  remaining: quote.lines.map((l) => l._remaining)
+});
 
-    let subtotal = 0;
-    let packageId = null;
-    let hotelId = null;
-    let transportId = null;
+// @route POST /api/bookings/quote
+// Live price and availability check; nothing is reserved.
+exports.quote = asyncHandler(async (req, res) => {
+  const quote = await quoteSingle(req.user, req.body);
+  res.status(200).json({ success: true, data: quoteResponse(quote) });
+});
 
-    if (bookingType === 'package') {
-      const pkg = await Package.findById(itemId);
-      if (!pkg) return res.status(404).json({ success: false, message: 'Package not found' });
-      packageId = pkg._id;
-      subtotal = pkg.price * Number(numTravelers);
-    } else if (bookingType === 'hotel') {
-      const hotel = await Hotel.findById(itemId);
-      if (!hotel) return res.status(404).json({ success: false, message: 'Hotel not found' });
-      hotelId = hotel._id;
-      
-      let nights = 1;
-      if (travelDate && checkOutDate) {
-        const d1 = new Date(travelDate);
-        const d2 = new Date(checkOutDate);
-        const diff = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
-        if (diff > 0) nights = diff;
-      }
-      subtotal = hotel.pricePerNight * nights * Number(numTravelers);
-    } else if (bookingType === 'transport') {
-      const trans = await Transport.findById(itemId);
-      if (!trans) return res.status(404).json({ success: false, message: 'Transport not found' });
-      transportId = trans._id;
-      subtotal = trans.price * Number(numTravelers);
-    } else {
-      return res.status(400).json({ success: false, message: 'Invalid booking type' });
-    }
+// @route POST /api/bookings
+// Places a payment hold. The booking is confirmed only after payment succeeds.
+exports.createBooking = asyncHandler(async (req, res) => {
+  const quote = await quoteSingle(req.user, req.body);
+  const booking = await createHold(req.user, quote, {
+    bookingType: req.body.itemType,
+    travelers: req.body.travelers,
+    contact: req.body.contact,
+    specialRequests: req.body.specialRequests,
+    couponCode: req.body.couponCode
+  });
+  res.status(201).json({ success: true, data: booking });
+});
 
-    // Taxes (18% GST standard in current app)
-    const taxAmount = Math.round(subtotal * 0.18);
-    let discountAmount = 0;
-    let appliedCoupon = '';
+// @route GET /api/bookings/my?status=upcoming|past|cancelled
+exports.getMyBookings = asyncHandler(async (req, res) => {
+  await sweepBookings();
+  const filter = { user: req.user._id };
+  const view = req.query.status;
+  if (view === 'upcoming') filter.status = { $in: ['Confirmed', 'PendingPayment'] };
+  if (view === 'past') filter.status = 'Completed';
+  if (view === 'cancelled') filter.status = { $in: ['Cancelled', 'Expired'] };
 
-    // Apply Coupon
-    if (couponCode) {
-      const coupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true });
-      if (coupon && new Date(coupon.validUntil) >= new Date()) {
-        if (subtotal >= coupon.minOrderAmount) {
-          if (coupon.discountType === 'percent') {
-            discountAmount = Math.round((subtotal * coupon.discountValue) / 100);
-            if (discountAmount > coupon.maxDiscountAmount) discountAmount = coupon.maxDiscountAmount;
-          } else {
-            discountAmount = coupon.discountValue;
-          }
-          appliedCoupon = coupon.code;
-          coupon.timesUsed += 1;
-          await coupon.save();
-        }
-      }
-    }
+  const { page, limit, skip } = parsePagination(req.query);
+  const [data, total] = await Promise.all([
+    Booking.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    Booking.countDocuments(filter)
+  ]);
+  paginatedResponse(res, { data, total, page, limit });
+});
 
-    const totalPrice = Math.max(0, subtotal + taxAmount - discountAmount);
+// Travellers see their own bookings, agencies see bookings containing their items, admins see all.
+const loadAccessibleBooking = async (req) => {
+  const booking = await Booking.findById(req.params.id)
+    .populate('user', 'username fullName email phone')
+    .populate('destination', 'name slug coordinates');
+  if (!booking) throw ApiError.notFound('Booking not found');
 
-    // Create Booking
-    const booking = await Booking.create({
-      user: req.user._id,
-      bookingType,
-      package: packageId,
-      hotel: hotelId,
-      transport: transportId,
-      travelDate,
-      checkOutDate,
-      numTravelers,
-      roomType,
-      pickupLocation,
-      specialRequests,
-      subtotalAmount: subtotal,
-      taxAmount,
-      discountAmount,
-      discountCode: appliedCoupon,
-      totalPrice,
-      status: 'Confirmed',
-      paymentStatus: 'Paid',
-      tripStatus: 'Upcoming'
-    });
+  const isOwner = req.userRole === 'user' && String(booking.user._id) === String(req.user._id);
+  const isAgency = req.userRole === 'agency' && booking.items.some((i) => String(i.agency) === String(req.user._id));
+  if (!isOwner && !isAgency && req.userRole !== 'admin') throw ApiError.notFound('Booking not found');
+  return { booking, isOwner, isAgency };
+};
 
-    // Generate Transaction & Payment
-    const txnId = `TXN-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
-    const payment = await Payment.create({
-      booking: booking._id,
-      user: req.user._id,
-      transactionId: txnId,
-      paymentMethod,
-      amount: totalPrice,
-      currency: 'INR',
-      status: 'Success'
-    });
+// @route GET /api/bookings/:id
+exports.getBooking = asyncHandler(async (req, res) => {
+  const { booking, isAgency } = await loadAccessibleBooking(req);
+  const data = booking.toJSON();
+  // Partners only see their own lines of a multi-partner trip.
+  if (isAgency) data.items = data.items.filter((i) => String(i.agency) === String(req.user._id));
+  res.status(200).json({ success: true, data });
+});
 
-    // Generate Invoice
-    const invoiceNum = `INV-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
-    const invoice = await Invoice.create({
-      invoiceNumber: invoiceNum,
-      booking: booking._id,
-      user: req.user._id,
-      subtotal,
-      taxAmount,
-      discount: discountAmount,
-      totalAmount: totalPrice,
-      status: 'Paid'
-    });
+// @route GET /api/hotels/:id/availability?checkIn=&checkOut=
+exports.getHotelAvailability = asyncHandler(async (req, res) => {
+  const { checkIn, checkOut } = req.validatedQuery;
+  const nights = diffDays(checkIn, checkOut);
+  if (nights < 1 || nights > 30) throw ApiError.badRequest('Choose between 1 and 30 nights');
 
-    // Award Loyalty Points
-    const pointsEarned = Math.floor(totalPrice / 100) * 5;
-    await User.findByIdAndUpdate(req.user._id, {
-      $inc: { loyaltyPoints: pointsEarned }
-    });
+  const hotel = await Hotel.findById(req.params.id);
+  if (!hotel || !hotel.isActive) throw ApiError.notFound('Hotel not found');
 
-    // Create Notification
-    await Notification.create({
-      user: req.user._id,
-      title: 'Booking Confirmed!',
-      message: `Your booking #${booking._id.toString().slice(-6)} has been confirmed! +${pointsEarned} loyalty points earned.`,
-      notificationType: 'booking',
-      linkUrl: `/dashboard/bookings`
-    });
+  const days = range(checkIn, checkOut);
+  const rooms = await Promise.all(
+    hotel.rooms.map(async (room) => {
+      const { remaining } = await remainingCapacity(hotel._id, days, room.totalRooms, { variantId: room._id });
+      return { roomId: room._id, name: room.name, available: remaining, pricePerNight: room.pricePerNight, total: room.pricePerNight * nights };
+    })
+  );
+  res.status(200).json({ success: true, data: { checkIn, checkOut, nights, rooms } });
+});
 
-    res.status(201).json({
-      success: true,
-      data: booking,
-      payment,
-      invoice
-    });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+// A partner may cancel only bookings made up entirely of its own listings.
+const cancellerRole = (req, booking, { isOwner, isAgency }) => {
+  if (isOwner) return 'user';
+  if (req.userRole === 'admin') return 'admin';
+  if (isAgency && booking.items.every((i) => String(i.agency) === String(req.user._id))) return 'agency';
+  throw ApiError.forbidden('This trip includes other partners. Ask Roamly support to cancel it.');
+};
+
+// @route GET /api/bookings/:id/cancellation
+exports.previewCancellation = asyncHandler(async (req, res) => {
+  const access = await loadAccessibleBooking(req);
+  const role = cancellerRole(req, access.booking, access);
+  const preview = await previewCancellationFor(access.booking, role);
+  res.status(200).json({ success: true, data: preview });
+});
+
+// @route PUT /api/bookings/:id/cancel
+exports.cancelBooking = asyncHandler(async (req, res) => {
+  const access = await loadAccessibleBooking(req);
+  const role = cancellerRole(req, access.booking, access);
+  const booking = await cancelBookingFor(access.booking, { cancelledBy: role, reason: req.body.reason });
+  res.status(200).json({ success: true, data: booking });
+});
+
+const assertTicketable = (booking) => {
+  if (!['Confirmed', 'Completed'].includes(booking.status)) {
+    throw ApiError.badRequest('Vouchers and invoices are available once the booking is paid');
   }
 };
 
-// @desc    Get user bookings
-// @route   GET /api/bookings/my
-// @access  Private (User)
-exports.getMyBookings = async (req, res) => {
-  try {
-    const bookings = await Booking.find({ user: req.user._id })
-      .populate('package')
-      .populate('hotel')
-      .populate('transport')
-      .sort({ createdAt: -1 });
+// @route GET /api/bookings/:id/voucher
+exports.getVoucher = asyncHandler(async (req, res) => {
+  const { booking } = await loadAccessibleBooking(req);
+  assertTicketable(booking);
+  res.status(200).json({
+    success: true,
+    data: { code: voucherCode(booking), qr: await voucherQrDataUrl(booking), reference: booking.reference }
+  });
+});
 
-    res.status(200).json({ success: true, count: bookings.length, data: bookings });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
+// @route GET /api/bookings/:id/invoice.pdf
+exports.getInvoicePdf = asyncHandler(async (req, res) => {
+  const { booking, isAgency } = await loadAccessibleBooking(req);
+  if (isAgency) throw ApiError.forbidden('Invoices are issued to the traveller');
+  assertTicketable(booking);
+  const invoice = await Invoice.findOne({ booking: booking._id });
+  if (!invoice) throw ApiError.notFound('Invoice not found');
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `inline; filename="${invoice.invoiceNumber}.pdf"`);
+  await writeInvoicePdf(res, { booking, invoice, user: booking.user });
+});
 
-// @desc    Get single booking details
-// @route   GET /api/bookings/:id
-// @access  Private
-exports.getBooking = async (req, res) => {
-  try {
-    const booking = await Booking.findById(req.params.id)
-      .populate('user', 'username email fullName phone')
-      .populate('package')
-      .populate('hotel')
-      .populate('transport');
-
-    if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
-
-    // Authorization check
-    if (req.userRole === 'user' && booking.user._id.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: 'Not authorized' });
+// @route POST /api/agency/vouchers/verify   { code }
+// Partners scan a traveller's QR at check-in; only their own bookings verify.
+exports.verifyVoucher = asyncHandler(async (req, res) => {
+  const parsed = parseVoucherCode(req.body.code);
+  if (!parsed) throw ApiError.badRequest('This is not a valid Roamly voucher');
+  const booking = await Booking.findById(parsed.bookingId).populate('user', 'fullName phone').lean();
+  if (!booking || booking.reference !== parsed.reference) throw ApiError.badRequest('This is not a valid Roamly voucher');
+  const items = booking.items.filter((i) => String(i.agency) === String(req.user._id));
+  if (!items.length) throw ApiError.forbidden('This booking is not with your agency');
+  res.status(200).json({
+    success: true,
+    data: {
+      reference: booking.reference,
+      status: booking.status,
+      valid: booking.status === 'Confirmed',
+      traveller: booking.contact?.name || booking.user?.fullName,
+      phone: booking.contact?.phone || booking.user?.phone,
+      travelers: booking.travelers,
+      items
     }
+  });
+});
 
-    const payment = await Payment.findOne({ booking: booking._id });
-    const invoice = await Invoice.findOne({ booking: booking._id });
-
-    res.status(200).json({ success: true, data: booking, payment, invoice });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// @desc    Cancel booking
-// @route   PUT /api/bookings/:id/cancel
-// @access  Private
-exports.cancelBooking = async (req, res) => {
-  try {
-    const booking = await Booking.findById(req.params.id);
-    if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
-
-    if (req.userRole === 'user' && booking.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: 'Not authorized' });
-    }
-
-    booking.status = 'Cancelled';
-    booking.tripStatus = 'Cancelled';
-    booking.paymentStatus = 'Refunded';
-    await booking.save();
-
-    await Notification.create({
-      user: booking.user,
-      title: 'Booking Cancelled',
-      message: `Booking #${booking._id.toString().slice(-6)} has been successfully cancelled and refund initiated.`,
-      notificationType: 'booking'
-    });
-
-    res.status(200).json({ success: true, message: 'Booking cancelled successfully', data: booking });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
+exports.loadAccessibleBooking = loadAccessibleBooking;

@@ -1,80 +1,53 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const passwordPlugin = require('./plugins/password');
 
 const UserSchema = new mongoose.Schema({
   username: {
     type: String,
     required: [true, 'Please provide a username'],
     unique: true,
-    trim: true
+    trim: true,
+    lowercase: true,
+    minlength: 3,
+    maxlength: 30
   },
   email: {
     type: String,
     required: [true, 'Please provide an email'],
     unique: true,
     lowercase: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email']
+    trim: true,
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, 'Please provide a valid email']
   },
   password: {
     type: String,
     required: [true, 'Please provide a password'],
-    minlength: 6,
+    minlength: 8,
     select: false
   },
-  fullName: {
-    type: String,
-    default: ''
-  },
-  phone: {
-    type: String,
-    default: ''
-  },
-  address: {
-    type: String,
-    default: ''
-  },
-  bio: {
-    type: String,
-    default: ''
-  },
+  fullName: { type: String, default: '', trim: true },
+  phone: { type: String, default: '' },
+  address: { type: String, default: '' },
+  homeCity: { type: String, default: '' },
+  bio: { type: String, default: '' },
+  avatarUrl: { type: String, default: '' },
   preferences: {
     preferredTravelMode: { type: String, default: 'Train' },
     dietaryPreference: { type: String, default: 'Vegetarian' },
     budgetRange: { type: String, default: 'Moderate' },
-    preferredCategories: [{ type: String }]
+    preferredCategories: [{ type: String }],
+    language: { type: String, default: 'en' },
+    currency: { type: String, default: 'INR' }
   },
-  walletBalance: {
-    type: Number,
-    default: 0
-  },
-  loyaltyPoints: {
-    type: Number,
-    default: 0
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+  walletBalance: { type: Number, default: 0, min: 0 },
+  loyaltyPoints: { type: Number, default: 0, min: 0 },
+  emailVerified: { type: Boolean, default: false },
+  verifyEmailToken: { type: String, select: false },
+  status: { type: String, enum: ['Active', 'Suspended'], default: 'Active' },
+  lastLoginAt: { type: Date },
+  createdAt: { type: Date, default: Date.now }
 });
 
-// Encrypt password before save
-UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-});
-
-// Match password method
-UserSchema.methods.matchPassword = async function (enteredPassword) {
-  // Support both bcrypt hashes and legacy werkzeug / plain passwords during migration
-  if (this.password.startsWith('scrypt:') || this.password.startsWith('pbkdf2:')) {
-    // If legacy hash, we permit matching or bcrypt upgrade
-    return true; 
-  }
-  return await bcrypt.compare(enteredPassword, this.password);
-};
+UserSchema.plugin(passwordPlugin);
 
 module.exports = mongoose.model('User', UserSchema);

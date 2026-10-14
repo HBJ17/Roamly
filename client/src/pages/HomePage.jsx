@@ -1,224 +1,96 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../api/client';
+import { Search, Map, Hotel, Car, ShieldCheck, Wallet, MapPin, Tag } from 'lucide-react';
+import useApi from '../hooks/useApi';
+import usePageTitle from '../hooks/usePageTitle';
+import { useTrip } from '../context/TripContext';
 import { useApp } from '../context/AppContext';
-import { Compass, Search, Star, ShieldCheck, MapPin, Sparkles, ArrowRight, Hotel, Car, Check } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
+import TripSearch from '../components/listing/TripSearch';
+import { DestinationTile, PackageCard } from '../components/listing/Cards';
+import { Skeleton } from '../components/ui';
+
+const STEPS = [
+  { icon: MapPin, title: 'Pick a city', text: 'Everything you see after that — stays, cabs, tours — is from that city only.' },
+  { icon: Map, title: 'Plan or pick a package', text: 'Build a day-by-day trip with travel, hotel and cab, or choose a ready-made package.' },
+  { icon: Wallet, title: 'Hold & pay securely', text: 'Inventory is held while you pay by wallet, UPI or card. Instant voucher with QR.' },
+  { icon: ShieldCheck, title: 'Travel with local partners', text: 'Verified hotels and drivers in each city, with reviews only from real guests.' }
+];
 
 export default function HomePage() {
-  const { formatCurrency, toggleCompare, compareList } = useApp();
+  const { trip, destinations } = useTrip();
+  const { t, formatCurrency } = useApp();
+  const toast = useToast();
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [category, setCategory] = useState('all');
-  const [featuredPackages, setFeaturedPackages] = useState([]);
-  const [loading, setLoading] = useState(true);
+  usePageTitle('South India travel, curated');
+  const packages = useApi('/packages', { params: { sort: 'rating', limit: 6 } });
+  const offers = useApi('/coupons');
 
-  useEffect(() => {
-    const fetchPackages = async () => {
-      try {
-        const res = await api.get('/packages');
-        if (res.data.success) {
-          setFeaturedPackages(res.data.data.slice(0, 6));
-        }
-      } catch (err) {
-        console.error('Error fetching featured packages', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPackages();
-  }, []);
-
-  const handleSearch = (e) => {
+  const go = (e) => {
     e.preventDefault();
-    navigate(`/packages?destination=${encodeURIComponent(searchTerm)}&category=${category}`);
+    if (!trip.destination) return toast.info('Choose where you want to go first');
+    return navigate(`/destinations/${trip.destination}`);
   };
 
   return (
     <div className="main-container">
-      {/* Hero Section */}
-      <section className="travel-hero" style={{ background: 'var(--pastel-yellow-light)', textAlign: 'center', padding: '48px 24px 40px' }}>
-        <div style={{ display: 'inline-block', marginBottom: '14px' }}>
-          <span className="stamp-tag badge-mint" style={{ transform: 'rotate(-2deg)' }}>
-            ★ HANDCRAFTED ITINERARIES & FLEETS
-          </span>
-        </div>
-        <h1 style={{ fontSize: 'clamp(28px, 5vw, 46px)', lineHeight: '1.15', marginBottom: '14px' }}>
-          HAND-DRAWN TRAILS. <br />
-          <span className="font-marker" style={{ color: '#000', textDecoration: 'underline wavy var(--pastel-peach)' }}>
-            TIMELESS ADVENTURES.
-          </span>
-        </h1>
-        <p style={{ margin: '0 auto 28px', maxWidth: '640px', fontSize: '16px' }}>
-          Explore misty hill station trails, thousand-pillar heritage temples, and luxury coastal caravans curated by verified regional expedition partners.
+      <section className="travel-hero" style={{ background: 'var(--pastel-yellow-light)' }}>
+        <span className="badge badge-mint">South India, curated</span>
+        <h1 style={{ fontSize: 'clamp(30px, 5vw, 46px)', margin: '10px 0 6px' }}>Where are you headed?</h1>
+        <p className="muted" style={{ maxWidth: 620, marginBottom: 18 }}>
+          Choose a city and Roamly shows only the hotels, cabs, tours and routes that actually serve it — then lets you book them together.
         </p>
-
-        {/* Global Search Bar */}
-        <form
-          onSubmit={handleSearch}
-          style={{
-            maxWidth: '780px',
-            margin: '0 auto',
-            background: '#fff',
-            border: '3px solid #000',
-            borderRadius: '12px',
-            padding: '10px 14px',
-            boxShadow: '6px 6px 0 #000',
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '10px',
-            alignItems: 'center'
-          }}
-        >
-          <div style={{ flex: '1 1 240px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <MapPin size={18} color="#64748b" />
-            <input
-              type="text"
-              placeholder="Where to wander? (e.g. Kodaikanal, Madurai...)"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ border: 'none', boxShadow: 'none', padding: '6px 0', fontSize: '15px' }}
-            />
-          </div>
-
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            style={{
-              flex: '0 1 180px',
-              border: '2px solid #000',
-              borderRadius: '6px',
-              padding: '8px 10px',
-              fontWeight: '700',
-              fontSize: '13px',
-              boxShadow: '2px 2px 0 #000'
-            }}
-          >
-            <option value="all">All Categories</option>
-            <option value="Hill Station">Hill Stations ⛰️</option>
-            <option value="Heritage">Heritage & Temples 🛕</option>
-            <option value="Beach">Coastal & Beach 🌊</option>
-            <option value="Cultural">Cultural & Urban 🌆</option>
-          </select>
-
-          <button type="submit" className="btn btn-primary" style={{ padding: '10px 22px' }}>
-            <Search size={16} /> Explore
-          </button>
+        <form onSubmit={go}>
+          <TripSearch fields={['origin', 'destination', 'dates', 'travellers']} dateLabels={['Going on', 'Coming back']}>
+            <button type="submit" className="btn btn-primary" style={{ height: 42 }}><Search size={15} /> {t('explore')}</button>
+          </TripSearch>
         </form>
+        <div className="row" style={{ marginTop: 14 }}>
+          <Link className="btn btn-sm btn-yellow" to="/plan"><Map size={13} /> Build a custom trip</Link>
+          <Link className="btn btn-sm btn-outline" to="/hotels"><Hotel size={13} /> Just a hotel</Link>
+          <Link className="btn btn-sm btn-outline" to="/transports"><Car size={13} /> Just a cab</Link>
+        </div>
       </section>
 
-      {/* Quick Category Badges */}
-      <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '40px' }}>
-        <Link to="/packages?category=Hill Station" className="badge badge-mint" style={{ padding: '8px 16px', fontSize: '13px', textDecoration: 'none' }}>
-          ⛰️ Hill Stations
-        </Link>
-        <Link to="/packages?category=Heritage" className="badge badge-peach" style={{ padding: '8px 16px', fontSize: '13px', textDecoration: 'none' }}>
-          🛕 Heritage & Temples
-        </Link>
-        <Link to="/packages?category=Beach" className="badge badge-blue" style={{ padding: '8px 16px', fontSize: '13px', textDecoration: 'none' }}>
-          🌊 Coastal Highway
-        </Link>
-        <Link to="/hotels" className="badge badge-yellow" style={{ padding: '8px 16px', fontSize: '13px', textDecoration: 'none' }}>
-          🏨 Boutique Hotels
-        </Link>
-        <Link to="/transports" className="badge badge-neutral" style={{ padding: '8px 16px', fontSize: '13px', textDecoration: 'none' }}>
-          🚗 Taxi & Cab Fleets
-        </Link>
-        <Link to="/itinerary" className="badge badge-pink" style={{ padding: '8px 16px', fontSize: '13px', textDecoration: 'none' }}>
-          🗺️ Custom Trip Builder
-        </Link>
-      </div>
+      <section className="section">
+        <div className="row-between"><h2 className="section-title"><MapPin size={20} /> {t('destinations')}</h2><Link className="link small" to="/destinations">See all</Link></div>
+        {destinations.length ? (
+          <div className="grid-auto">{destinations.map((d) => <DestinationTile key={d.slug} destination={d} />)}</div>
+        ) : <Skeleton height={220} />}
+      </section>
 
-      {/* Featured Packages Grid */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '20px' }}>
-        <div>
-          <span className="badge badge-yellow" style={{ marginBottom: '6px' }}>CURATED EXPEDITIONS</span>
-          <h2 style={{ fontSize: '26px' }}>FEATURED HOLIDAY CARAVANS</h2>
-        </div>
-        <Link to="/packages" className="btn btn-sm btn-outline" style={{ textDecoration: 'none' }}>
-          View All Packages <ArrowRight size={14} />
-        </Link>
-      </div>
-
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px' }}>
-          <div className="badge badge-yellow">Loading Roamly Expeditions...</div>
-        </div>
-      ) : (
-        <div className="packages-grid">
-          {featuredPackages.map((pkg) => {
-            const isCompared = compareList.some((p) => p._id === pkg._id);
-            return (
-              <div key={pkg._id} className="package-card">
-                <div className="package-card-img-wrap">
-                  <img src={pkg.imageUrl} alt={pkg.title} className="package-card-img" />
-                  <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
-                    <span className="badge badge-yellow">{pkg.category}</span>
-                  </div>
-                  <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
-                    <span className="rating-badge">
-                      <Star size={13} fill="#000" color="#000" /> {pkg.rating}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="package-card-body">
-                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '700', textTransform: 'uppercase' }}>
-                    📍 {pkg.destination} • {pkg.durationDays}D / {pkg.durationNights}N
-                  </div>
-                  <h3 className="package-card-title">{pkg.title}</h3>
-                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', flexGrow: 1, marginBottom: '14px', lineHeight: '1.5' }}>
-                    {pkg.description.slice(0, 110)}...
-                  </p>
-
-                  <div style={{ borderTop: '1.5px solid #eee', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '700' }}>PER TRAVELER</div>
-                      <div className="package-price">{formatCurrency(pkg.price)}</div>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      <button
-                        type="button"
-                        onClick={() => toggleCompare(pkg)}
-                        className={`btn btn-sm ${isCompared ? 'btn-yellow' : 'btn-outline'}`}
-                        title="Compare Package"
-                      >
-                        {isCompared ? '✓ Compare' : '+ Compare'}
-                      </button>
-                      <Link to={`/packages/${pkg._id}`} className="btn btn-sm btn-primary" style={{ textDecoration: 'none' }}>
-                        Details →
-                      </Link>
-                    </div>
-                  </div>
-                </div>
+      {offers.data?.length > 0 && (
+        <section className="section">
+          <h2 className="section-title"><Tag size={20} /> Offers right now</h2>
+          <div className="grid-auto-sm">
+            {offers.data.slice(0, 4).map((c) => (
+              <div key={c.code} className="card" style={{ padding: 16, background: 'var(--pastel-peach-light)' }}>
+                <span className="postal-stamp-box" style={{ display: 'inline-block' }}><b>{c.code}</b></span>
+                <p style={{ margin: '10px 0 4px', fontWeight: 700 }}>{c.discountType === 'percent' ? `${c.discountValue}% off` : `${formatCurrency(c.discountValue)} off`}{c.applicableTo !== 'all' ? ` ${c.applicableTo}s` : ''}</p>
+                <p className="small muted">{c.description}{c.minOrderAmount ? ` · min ${formatCurrency(c.minOrderAmount)}` : ''}</p>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        </section>
       )}
 
-      {/* Why Roamly Feature Callout */}
-      <section style={{ marginTop: '60px', background: 'var(--surface)', border: '3px solid #000', borderRadius: '14px', padding: '36px', boxShadow: '6px 6px 0 #000' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '28px' }}>THE ROAMLY DOODLE PROMISE</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px' }}>
-          <div style={{ border: '2px solid #000', borderRadius: '10px', padding: '20px', background: 'var(--pastel-mint-light)', boxShadow: '3px 3px 0 #000' }}>
-            <h4 style={{ fontSize: '16px', marginBottom: '8px' }}>🛡️ 100% Verified Partners</h4>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-              All hotel resorts, chauffeurs, and tour agencies undergo rigorous verification before joining our caravan network.
-            </p>
-          </div>
-          <div style={{ border: '2px solid #000', borderRadius: '10px', padding: '20px', background: 'var(--pastel-yellow-light)', boxShadow: '3px 3px 0 #000' }}>
-            <h4 style={{ fontSize: '16px', marginBottom: '8px' }}>🗺️ Custom Day-by-Day Planner</h4>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-              Tailor every single day of your journey with sightseeing stops, private taxi transfers, and boutique hotel bookings.
-            </p>
-          </div>
-          <div style={{ border: '2px solid #000', borderRadius: '10px', padding: '20px', background: 'var(--pastel-blue-light)', boxShadow: '3px 3px 0 #000' }}>
-            <h4 style={{ fontSize: '16px', marginBottom: '8px' }}>🎁 Loyalty Points & Coins</h4>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-              Earn automatic loyalty points on every journey booked and redeem them seamlessly towards your next mountain or coastal getaway.
-            </p>
-          </div>
+      <section className="section">
+        <div className="row-between"><h2 className="section-title">Top-rated packages</h2><Link className="link small" to="/packages">{t('explore_packages')}</Link></div>
+        {packages.loading ? <Skeleton height={320} /> : (
+          <div className="grid-auto">{(packages.data || []).map((p) => <PackageCard key={p._id} pkg={p} />)}</div>
+        )}
+      </section>
+
+      <section className="section">
+        <h2 className="section-title">How Roamly works</h2>
+        <div className="grid-auto-sm">
+          {STEPS.map(({ icon: Icon, title, text }) => (
+            <div key={title} className="card" style={{ padding: 18 }}>
+              <Icon size={24} />
+              <h3 style={{ fontSize: 15, margin: '8px 0 4px' }}>{title}</h3>
+              <p className="small muted">{text}</p>
+            </div>
+          ))}
         </div>
       </section>
     </div>
