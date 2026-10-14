@@ -46,6 +46,51 @@ exports.getDestination = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: destination });
 });
 
+// @route GET /api/destinations/:ref/explore
+// Everything a traveller can book in one city: stays, local cabs, packages and the ways to get there.
+exports.exploreDestination = asyncHandler(async (req, res) => {
+  const destination = await findDestination(req.params.ref);
+  if (!destination) throw ApiError.notFound('Destination not found');
+  const scope = { destination: destination._id, isActive: true };
+
+  const [hotels, cabs, packages, arrivals, counts] = await Promise.all([
+    Hotel.find(scope).sort({ rating: -1, starRating: -1 }).limit(6).lean(),
+    Transport.find({ ...scope, scope: 'local' }).sort({ rating: -1 }).limit(6),
+    Package.find(scope).sort({ rating: -1 }).limit(6).lean(),
+    Transport.aggregate([
+      { $match: { ...scope, scope: 'intercity' } },
+      {
+        $group: {
+          _id: '$origin',
+          originName: { $first: '$originName' },
+          modes: { $addToSet: '$vehicleType' },
+          lowestFare: { $min: '$fare' },
+          fastestHours: { $min: '$durationHours' },
+          services: { $sum: 1 }
+        }
+      },
+      { $sort: { originName: 1 } }
+    ]),
+    Promise.all([
+      Hotel.countDocuments(scope),
+      Transport.countDocuments({ ...scope, scope: 'local' }),
+      Package.countDocuments(scope)
+    ])
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      destination,
+      hotels,
+      cabs,
+      packages,
+      arrivals: arrivals.map((a) => ({ ...a, origin: a._id, _id: undefined })),
+      stats: { hotels: counts[0], cabs: counts[1], packages: counts[2], attractions: destination.attractions.length }
+    }
+  });
+});
+
 // @route POST /api/destinations  (admin)
 exports.createDestination = asyncHandler(async (req, res) => {
   const destination = await Destination.create(req.body);

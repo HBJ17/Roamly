@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.get('/', ctrl.listDestinations);
 router.get('/:ref', ctrl.getDestination);
+router.get('/:ref/explore', ctrl.exploreDestination);
 router.post('/', protect, authorize('admin'), validate(schemas.createDestinationSchema), ctrl.createDestination);
 router.put('/:id', protect, authorize('admin'), validate(schemas.updateDestinationSchema), ctrl.updateDestination);
 

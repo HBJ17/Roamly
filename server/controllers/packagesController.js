@@ -1,119 +1,134 @@
 const Package = require('../models/Package');
+const Hotel = require('../models/Hotel');
+const Transport = require('../models/Transport');
 const Review = require('../models/Review');
+const asyncHandler = require('../utils/asyncHandler');
+const ApiError = require('../utils/ApiError');
+const escapeRegex = require('../utils/escapeRegex');
+const { parsePagination, paginatedResponse } = require('../utils/paginate');
+const { findDestination } = require('../services/destinationService');
+const { resolveListingOwner, assertCanManage } = require('../services/listingAccess');
 
-// @desc    Get all packages with filtering & sorting
-// @route   GET /api/packages
-// @access  Public
-exports.getPackages = async (req, res) => {
-  try {
-    const { destination, category, min_price, max_price, duration, sort_by } = req.query;
-    let query = {};
+const SORTS = {
+  recommended: { rating: -1, reviewCount: -1 },
+  price_asc: { price: 1 },
+  price_desc: { price: -1 },
+  rating: { rating: -1 },
+  duration: { durationDays: 1 },
+  newest: { createdAt: -1 }
+};
 
-    if (destination) {
-      query.$or = [
-        { destination: { $regex: destination, $options: 'i' } },
-        { title: { $regex: destination, $options: 'i' } },
-        { description: { $regex: destination, $options: 'i' } }
-      ];
-    }
-
-    if (category && category !== 'all' && category !== 'All Categories') {
-      query.category = { $regex: `^${category}$`, $options: 'i' };
-    }
-
-    if (min_price || max_price) {
-      query.price = {};
-      if (min_price) query.price.$gte = Number(min_price);
-      if (max_price) query.price.$lte = Number(max_price);
-    }
-
-    if (duration) {
-      if (duration === '1-3') query.durationDays = { $gte: 1, $lte: 3 };
-      else if (duration === '4-7') query.durationDays = { $gte: 4, $lte: 7 };
-      else if (duration === '8+') query.durationDays = { $gte: 8 };
-    }
-
-    let sortObj = { createdAt: -1 };
-    if (sort_by === 'price_asc') sortObj = { price: 1 };
-    else if (sort_by === 'price_desc') sortObj = { price: -1 };
-    else if (sort_by === 'rating_desc') sortObj = { rating: -1 };
-    else if (sort_by === 'duration_desc') sortObj = { durationDays: -1 };
-
-    const packages = await Package.find(query).populate('agency', 'name email phone').sort(sortObj);
-    res.status(200).json({ success: true, count: packages.length, data: packages });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+// A package can only bundle a hotel from its own destination.
+const assertHotelInDestination = async (hotelId, destinationId) => {
+  if (!hotelId) return;
+  const hotel = await Hotel.findById(hotelId).select('destination destinationName isActive');
+  if (!hotel || !hotel.isActive) throw ApiError.badRequest('Selected hotel was not found');
+  if (String(hotel.destination) !== String(destinationId)) {
+    throw ApiError.badRequest(`The package hotel must be in the same city (it is in ${hotel.destinationName})`);
   }
 };
 
-// @desc    Get single package
-// @route   GET /api/packages/:id
-// @access  Public
-exports.getPackage = async (req, res) => {
-  try {
-    const pkg = await Package.findById(req.params.id).populate('agency', 'name email phone address');
-    if (!pkg) {
-      return res.status(404).json({ success: false, message: 'Package not found' });
-    }
+// @route GET /api/packages
+exports.getPackages = asyncHandler(async (req, res) => {
+  const q = req.validatedQuery;
+  const filter = { isActive: true };
+  const { page, limit, skip } = parsePagination(q);
 
-    const reviews = await Review.find({ itemType: 'package', itemId: pkg._id }).populate('user', 'username fullName');
-    const similar = await Package.find({ category: pkg.category, _id: { $ne: pkg._id } }).limit(3);
-
-    res.status(200).json({ success: true, data: pkg, reviews, similar });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+  let destination = null;
+  if (q.destination) {
+    destination = await findDestination(q.destination);
+    if (!destination) return paginatedResponse(res, { data: [], total: 0, page, limit, extra: { destination: null } });
+    filter.destination = destination._id;
   }
-};
-
-// @desc    Create package (Agency/Admin)
-// @route   POST /api/packages
-// @access  Private (Agency/Admin)
-exports.createPackage = async (req, res) => {
-  try {
-    if (req.userRole === 'agency') {
-      req.body.agency = req.user._id;
-    }
-    const pkg = await Package.create(req.body);
-    res.status(201).json({ success: true, data: pkg });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+  if (q.category) filter.category = q.category;
+  if (q.q) {
+    const rx = { $regex: escapeRegex(q.q), $options: 'i' };
+    filter.$or = [{ title: rx }, { destinationName: rx }, { highlights: rx }];
   }
-};
-
-// @desc    Update package
-// @route   PUT /api/packages/:id
-// @access  Private (Agency/Admin)
-exports.updatePackage = async (req, res) => {
-  try {
-    let pkg = await Package.findById(req.params.id);
-    if (!pkg) return res.status(404).json({ success: false, message: 'Package not found' });
-
-    if (req.userRole === 'agency' && pkg.agency && pkg.agency.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: 'Not authorized to edit this package' });
-    }
-
-    pkg = await Package.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    res.status(200).json({ success: true, data: pkg });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+  if (q.minPrice !== undefined || q.maxPrice !== undefined) {
+    filter.price = {};
+    if (q.minPrice !== undefined) filter.price.$gte = q.minPrice;
+    if (q.maxPrice !== undefined) filter.price.$lte = q.maxPrice;
   }
-};
-
-// @desc    Delete package
-// @route   DELETE /api/packages/:id
-// @access  Private (Agency/Admin)
-exports.deletePackage = async (req, res) => {
-  try {
-    const pkg = await Package.findById(req.params.id);
-    if (!pkg) return res.status(404).json({ success: false, message: 'Package not found' });
-
-    if (req.userRole === 'agency' && pkg.agency && pkg.agency.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: 'Not authorized to delete this package' });
-    }
-
-    await Package.findByIdAndDelete(req.params.id);
-    res.status(200).json({ success: true, message: 'Package removed' });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+  if (q.minDays || q.maxDays) {
+    filter.durationDays = {};
+    if (q.minDays) filter.durationDays.$gte = q.minDays;
+    if (q.maxDays) filter.durationDays.$lte = q.maxDays;
   }
-};
+
+  const [data, total] = await Promise.all([
+    Package.find(filter).populate('agency', 'name').sort(SORTS[q.sort]).skip(skip).limit(limit).lean(),
+    Package.countDocuments(filter)
+  ]);
+
+  return paginatedResponse(res, {
+    data,
+    total,
+    page,
+    limit,
+    extra: { destination: destination ? { _id: destination._id, name: destination.name, slug: destination.slug } : null }
+  });
+});
+
+// @route GET /api/packages/mine  (agency)
+exports.getMyPackages = asyncHandler(async (req, res) => {
+  const data = await Package.find({ agency: req.user._id }).sort({ createdAt: -1 }).lean();
+  res.status(200).json({ success: true, count: data.length, data });
+});
+
+// @route GET /api/packages/:id
+// Includes what a traveller needs next in the same city: local cabs and other packages.
+exports.getPackage = asyncHandler(async (req, res) => {
+  const pkg = await Package.findById(req.params.id)
+    .populate('agency', 'name phone email cityName')
+    .populate('hotel', 'name starRating imageUrl address rating')
+    .populate('destination', 'name slug state coordinates attractions bestTimeToVisit');
+  if (!pkg || (!pkg.isActive && req.userRole !== 'admin')) throw ApiError.notFound('Package not found');
+
+  const [reviews, similar, localCabs] = await Promise.all([
+    Review.find({ itemType: 'package', itemId: pkg._id, status: 'Published' })
+      .populate('user', 'username fullName')
+      .sort({ createdAt: -1 })
+      .limit(20),
+    Package.find({ destination: pkg.destination._id, _id: { $ne: pkg._id }, isActive: true }).limit(3).lean(),
+    Transport.find({ scope: 'local', destination: pkg.destination._id, isActive: true }).sort({ rating: -1 }).limit(3)
+  ]);
+
+  res.status(200).json({ success: true, data: pkg, reviews, similar, localCabs });
+});
+
+// @route POST /api/packages  (Tour Operator or admin)
+exports.createPackage = asyncHandler(async (req, res) => {
+  const { agency, destination } = await resolveListingOwner(req, 'package', req.body.destination);
+  await assertHotelInDestination(req.body.hotel, destination._id);
+
+  const pkg = await Package.create({
+    ...req.body,
+    agency: agency._id,
+    destination: destination._id,
+    destinationName: destination.name,
+    coordinates: destination.coordinates
+  });
+  res.status(201).json({ success: true, data: pkg });
+});
+
+// @route PUT /api/packages/:id
+exports.updatePackage = asyncHandler(async (req, res) => {
+  const pkg = await Package.findById(req.params.id);
+  if (!pkg) throw ApiError.notFound('Package not found');
+  assertCanManage(req, pkg);
+  if (req.body.hotel) await assertHotelInDestination(req.body.hotel, pkg.destination);
+  pkg.set(req.body);
+  await pkg.save();
+  res.status(200).json({ success: true, data: pkg });
+});
+
+// @route DELETE /api/packages/:id  (archives)
+exports.deletePackage = asyncHandler(async (req, res) => {
+  const pkg = await Package.findById(req.params.id);
+  if (!pkg) throw ApiError.notFound('Package not found');
+  assertCanManage(req, pkg);
+  pkg.isActive = false;
+  await pkg.save();
+  res.status(200).json({ success: true, message: 'Package archived' });
+});
