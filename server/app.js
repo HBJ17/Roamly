@@ -46,7 +46,13 @@ app.use('/api/wallet', require('./routes/wallet'));
 app.use('/api/agency', require('./routes/agency'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/itineraries', require('./routes/itinerary'));
-app.use('/api', require('./routes/extras'));
+app.use('/api/reviews', require('./routes/reviews'));
+app.use('/api/saved', require('./routes/saved'));
+app.use('/api/coupons', require('./routes/coupons'));
+app.get('/api/config', (req, res) => {
+  const { SUPPORTED_CURRENCIES, SUPPORTED_LANGUAGES } = require('./config/constants');
+  res.status(200).json({ success: true, currencies: SUPPORTED_CURRENCIES, languages: SUPPORTED_LANGUAGES });
+});
 
 app.use('/api', notFound);
 app.use(errorHandler);

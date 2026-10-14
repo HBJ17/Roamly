@@ -176,7 +176,98 @@ const seedDatabase = async ({ log = () => {} } = {}) => {
     data.coupons.map((c) => ({ ...c, validUntil: new Date(Date.now() + 180 * DAY), usageLimit: 500 }))
   );
 
+  log('Past trips & verified reviews...');
+  await seedPastTrips({ users, hotels, transports, packages });
+
   return { admin, users, agencies, destinations, hotels, transports, packages, coupons };
+};
+
+const REVIEW_LINES = [
+  [5, 'Exactly what we hoped for', 'Spotless rooms, warm staff and everything ran on time. Would book again without thinking.'],
+  [4, 'Great value, small hiccups', 'Lovely experience overall. Check-in took a while but the team more than made up for it.'],
+  [5, 'Highlight of our South India trip', 'Thoughtful touches everywhere and the local recommendations were spot on.'],
+  [4, 'Comfortable and well located', 'Easy to get to the main sights. Food was excellent, especially breakfast.'],
+  [3, 'Decent, but could be better', 'Good basics, though the AC was noisy one night. Staff were apologetic and helpful.']
+];
+
+// Completed bookings in the past give each city's listings genuine, verified reviews.
+const seedPastTrips = async ({ users, hotels, transports, packages }) => {
+  const Booking = require('../models/Booking');
+  const Review = require('../models/Review');
+  const { refreshItemRating } = require('../services/reviewService');
+  const { addDays, today } = require('../utils/dates');
+
+  const picks = [
+    ...packages.map((p) => ({ type: 'package', model: 'Package', doc: p, price: p.price, title: p.title, unit: 'traveller' })),
+    ...hotels.map((h) => ({ type: 'hotel', model: 'Hotel', doc: h, price: h.rooms[0].pricePerNight, title: h.name, unit: 'night', variant: h.rooms[0] })),
+    ...transports.filter((t) => t.scope === 'local').map((t) => ({ type: 'transport', model: 'Transport', doc: t, price: t.dailyRate, title: t.title, unit: 'day' }))
+  ];
+
+  let i = 0;
+  for (const pick of picks) {
+
+    const reviewsForItem = 1 + (i % 2);
+    for (let r = 0; r < reviewsForItem; r += 1) {
+      const reviewer = users[(i + r) % users.length];
+      const start = addDays(today(), -30 - ((i * 7 + r * 11) % 200));
+      const end = addDays(start, 2);
+      const total = Math.round(pick.price * 2 * 1.18);
+      const booking = await Booking.create({
+        user: reviewer._id,
+        bookingType: pick.type,
+        destination: pick.doc.destination,
+        destinationName: pick.doc.destinationName,
+        items: [{
+          itemType: pick.type,
+          item: pick.doc._id,
+          itemModel: pick.model,
+          variantId: pick.variant?._id,
+          variantName: pick.variant?.name || '',
+          agency: pick.doc.agency,
+          title: pick.title,
+          destinationName: pick.doc.destinationName,
+          description: 'Seeded past trip',
+          startDate: start,
+          endDate: end,
+          dates: [start],
+          quantity: 1,
+          units: 2,
+          unitLabel: pick.unit,
+          unitPrice: pick.price,
+          lineTotal: pick.price * 2
+        }],
+        startDate: start,
+        endDate: end,
+        travelers: { adults: 2, children: 0 },
+        contact: { name: reviewer.fullName, email: reviewer.email, phone: reviewer.phone },
+        pricing: { subtotal: pick.price * 2, taxPercent: 18, tax: total - pick.price * 2, total },
+        status: 'Completed',
+        paymentStatus: 'Paid',
+        confirmedAt: new Date(`${start}T09:00:00Z`),
+        completedAt: new Date(`${end}T18:00:00Z`),
+        reviewed: true
+      });
+      const [rating, title, comment] = REVIEW_LINES[(i + r) % REVIEW_LINES.length];
+      await Review.create({
+        user: reviewer._id,
+        booking: booking._id,
+        agency: pick.doc.agency,
+        itemType: pick.type,
+        itemId: pick.doc._id,
+        itemModel: pick.model,
+        itemTitle: pick.title,
+        rating,
+        ratings: { cleanliness: rating, service: Math.min(5, rating + 1), location: 5, value: Math.max(3, rating - 1) },
+        title,
+        comment,
+        travelType: ['Couple', 'Family', 'Friends', 'Solo'][(i + r) % 4],
+        createdAt: new Date(`${end}T20:00:00Z`)
+      });
+    }
+    await refreshItemRating(pick.type, pick.doc._id);
+    i += 1;
+
+  }
 };
 
 module.exports = { seedDatabase, clearDatabase };
