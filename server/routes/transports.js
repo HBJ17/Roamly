@@ -1,15 +1,18 @@
 const express = require('express');
+const validate = require('../middleware/validate');
+const { protect, authorize, optionalAuth, requireActiveAgency } = require('../middleware/auth');
+const ctrl = require('../controllers/transportsController');
+const schemas = require('../validators/transport');
+
 const router = express.Router();
-const { getTransports, getTransport, createTransport, updateTransport, deleteTransport } = require('../controllers/transportsController');
-const { protect, authorize } = require('../middleware/auth');
+const manage = [protect, authorize('admin', 'agency'), requireActiveAgency];
 
-router.route('/')
-  .get(getTransports)
-  .post(protect, authorize('admin', 'agency'), createTransport);
-
-router.route('/:id')
-  .get(getTransport)
-  .put(protect, authorize('admin', 'agency'), updateTransport)
-  .delete(protect, authorize('admin', 'agency'), deleteTransport);
+router.get('/', validate(schemas.transportQuerySchema, 'query'), ctrl.getTransports);
+router.get('/routes', ctrl.getRoutes);
+router.get('/mine', protect, authorize('agency'), ctrl.getMyTransports);
+router.get('/:id', optionalAuth, ctrl.getTransport);
+router.post('/', ...manage, validate(schemas.createTransportSchema), ctrl.createTransport);
+router.put('/:id', ...manage, validate(schemas.updateTransportSchema), ctrl.updateTransport);
+router.delete('/:id', ...manage, ctrl.deleteTransport);
 
 module.exports = router;
