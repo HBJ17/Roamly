@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, X, ChevronLeft, ChevronRight, AlertTriangle, Compass } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import usePageTitle from '../../hooks/usePageTitle';
 
 export const Spinner = ({ label = 'Loading' }) => (
   <div className="spinner-wrap" role="status">
@@ -44,7 +45,9 @@ export const ErrorState = ({ message, onRetry }) => (
   </div>
 );
 
-export const PageHeader = ({ badge, title, subtitle, children, tone = 'yellow' }) => (
+export const PageHeader = ({ badge, title, subtitle, children, tone = 'yellow' }) => {
+  usePageTitle(typeof title === 'string' ? title : undefined);
+  return (
   <div className={`travel-hero page-header tone-${tone}`}>
     <div>
       {badge && <span className="badge badge-mint">{badge}</span>}
@@ -53,7 +56,8 @@ export const PageHeader = ({ badge, title, subtitle, children, tone = 'yellow' }
     </div>
     {children && <div className="page-header-actions">{children}</div>}
   </div>
-);
+  );
+};
 
 export const Stars = ({ value = 0, count, size = 13 }) => (
   <span className="rating-badge" title={`${value} out of 5`}>

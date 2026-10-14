@@ -4,6 +4,7 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import { RequireRole, TravellerOnly } from './components/layout/RouteGuards';
 import { PageLoader, EmptyState } from './components/ui';
+import ErrorBoundary from './components/layout/ErrorBoundary';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const DestinationsPage = lazy(() => import('./pages/DestinationsPage'));
@@ -77,12 +78,14 @@ const NotFound = () => (
 );
 
 export default function App() {
+  const { pathname } = useLocation();
   return (
     <>
       <div className="halftone-bg" />
       <ScrollToTop />
       <Navbar />
       <main style={{ minHeight: 'calc(100vh - 280px)', position: 'relative', zIndex: 1 }}>
+        <ErrorBoundary resetKey={pathname}>
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<TravellerOnly><HomePage /></TravellerOnly>} />
@@ -150,6 +153,7 @@ export default function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        </ErrorBoundary>
       </main>
       <Footer />
     </>

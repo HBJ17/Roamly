@@ -1,0 +1,13 @@
+{
+  "name": "Roamly — South India Travel",
+  "short_name": "Roamly",
+  "description": "Plan and book stays, cabs, tours and trips across South India.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#faf7ee",
+  "theme_color": "#fef08a",
+  "icons": [
+    { "src": "/roamly_logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

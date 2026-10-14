@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { LANGUAGES, translate } from '../i18n';
+import api from '../api/client';
 
 const DEFAULT_CURRENCIES = {
   INR: { symbol: '₹', rate: 1.0, name: 'Indian Rupee' },
@@ -38,6 +39,11 @@ export function AppProvider({ children }) {
       return [];
     }
   });
+
+  // Live display rates from the API; built-in rates are used until (or if) they arrive.
+  useEffect(() => {
+    api.get('/config').then((res) => setCurrencies(res.data.currencies)).catch(() => {});
+  }, []);
 
   useEffect(() => write('roamly_currency', currency), [currency]);
   useEffect(() => write('roamly_compare', JSON.stringify(compareList)), [compareList]);

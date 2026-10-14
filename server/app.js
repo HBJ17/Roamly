@@ -53,9 +53,14 @@ app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/saved', require('./routes/saved'));
 app.use('/api/coupons', require('./routes/coupons'));
-app.get('/api/config', (req, res) => {
-  const { SUPPORTED_CURRENCIES, SUPPORTED_LANGUAGES } = require('./config/constants');
-  res.status(200).json({ success: true, currencies: SUPPORTED_CURRENCIES, languages: SUPPORTED_LANGUAGES });
+app.get('/api/config', async (req, res, next) => {
+  try {
+    const { SUPPORTED_LANGUAGES } = require('./config/constants');
+    const { currencies, updatedAt, source } = await require('./services/currencyService').getCurrencies();
+    res.status(200).json({ success: true, currencies, ratesUpdatedAt: updatedAt, ratesSource: source, languages: SUPPORTED_LANGUAGES });
+  } catch (err) {
+    next(err);
+  }
 });
 
 app.use('/api', notFound);

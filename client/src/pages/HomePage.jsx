@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Map, Hotel, Car, ShieldCheck, Wallet, MapPin, Tag } from 'lucide-react';
 import useApi from '../hooks/useApi';
+import usePageTitle from '../hooks/usePageTitle';
 import { useTrip } from '../context/TripContext';
 import { useApp } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
@@ -21,6 +22,7 @@ export default function HomePage() {
   const { t, formatCurrency } = useApp();
   const toast = useToast();
   const navigate = useNavigate();
+  usePageTitle('South India travel, curated');
   const packages = useApi('/packages', { params: { sort: 'rating', limit: 6 } });
   const offers = useApi('/coupons');
 

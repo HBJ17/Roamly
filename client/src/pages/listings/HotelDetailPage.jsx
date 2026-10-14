@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { MapPin, Clock, PawPrint, Utensils, Check, Users, BedDouble, Wind } from 'lucide-react';
+import usePageTitle from '../../hooks/usePageTitle';
 import useApi from '../../hooks/useApi';
 import { useTrip } from '../../context/TripContext';
 import BookingWidget from '../../components/booking/BookingWidget';
@@ -16,6 +17,7 @@ export default function HotelDetailPage() {
   const [params] = useSearchParams();
   const { trip } = useTrip();
   const { data, body, loading, error, reload } = useApi(`/hotels/${id}`);
+  usePageTitle(data?.name);
   const [dates, setDates] = useState({
     checkIn: params.get('checkIn') || trip.startDate,
     checkOut: params.get('checkOut') || (trip.endDate > trip.startDate ? trip.endDate : todayPlus(15))

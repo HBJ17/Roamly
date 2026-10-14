@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Hotel, Car, Package, Map, Landmark, Route as RouteIcon, Clock, Ticket, Sun, Plane, Train } from 'lucide-react';
+import usePageTitle from '../hooks/usePageTitle';
 import useApi from '../hooks/useApi';
 import { useTrip } from '../context/TripContext';
 import { useApp } from '../context/AppContext';
@@ -13,6 +14,7 @@ export default function DestinationPage() {
   const { trip, updateTrip } = useTrip();
   const { t } = useApp();
   const { data, loading, error, reload } = useApi(`/destinations/${slug}/explore`);
+  usePageTitle(data?.destination?.name);
   const [tab, setTab] = useState('stays');
 
   // Visiting a city page makes it the active destination everywhere.

@@ -1,4 +1,5 @@
 import en from './en';
+import translations from './translations';
 
 export const LANGUAGES = {
   en: 'English',
@@ -14,7 +15,7 @@ export const LANGUAGES = {
   ar: 'العربية (Arabic)'
 };
 
-const dictionaries = { en };
+const dictionaries = { en, ...translations };
 
 // Missing keys fall back to English, then to the key itself. `{name}` placeholders are filled from vars.
 export const translate = (lang, key, vars) => {

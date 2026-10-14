@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { MapPin, Users, Wind, Check, Clock, Utensils, Gauge, ArrowRight } from 'lucide-react';
+import usePageTitle from '../../hooks/usePageTitle';
 import useApi from '../../hooks/useApi';
 import BookingWidget from '../../components/booking/BookingWidget';
 import ReviewsSection from '../../components/listing/ReviewsSection';
@@ -15,6 +16,7 @@ export default function TransportDetailPage() {
   const { id } = useParams();
   const [params] = useSearchParams();
   const { data: t, body, loading, error, reload } = useApi(`/transports/${id}`);
+  usePageTitle(t?.title);
 
   if (loading) return <PageLoader />;
   if (error) return <div className="main-container"><ErrorState message={error} onRetry={reload} /></div>;

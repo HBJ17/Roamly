@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { CalendarDays, Check, X, Utensils, Users, Hotel, ThumbsUp, ThumbsDown, MapPin } from 'lucide-react';
+import usePageTitle from '../../hooks/usePageTitle';
 import useApi from '../../hooks/useApi';
 import BookingWidget from '../../components/booking/BookingWidget';
 import ReviewsSection from '../../components/listing/ReviewsSection';
@@ -13,6 +14,7 @@ import { PageLoader, ErrorState, Stars, Breadcrumbs } from '../../components/ui'
 export default function PackageDetailPage() {
   const { id } = useParams();
   const { data: pkg, body, loading, error, reload } = useApi(`/packages/${id}`);
+  usePageTitle(pkg?.title);
 
   if (loading) return <PageLoader />;
   if (error) return <div className="main-container"><ErrorState message={error} onRetry={reload} /></div>;
