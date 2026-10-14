@@ -6,6 +6,8 @@ import { RequireRole, TravellerOnly } from './components/layout/RouteGuards';
 import { PageLoader, EmptyState } from './components/ui';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
+const DestinationsPage = lazy(() => import('./pages/DestinationsPage'));
+const DestinationPage = lazy(() => import('./pages/DestinationPage'));
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 const PartnerRegisterPage = lazy(() => import('./pages/auth/PartnerRegisterPage'));
@@ -15,7 +17,9 @@ const VerifyEmailPage = lazy(() => import('./pages/auth/RecoveryPages').then((m)
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => window.scrollTo(0, 0), [pathname]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
   return null;
 }
 
@@ -37,6 +41,9 @@ export default function App() {
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<TravellerOnly><HomePage /></TravellerOnly>} />
+
+            <Route path="/destinations" element={<TravellerOnly><DestinationsPage /></TravellerOnly>} />
+            <Route path="/destinations/:slug" element={<TravellerOnly><DestinationPage /></TravellerOnly>} />
 
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />

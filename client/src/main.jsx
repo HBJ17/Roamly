@@ -7,6 +7,7 @@ import { AppProvider } from './context/AppContext';
 import { TripProvider } from './context/TripContext';
 import { ToastProvider } from './context/ToastContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { SavedProvider } from './components/listing/SaveButton';
 import './index.css';
 import './styles/app.css';
 
@@ -18,7 +19,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <AppProvider>
             <TripProvider>
               <NotificationProvider>
-                <App />
+                <SavedProvider>
+                  <App />
+                </SavedProvider>
               </NotificationProvider>
             </TripProvider>
           </AppProvider>

@@ -4,23 +4,118 @@
     "state": "Tamil Nadu",
     "tagline": "Gateway to the South, where the Bay of Bengal meets Carnatic culture",
     "description": "Tamil Nadu's capital pairs one of the world's longest urban beaches with Dravidian temples, colonial-era landmarks and a famous food scene. It is also the natural base for day trips down the East Coast Road to the UNESCO shore temples of Mahabalipuram.",
-    "categories": ["Beach", "Heritage", "Cultural"],
+    "categories": [
+      "Beach",
+      "Heritage",
+      "Cultural"
+    ],
     "bestTimeToVisit": "November to February",
     "idealDays": 3,
     "climate": "Hot and humid; pleasant in winter",
     "nearestAirport": "Chennai International Airport (MAA)",
     "nearestRailway": "Chennai Central (MAS)",
-    "imageUrl": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
-    "coordinates": { "lat": 13.0827, "lng": 80.2707 },
+    "imageUrl": "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1200&q=80",
+    "coordinates": {
+      "lat": 13.0827,
+      "lng": 80.2707
+    },
     "attractions": [
-      { "name": "Marina Beach", "category": "Beach", "description": "A 13 km sweep of sand best visited at sunrise or for the evening snack stalls.", "durationHours": 2, "entryFee": 0, "bestTimeOfDay": "Evening", "coordinates": { "lat": 13.05, "lng": 80.2824 } },
-      { "name": "Kapaleeshwarar Temple", "category": "Temple", "description": "7th-century Dravidian temple in Mylapore with a vivid gopuram.", "durationHours": 1.5, "entryFee": 0, "bestTimeOfDay": "Morning", "coordinates": { "lat": 13.0339, "lng": 80.2697 } },
-      { "name": "Fort St. George & Museum", "category": "Heritage", "description": "The first English fortress in India, now housing a museum of colonial artefacts.", "durationHours": 2, "entryFee": 25, "bestTimeOfDay": "Morning", "coordinates": { "lat": 13.0796, "lng": 80.2875 } },
-      { "name": "Government Museum, Egmore", "category": "Museum", "description": "Renowned Chola bronze gallery and the National Art Gallery.", "durationHours": 2.5, "entryFee": 15, "bestTimeOfDay": "Afternoon", "coordinates": { "lat": 13.0694, "lng": 80.2559 } },
-      { "name": "Mahabalipuram Shore Temple", "category": "Heritage", "description": "UNESCO World Heritage granite temples on the coast, 55 km down the ECR.", "durationHours": 4, "entryFee": 40, "bestTimeOfDay": "Morning", "coordinates": { "lat": 12.6169, "lng": 80.1993 } },
-      { "name": "DakshinaChitra Heritage Museum", "category": "Museum", "description": "Living museum of South Indian homes, crafts and performing arts.", "durationHours": 2.5, "entryFee": 150, "bestTimeOfDay": "Afternoon", "coordinates": { "lat": 12.8239, "lng": 80.2427 } },
-      { "name": "T. Nagar & Pondy Bazaar", "category": "Market", "description": "Silk sarees, temple jewellery and street food in Chennai's busiest market.", "durationHours": 2, "entryFee": 0, "bestTimeOfDay": "Evening", "coordinates": { "lat": 13.0418, "lng": 80.2341 } },
-      { "name": "Besant Nagar (Elliot's) Beach", "category": "Beach", "description": "Quieter beach with cafes and the Ashtalakshmi temple.", "durationHours": 1.5, "entryFee": 0, "bestTimeOfDay": "Evening", "coordinates": { "lat": 12.9989, "lng": 80.2723 } }
+      {
+        "name": "Marina Beach",
+        "category": "Beach",
+        "description": "A 13 km sweep of sand best visited at sunrise or for the evening snack stalls.",
+        "durationHours": 2,
+        "entryFee": 0,
+        "bestTimeOfDay": "Evening",
+        "coordinates": {
+          "lat": 13.05,
+          "lng": 80.2824
+        }
+      },
+      {
+        "name": "Kapaleeshwarar Temple",
+        "category": "Temple",
+        "description": "7th-century Dravidian temple in Mylapore with a vivid gopuram.",
+        "durationHours": 1.5,
+        "entryFee": 0,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 13.0339,
+          "lng": 80.2697
+        }
+      },
+      {
+        "name": "Fort St. George & Museum",
+        "category": "Heritage",
+        "description": "The first English fortress in India, now housing a museum of colonial artefacts.",
+        "durationHours": 2,
+        "entryFee": 25,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 13.0796,
+          "lng": 80.2875
+        }
+      },
+      {
+        "name": "Government Museum, Egmore",
+        "category": "Museum",
+        "description": "Renowned Chola bronze gallery and the National Art Gallery.",
+        "durationHours": 2.5,
+        "entryFee": 15,
+        "bestTimeOfDay": "Afternoon",
+        "coordinates": {
+          "lat": 13.0694,
+          "lng": 80.2559
+        }
+      },
+      {
+        "name": "Mahabalipuram Shore Temple",
+        "category": "Heritage",
+        "description": "UNESCO World Heritage granite temples on the coast, 55 km down the ECR.",
+        "durationHours": 4,
+        "entryFee": 40,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 12.6169,
+          "lng": 80.1993
+        }
+      },
+      {
+        "name": "DakshinaChitra Heritage Museum",
+        "category": "Museum",
+        "description": "Living museum of South Indian homes, crafts and performing arts.",
+        "durationHours": 2.5,
+        "entryFee": 150,
+        "bestTimeOfDay": "Afternoon",
+        "coordinates": {
+          "lat": 12.8239,
+          "lng": 80.2427
+        }
+      },
+      {
+        "name": "T. Nagar & Pondy Bazaar",
+        "category": "Market",
+        "description": "Silk sarees, temple jewellery and street food in Chennai's busiest market.",
+        "durationHours": 2,
+        "entryFee": 0,
+        "bestTimeOfDay": "Evening",
+        "coordinates": {
+          "lat": 13.0418,
+          "lng": 80.2341
+        }
+      },
+      {
+        "name": "Besant Nagar (Elliot's) Beach",
+        "category": "Beach",
+        "description": "Quieter beach with cafes and the Ashtalakshmi temple.",
+        "durationHours": 1.5,
+        "entryFee": 0,
+        "bestTimeOfDay": "Evening",
+        "coordinates": {
+          "lat": 12.9989,
+          "lng": 80.2723
+        }
+      }
     ]
   },
   {
@@ -28,22 +123,106 @@
     "state": "Tamil Nadu",
     "tagline": "The temple city that never sleeps",
     "description": "One of the oldest continuously inhabited cities in the world, Madurai grew around the Meenakshi Amman temple. Expect towering gopurams, Nayak-era palaces, the Keeladi excavations nearby and late-night street food such as jigarthanda and bun parotta.",
-    "categories": ["Heritage", "Pilgrimage", "Cultural"],
+    "categories": [
+      "Heritage",
+      "Pilgrimage",
+      "Cultural"
+    ],
     "bestTimeToVisit": "October to March",
     "idealDays": 2,
     "climate": "Hot through most of the year; cooler winter evenings",
     "nearestAirport": "Madurai Airport (IXM)",
     "nearestRailway": "Madurai Junction (MDU)",
-    "imageUrl": "https://images.unsplash.com/photo-1600100397608-f010e4c9a3d5?auto=format&fit=crop&w=1200&q=80",
-    "coordinates": { "lat": 9.9252, "lng": 78.1198 },
+    "imageUrl": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+    "coordinates": {
+      "lat": 9.9252,
+      "lng": 78.1198
+    },
     "attractions": [
-      { "name": "Meenakshi Amman Temple", "category": "Temple", "description": "Fourteen gopurams and the Hall of a Thousand Pillars at the heart of the old city.", "durationHours": 3, "entryFee": 0, "bestTimeOfDay": "Morning", "coordinates": { "lat": 9.9195, "lng": 78.1193 } },
-      { "name": "Thirumalai Nayakkar Mahal", "category": "Heritage", "description": "17th-century palace with an evening sound-and-light show.", "durationHours": 1.5, "entryFee": 50, "bestTimeOfDay": "Evening", "coordinates": { "lat": 9.915, "lng": 78.1242 } },
-      { "name": "Gandhi Memorial Museum", "category": "Museum", "description": "Holds the blood-stained dhoti Gandhi wore when he was assassinated.", "durationHours": 1.5, "entryFee": 0, "bestTimeOfDay": "Afternoon", "coordinates": { "lat": 9.9298, "lng": 78.1396 } },
-      { "name": "Vandiyur Mariamman Teppakulam", "category": "Lake", "description": "Huge temple tank with a central mandapam, site of the float festival.", "durationHours": 1, "entryFee": 0, "bestTimeOfDay": "Evening", "coordinates": { "lat": 9.9093, "lng": 78.1478 } },
-      { "name": "Thiruparankundram Murugan Temple", "category": "Temple", "description": "Rock-cut cave temple, one of the six abodes of Lord Murugan.", "durationHours": 1.5, "entryFee": 0, "bestTimeOfDay": "Morning", "coordinates": { "lat": 9.8786, "lng": 78.0717 } },
-      { "name": "Keeladi Excavation Museum", "category": "Museum", "description": "Finds from a 2,600-year-old Sangam-era urban settlement.", "durationHours": 2.5, "entryFee": 15, "bestTimeOfDay": "Morning", "coordinates": { "lat": 9.8634, "lng": 78.1819 } },
-      { "name": "Madurai Night Food Walk", "category": "Food", "description": "Kari dosa, bun parotta and jigarthanda around the temple streets.", "durationHours": 2, "entryFee": 600, "bestTimeOfDay": "Evening", "coordinates": { "lat": 9.9175, "lng": 78.1215 } }
+      {
+        "name": "Meenakshi Amman Temple",
+        "category": "Temple",
+        "description": "Fourteen gopurams and the Hall of a Thousand Pillars at the heart of the old city.",
+        "durationHours": 3,
+        "entryFee": 0,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 9.9195,
+          "lng": 78.1193
+        }
+      },
+      {
+        "name": "Thirumalai Nayakkar Mahal",
+        "category": "Heritage",
+        "description": "17th-century palace with an evening sound-and-light show.",
+        "durationHours": 1.5,
+        "entryFee": 50,
+        "bestTimeOfDay": "Evening",
+        "coordinates": {
+          "lat": 9.915,
+          "lng": 78.1242
+        }
+      },
+      {
+        "name": "Gandhi Memorial Museum",
+        "category": "Museum",
+        "description": "Holds the blood-stained dhoti Gandhi wore when he was assassinated.",
+        "durationHours": 1.5,
+        "entryFee": 0,
+        "bestTimeOfDay": "Afternoon",
+        "coordinates": {
+          "lat": 9.9298,
+          "lng": 78.1396
+        }
+      },
+      {
+        "name": "Vandiyur Mariamman Teppakulam",
+        "category": "Lake",
+        "description": "Huge temple tank with a central mandapam, site of the float festival.",
+        "durationHours": 1,
+        "entryFee": 0,
+        "bestTimeOfDay": "Evening",
+        "coordinates": {
+          "lat": 9.9093,
+          "lng": 78.1478
+        }
+      },
+      {
+        "name": "Thiruparankundram Murugan Temple",
+        "category": "Temple",
+        "description": "Rock-cut cave temple, one of the six abodes of Lord Murugan.",
+        "durationHours": 1.5,
+        "entryFee": 0,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 9.8786,
+          "lng": 78.0717
+        }
+      },
+      {
+        "name": "Keeladi Excavation Museum",
+        "category": "Museum",
+        "description": "Finds from a 2,600-year-old Sangam-era urban settlement.",
+        "durationHours": 2.5,
+        "entryFee": 15,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 9.8634,
+          "lng": 78.1819
+        }
+      },
+      {
+        "name": "Madurai Night Food Walk",
+        "category": "Food",
+        "description": "Kari dosa, bun parotta and jigarthanda around the temple streets.",
+        "durationHours": 2,
+        "entryFee": 600,
+        "bestTimeOfDay": "Evening",
+        "coordinates": {
+          "lat": 9.9175,
+          "lng": 78.1215
+        }
+      }
     ]
   },
   {
@@ -51,23 +230,117 @@
     "state": "Tamil Nadu",
     "tagline": "Princess of Hill Stations",
     "description": "A misty hill station at 2,133 m in the Palani Hills, built around a star-shaped lake. Pine forests, cliff-edge walks, waterfalls and homemade chocolates make it a favourite for couples and families escaping the plains.",
-    "categories": ["Hill Station", "Adventure"],
+    "categories": [
+      "Hill Station",
+      "Adventure"
+    ],
     "bestTimeToVisit": "April to June, September to October",
     "idealDays": 3,
     "climate": "Cool all year; cold nights from November to February",
     "nearestAirport": "Madurai Airport (IXM), 120 km",
     "nearestRailway": "Kodai Road (KQN), 80 km",
     "imageUrl": "https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?auto=format&fit=crop&w=1200&q=80",
-    "coordinates": { "lat": 10.2381, "lng": 77.4892 },
+    "coordinates": {
+      "lat": 10.2381,
+      "lng": 77.4892
+    },
     "attractions": [
-      { "name": "Kodaikanal Lake", "category": "Lake", "description": "Boating and cycling around the star-shaped lake.", "durationHours": 2, "entryFee": 150, "bestTimeOfDay": "Morning", "coordinates": { "lat": 10.2335, "lng": 77.4875 } },
-      { "name": "Coaker's Walk", "category": "Viewpoint", "description": "Cliff-side promenade with views down to the plains on clear days.", "durationHours": 1, "entryFee": 30, "bestTimeOfDay": "Morning", "coordinates": { "lat": 10.2291, "lng": 77.4933 } },
-      { "name": "Pillar Rocks", "category": "Viewpoint", "description": "Three 120 m granite pillars that drift in and out of the mist.", "durationHours": 1, "entryFee": 10, "bestTimeOfDay": "Afternoon", "coordinates": { "lat": 10.2128, "lng": 77.4644 } },
-      { "name": "Bryant Park", "category": "Park", "description": "Botanical garden with a glasshouse and hybrid roses.", "durationHours": 1, "entryFee": 30, "bestTimeOfDay": "Any", "coordinates": { "lat": 10.2315, "lng": 77.4936 } },
-      { "name": "Pine Forest", "category": "Nature", "description": "Tall planted pines that make a dramatic walk on foggy afternoons.", "durationHours": 1, "entryFee": 0, "bestTimeOfDay": "Afternoon", "coordinates": { "lat": 10.2187, "lng": 77.4729 } },
-      { "name": "Berijam Lake", "category": "Nature", "description": "Protected forest lake reached by permit-only jeep track.", "durationHours": 4, "entryFee": 300, "bestTimeOfDay": "Morning", "coordinates": { "lat": 10.183, "lng": 77.393 } },
-      { "name": "Silver Cascade Falls", "category": "Waterfall", "description": "180 ft waterfall on the ghat road into town.", "durationHours": 0.5, "entryFee": 0, "bestTimeOfDay": "Any", "coordinates": { "lat": 10.2457, "lng": 77.5134 } },
-      { "name": "Dolphin's Nose Trek", "category": "Adventure", "description": "Downhill trek through Vattakanal to a flat rock overhanging the valley.", "durationHours": 3, "entryFee": 0, "bestTimeOfDay": "Morning", "coordinates": { "lat": 10.2187, "lng": 77.5016 } }
+      {
+        "name": "Kodaikanal Lake",
+        "category": "Lake",
+        "description": "Boating and cycling around the star-shaped lake.",
+        "durationHours": 2,
+        "entryFee": 150,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 10.2335,
+          "lng": 77.4875
+        }
+      },
+      {
+        "name": "Coaker's Walk",
+        "category": "Viewpoint",
+        "description": "Cliff-side promenade with views down to the plains on clear days.",
+        "durationHours": 1,
+        "entryFee": 30,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 10.2291,
+          "lng": 77.4933
+        }
+      },
+      {
+        "name": "Pillar Rocks",
+        "category": "Viewpoint",
+        "description": "Three 120 m granite pillars that drift in and out of the mist.",
+        "durationHours": 1,
+        "entryFee": 10,
+        "bestTimeOfDay": "Afternoon",
+        "coordinates": {
+          "lat": 10.2128,
+          "lng": 77.4644
+        }
+      },
+      {
+        "name": "Bryant Park",
+        "category": "Park",
+        "description": "Botanical garden with a glasshouse and hybrid roses.",
+        "durationHours": 1,
+        "entryFee": 30,
+        "bestTimeOfDay": "Any",
+        "coordinates": {
+          "lat": 10.2315,
+          "lng": 77.4936
+        }
+      },
+      {
+        "name": "Pine Forest",
+        "category": "Nature",
+        "description": "Tall planted pines that make a dramatic walk on foggy afternoons.",
+        "durationHours": 1,
+        "entryFee": 0,
+        "bestTimeOfDay": "Afternoon",
+        "coordinates": {
+          "lat": 10.2187,
+          "lng": 77.4729
+        }
+      },
+      {
+        "name": "Berijam Lake",
+        "category": "Nature",
+        "description": "Protected forest lake reached by permit-only jeep track.",
+        "durationHours": 4,
+        "entryFee": 300,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 10.183,
+          "lng": 77.393
+        }
+      },
+      {
+        "name": "Silver Cascade Falls",
+        "category": "Waterfall",
+        "description": "180 ft waterfall on the ghat road into town.",
+        "durationHours": 0.5,
+        "entryFee": 0,
+        "bestTimeOfDay": "Any",
+        "coordinates": {
+          "lat": 10.2457,
+          "lng": 77.5134
+        }
+      },
+      {
+        "name": "Dolphin's Nose Trek",
+        "category": "Adventure",
+        "description": "Downhill trek through Vattakanal to a flat rock overhanging the valley.",
+        "durationHours": 3,
+        "entryFee": 0,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 10.2187,
+          "lng": 77.5016
+        }
+      }
     ]
   },
   {
@@ -75,21 +348,94 @@
     "state": "Tamil Nadu",
     "tagline": "Rice bowl and royal seat of the Great Cholas",
     "description": "Capital of the Chola empire and home to the 1,000-year-old Brihadeeswarar Temple. Thanjavur is the base for the Great Living Chola Temples circuit, Tanjore paintings, bronze casting and classical Carnatic music.",
-    "categories": ["Heritage", "Pilgrimage", "Cultural"],
+    "categories": [
+      "Heritage",
+      "Pilgrimage",
+      "Cultural"
+    ],
     "bestTimeToVisit": "October to March",
     "idealDays": 2,
     "climate": "Warm; best in the winter months",
     "nearestAirport": "Tiruchirappalli Airport (TRZ), 60 km",
     "nearestRailway": "Thanjavur Junction (TJ)",
     "imageUrl": "https://images.unsplash.com/photo-1621996659490-3275b4d0d951?auto=format&fit=crop&w=1200&q=80",
-    "coordinates": { "lat": 10.787, "lng": 79.1378 },
+    "coordinates": {
+      "lat": 10.787,
+      "lng": 79.1378
+    },
     "attractions": [
-      { "name": "Brihadeeswarar Temple", "category": "Temple", "description": "UNESCO-listed Chola masterpiece with a 66 m granite vimana.", "durationHours": 2.5, "entryFee": 0, "bestTimeOfDay": "Morning", "coordinates": { "lat": 10.7828, "lng": 79.1318 } },
-      { "name": "Thanjavur Maratha Palace", "category": "Heritage", "description": "Palace complex with the Saraswathi Mahal library and an art gallery of Chola bronzes.", "durationHours": 2, "entryFee": 50, "bestTimeOfDay": "Afternoon", "coordinates": { "lat": 10.7924, "lng": 79.1366 } },
-      { "name": "Airavatesvara Temple, Darasuram", "category": "Temple", "description": "Intricately carved Chola temple near Kumbakonam.", "durationHours": 1.5, "entryFee": 0, "bestTimeOfDay": "Morning", "coordinates": { "lat": 10.9483, "lng": 79.3564 } },
-      { "name": "Gangaikonda Cholapuram", "category": "Temple", "description": "Rajendra Chola's capital temple, the third of the Great Living Chola Temples.", "durationHours": 2, "entryFee": 0, "bestTimeOfDay": "Morning", "coordinates": { "lat": 11.2063, "lng": 79.4497 } },
-      { "name": "Schwartz Church", "category": "Heritage", "description": "18th-century Danish mission church inside the palace gardens.", "durationHours": 0.5, "entryFee": 0, "bestTimeOfDay": "Any", "coordinates": { "lat": 10.7918, "lng": 79.1381 } },
-      { "name": "Tanjore Painting Workshop", "category": "Activity", "description": "Hands-on session with a gold-leaf Tanjore painting artisan.", "durationHours": 2, "entryFee": 800, "bestTimeOfDay": "Afternoon", "coordinates": { "lat": 10.786, "lng": 79.138 } }
+      {
+        "name": "Brihadeeswarar Temple",
+        "category": "Temple",
+        "description": "UNESCO-listed Chola masterpiece with a 66 m granite vimana.",
+        "durationHours": 2.5,
+        "entryFee": 0,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 10.7828,
+          "lng": 79.1318
+        }
+      },
+      {
+        "name": "Thanjavur Maratha Palace",
+        "category": "Heritage",
+        "description": "Palace complex with the Saraswathi Mahal library and an art gallery of Chola bronzes.",
+        "durationHours": 2,
+        "entryFee": 50,
+        "bestTimeOfDay": "Afternoon",
+        "coordinates": {
+          "lat": 10.7924,
+          "lng": 79.1366
+        }
+      },
+      {
+        "name": "Airavatesvara Temple, Darasuram",
+        "category": "Temple",
+        "description": "Intricately carved Chola temple near Kumbakonam.",
+        "durationHours": 1.5,
+        "entryFee": 0,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 10.9483,
+          "lng": 79.3564
+        }
+      },
+      {
+        "name": "Gangaikonda Cholapuram",
+        "category": "Temple",
+        "description": "Rajendra Chola's capital temple, the third of the Great Living Chola Temples.",
+        "durationHours": 2,
+        "entryFee": 0,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 11.2063,
+          "lng": 79.4497
+        }
+      },
+      {
+        "name": "Schwartz Church",
+        "category": "Heritage",
+        "description": "18th-century Danish mission church inside the palace gardens.",
+        "durationHours": 0.5,
+        "entryFee": 0,
+        "bestTimeOfDay": "Any",
+        "coordinates": {
+          "lat": 10.7918,
+          "lng": 79.1381
+        }
+      },
+      {
+        "name": "Tanjore Painting Workshop",
+        "category": "Activity",
+        "description": "Hands-on session with a gold-leaf Tanjore painting artisan.",
+        "durationHours": 2,
+        "entryFee": 800,
+        "bestTimeOfDay": "Afternoon",
+        "coordinates": {
+          "lat": 10.786,
+          "lng": 79.138
+        }
+      }
     ]
   },
   {
@@ -97,22 +443,105 @@
     "state": "Karnataka",
     "tagline": "Garden City with a craft-beer heart",
     "description": "India's tech capital is also a city of parks, palaces and cafes. Lalbagh and Cubbon Park, the Tudor-style Bangalore Palace and a thriving microbrewery scene sit within easy reach of Nandi Hills sunrise drives.",
-    "categories": ["Cultural", "Heritage"],
+    "categories": [
+      "Cultural",
+      "Heritage"
+    ],
     "bestTimeToVisit": "September to February",
     "idealDays": 3,
     "climate": "Mild and pleasant all year",
     "nearestAirport": "Kempegowda International Airport (BLR)",
     "nearestRailway": "KSR Bengaluru City (SBC)",
     "imageUrl": "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=1200&q=80",
-    "coordinates": { "lat": 12.9716, "lng": 77.5946 },
+    "coordinates": {
+      "lat": 12.9716,
+      "lng": 77.5946
+    },
     "attractions": [
-      { "name": "Bangalore Palace", "category": "Heritage", "description": "Tudor-style palace of the Wadiyars with an audio-guided tour.", "durationHours": 2, "entryFee": 230, "bestTimeOfDay": "Morning", "coordinates": { "lat": 12.9987, "lng": 77.592 } },
-      { "name": "Lalbagh Botanical Garden", "category": "Park", "description": "240-acre garden with a Victorian glasshouse and ancient rock outcrop.", "durationHours": 2, "entryFee": 30, "bestTimeOfDay": "Morning", "coordinates": { "lat": 12.9507, "lng": 77.5848 } },
-      { "name": "Cubbon Park", "category": "Park", "description": "Leafy central park lined with colonial buildings.", "durationHours": 1.5, "entryFee": 0, "bestTimeOfDay": "Morning", "coordinates": { "lat": 12.9763, "lng": 77.5929 } },
-      { "name": "Tipu Sultan's Summer Palace", "category": "Heritage", "description": "Teak-pillared Indo-Islamic summer residence.", "durationHours": 1, "entryFee": 25, "bestTimeOfDay": "Afternoon", "coordinates": { "lat": 12.9593, "lng": 77.5737 } },
-      { "name": "Nandi Hills Sunrise", "category": "Viewpoint", "description": "Pre-dawn drive to watch the sun rise over a sea of clouds.", "durationHours": 5, "entryFee": 20, "bestTimeOfDay": "Morning", "coordinates": { "lat": 13.3702, "lng": 77.6835 } },
-      { "name": "VV Puram Food Street", "category": "Food", "description": "Evening street of dosas, holige and gulkand treats.", "durationHours": 1.5, "entryFee": 0, "bestTimeOfDay": "Evening", "coordinates": { "lat": 12.9496, "lng": 77.5741 } },
-      { "name": "Indiranagar Microbrewery Trail", "category": "Food", "description": "Hop between the city's best-known craft breweries.", "durationHours": 3, "entryFee": 1500, "bestTimeOfDay": "Evening", "coordinates": { "lat": 12.9784, "lng": 77.6408 } }
+      {
+        "name": "Bangalore Palace",
+        "category": "Heritage",
+        "description": "Tudor-style palace of the Wadiyars with an audio-guided tour.",
+        "durationHours": 2,
+        "entryFee": 230,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 12.9987,
+          "lng": 77.592
+        }
+      },
+      {
+        "name": "Lalbagh Botanical Garden",
+        "category": "Park",
+        "description": "240-acre garden with a Victorian glasshouse and ancient rock outcrop.",
+        "durationHours": 2,
+        "entryFee": 30,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 12.9507,
+          "lng": 77.5848
+        }
+      },
+      {
+        "name": "Cubbon Park",
+        "category": "Park",
+        "description": "Leafy central park lined with colonial buildings.",
+        "durationHours": 1.5,
+        "entryFee": 0,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 12.9763,
+          "lng": 77.5929
+        }
+      },
+      {
+        "name": "Tipu Sultan's Summer Palace",
+        "category": "Heritage",
+        "description": "Teak-pillared Indo-Islamic summer residence.",
+        "durationHours": 1,
+        "entryFee": 25,
+        "bestTimeOfDay": "Afternoon",
+        "coordinates": {
+          "lat": 12.9593,
+          "lng": 77.5737
+        }
+      },
+      {
+        "name": "Nandi Hills Sunrise",
+        "category": "Viewpoint",
+        "description": "Pre-dawn drive to watch the sun rise over a sea of clouds.",
+        "durationHours": 5,
+        "entryFee": 20,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 13.3702,
+          "lng": 77.6835
+        }
+      },
+      {
+        "name": "VV Puram Food Street",
+        "category": "Food",
+        "description": "Evening street of dosas, holige and gulkand treats.",
+        "durationHours": 1.5,
+        "entryFee": 0,
+        "bestTimeOfDay": "Evening",
+        "coordinates": {
+          "lat": 12.9496,
+          "lng": 77.5741
+        }
+      },
+      {
+        "name": "Indiranagar Microbrewery Trail",
+        "category": "Food",
+        "description": "Hop between the city's best-known craft breweries.",
+        "durationHours": 3,
+        "entryFee": 1500,
+        "bestTimeOfDay": "Evening",
+        "coordinates": {
+          "lat": 12.9784,
+          "lng": 77.6408
+        }
+      }
     ]
   },
   {
@@ -120,22 +549,106 @@
     "state": "Tamil Nadu",
     "tagline": "Land's End where three seas meet",
     "description": "The southern tip of mainland India, where the Arabian Sea, Bay of Bengal and Indian Ocean converge. Famous for sunrise and sunset over the same horizon, the Vivekananda Rock Memorial and the giant Thiruvalluvar statue.",
-    "categories": ["Beach", "Pilgrimage", "Heritage"],
+    "categories": [
+      "Beach",
+      "Pilgrimage",
+      "Heritage"
+    ],
     "bestTimeToVisit": "October to March",
     "idealDays": 2,
     "climate": "Warm and breezy; monsoon showers June to September",
     "nearestAirport": "Thiruvananthapuram International (TRV), 90 km",
     "nearestRailway": "Kanyakumari (CAPE)",
-    "imageUrl": "https://images.unsplash.com/photo-1590123715937-e3a2b8fbd5f8?auto=format&fit=crop&w=1200&q=80",
-    "coordinates": { "lat": 8.0883, "lng": 77.5385 },
+    "imageUrl": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80",
+    "coordinates": {
+      "lat": 8.0883,
+      "lng": 77.5385
+    },
     "attractions": [
-      { "name": "Vivekananda Rock Memorial", "category": "Heritage", "description": "Ferry out to the rock where Swami Vivekananda meditated in 1892.", "durationHours": 2, "entryFee": 70, "bestTimeOfDay": "Morning", "coordinates": { "lat": 8.078, "lng": 77.5555 } },
-      { "name": "Thiruvalluvar Statue", "category": "Heritage", "description": "133 ft stone statue of the Tamil poet-philosopher.", "durationHours": 1, "entryFee": 0, "bestTimeOfDay": "Morning", "coordinates": { "lat": 8.0776, "lng": 77.5545 } },
-      { "name": "Sunrise at Triveni Sangamam", "category": "Beach", "description": "Watch the sun rise where three seas meet.", "durationHours": 1, "entryFee": 0, "bestTimeOfDay": "Morning", "coordinates": { "lat": 8.0802, "lng": 77.5509 } },
-      { "name": "Kumari Amman Temple", "category": "Temple", "description": "3,000-year-old shrine to the virgin goddess on the shore.", "durationHours": 1, "entryFee": 0, "bestTimeOfDay": "Morning", "coordinates": { "lat": 8.0782, "lng": 77.5413 } },
-      { "name": "Padmanabhapuram Palace", "category": "Heritage", "description": "Largest wooden palace in Asia, once the Travancore royal seat.", "durationHours": 2.5, "entryFee": 50, "bestTimeOfDay": "Afternoon", "coordinates": { "lat": 8.2507, "lng": 77.3262 } },
-      { "name": "Vattakottai Fort", "category": "Heritage", "description": "Seaside granite fort with views over the Western Ghats.", "durationHours": 1, "entryFee": 25, "bestTimeOfDay": "Afternoon", "coordinates": { "lat": 8.1196, "lng": 77.5652 } },
-      { "name": "Sunset Point", "category": "Viewpoint", "description": "Western shore spot for the Arabian Sea sunset.", "durationHours": 1, "entryFee": 0, "bestTimeOfDay": "Evening", "coordinates": { "lat": 8.0819, "lng": 77.5328 } }
+      {
+        "name": "Vivekananda Rock Memorial",
+        "category": "Heritage",
+        "description": "Ferry out to the rock where Swami Vivekananda meditated in 1892.",
+        "durationHours": 2,
+        "entryFee": 70,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 8.078,
+          "lng": 77.5555
+        }
+      },
+      {
+        "name": "Thiruvalluvar Statue",
+        "category": "Heritage",
+        "description": "133 ft stone statue of the Tamil poet-philosopher.",
+        "durationHours": 1,
+        "entryFee": 0,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 8.0776,
+          "lng": 77.5545
+        }
+      },
+      {
+        "name": "Sunrise at Triveni Sangamam",
+        "category": "Beach",
+        "description": "Watch the sun rise where three seas meet.",
+        "durationHours": 1,
+        "entryFee": 0,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 8.0802,
+          "lng": 77.5509
+        }
+      },
+      {
+        "name": "Kumari Amman Temple",
+        "category": "Temple",
+        "description": "3,000-year-old shrine to the virgin goddess on the shore.",
+        "durationHours": 1,
+        "entryFee": 0,
+        "bestTimeOfDay": "Morning",
+        "coordinates": {
+          "lat": 8.0782,
+          "lng": 77.5413
+        }
+      },
+      {
+        "name": "Padmanabhapuram Palace",
+        "category": "Heritage",
+        "description": "Largest wooden palace in Asia, once the Travancore royal seat.",
+        "durationHours": 2.5,
+        "entryFee": 50,
+        "bestTimeOfDay": "Afternoon",
+        "coordinates": {
+          "lat": 8.2507,
+          "lng": 77.3262
+        }
+      },
+      {
+        "name": "Vattakottai Fort",
+        "category": "Heritage",
+        "description": "Seaside granite fort with views over the Western Ghats.",
+        "durationHours": 1,
+        "entryFee": 25,
+        "bestTimeOfDay": "Afternoon",
+        "coordinates": {
+          "lat": 8.1196,
+          "lng": 77.5652
+        }
+      },
+      {
+        "name": "Sunset Point",
+        "category": "Viewpoint",
+        "description": "Western shore spot for the Arabian Sea sunset.",
+        "durationHours": 1,
+        "entryFee": 0,
+        "bestTimeOfDay": "Evening",
+        "coordinates": {
+          "lat": 8.0819,
+          "lng": 77.5328
+        }
+      }
     ]
   }
 ]

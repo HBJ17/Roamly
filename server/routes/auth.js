@@ -1,6 +1,6 @@
 const express = require('express');
 const validate = require('../middleware/validate');
-const { protect } = require('../middleware/auth');
+const { protect, optionalAuth, serializeAccount } = require('../middleware/auth');
 const { authLimiter } = require('../middleware/rateLimit');
 const auth = require('../controllers/authController');
 const schemas = require('../validators/auth');
@@ -16,6 +16,10 @@ router.post('/agency/register', authLimiter, validate(schemas.registerAgencySche
 router.post('/login', authLimiter, validate(schemas.loginSchema), auth.login);
 router.post('/logout', auth.logout);
 router.get('/me', protect, auth.getMe);
+// Like /me, but answers 200 with user: null for guests so the client can check quietly.
+router.get('/session', optionalAuth, (req, res) => {
+  res.status(200).json({ success: true, user: req.user ? serializeAccount(req.user, req.userRole) : null });
+});
 router.put('/profile', protect, validate(schemas.updateProfileSchema), auth.updateProfile);
 router.put('/password', protect, validate(schemas.changePasswordSchema), auth.changePassword);
 

@@ -2,6 +2,11 @@
  * Zero-setup local run: starts an in-memory MongoDB, loads the demo data and serves the API.
  * Usage: npm run dev:memory   (data is discarded when the process exits)
  */
+const path = require('path');
+
+// Keep the MongoDB binary cache inside server/ no matter where the script is launched from.
+process.env.MONGOMS_DOWNLOAD_DIR = process.env.MONGOMS_DOWNLOAD_DIR || path.join(__dirname, '../node_modules/.cache/mongodb-memory-server');
+
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 

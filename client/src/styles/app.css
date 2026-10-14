@@ -89,7 +89,7 @@ a.link { color: #000; font-weight: 700; text-decoration: underline; text-decorat
 
 /* Navbar additions */
 .nav-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.nav-select { padding: 5px 8px; font-size: 12px; border: 1.5px solid #000; border-radius: var(--radius-sm); background: #fff; font-weight: 600; }
+.nav-select { width: auto !important; padding: 5px 8px; font-size: 12px; border: 1.5px solid #000; border-radius: var(--radius-sm); background: #fff; font-weight: 600; }
 .dest-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: var(--pastel-mint); border: 1.5px solid #000; border-radius: var(--radius-sm); box-shadow: 2px 2px 0 #000; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12.5px; cursor: pointer; }
 .bell { position: relative; }
 .bell-dot { position: absolute; top: -5px; right: -6px; background: #dc2626; color: #fff; font-size: 10px; border-radius: 99px; padding: 0 5px; border: 1.5px solid #000; font-weight: 800; }
