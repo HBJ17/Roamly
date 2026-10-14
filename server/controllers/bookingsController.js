@@ -7,6 +7,10 @@ const { parsePagination, paginatedResponse } = require('../utils/paginate');
 const { publicLine } = require('../services/pricingService');
 const { quoteSingle, createHold, sweepBookings } = require('../services/bookingService');
 const { remainingCapacity } = require('../services/availabilityService');
+const {
+  previewCancellation: previewCancellationFor,
+  cancelBooking: cancelBookingFor
+} = require('../services/cancellationService');
 
 const quoteResponse = (quote) => ({
   items: quote.lines.map(publicLine),
@@ -93,6 +97,30 @@ exports.getHotelAvailability = asyncHandler(async (req, res) => {
     })
   );
   res.status(200).json({ success: true, data: { checkIn, checkOut, nights, rooms } });
+});
+
+// A partner may cancel only bookings made up entirely of its own listings.
+const cancellerRole = (req, booking, { isOwner, isAgency }) => {
+  if (isOwner) return 'user';
+  if (req.userRole === 'admin') return 'admin';
+  if (isAgency && booking.items.every((i) => String(i.agency) === String(req.user._id))) return 'agency';
+  throw ApiError.forbidden('This trip includes other partners. Ask Roamly support to cancel it.');
+};
+
+// @route GET /api/bookings/:id/cancellation
+exports.previewCancellation = asyncHandler(async (req, res) => {
+  const access = await loadAccessibleBooking(req);
+  const role = cancellerRole(req, access.booking, access);
+  const preview = await previewCancellationFor(access.booking, role);
+  res.status(200).json({ success: true, data: preview });
+});
+
+// @route PUT /api/bookings/:id/cancel
+exports.cancelBooking = asyncHandler(async (req, res) => {
+  const access = await loadAccessibleBooking(req);
+  const role = cancellerRole(req, access.booking, access);
+  const booking = await cancelBookingFor(access.booking, { cancelledBy: role, reason: req.body.reason });
+  res.status(200).json({ success: true, data: booking });
 });
 
 exports.loadAccessibleBooking = loadAccessibleBooking;
