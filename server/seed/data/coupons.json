@@ -1,0 +1,34 @@
+[
+  {
+    "code": "ROAMFIRST",
+    "description": "15% instant discount on your first Indian expedition booking",
+    "discountType": "percent",
+    "discountValue": 15.0,
+    "minOrderAmount": 1000.0,
+    "maxDiscountAmount": 2500.0
+  },
+  {
+    "code": "SUMMER20",
+    "description": "20% discount on hill station chalets and mountain tours",
+    "discountType": "percent",
+    "discountValue": 20.0,
+    "minOrderAmount": 2000.0,
+    "maxDiscountAmount": 3000.0
+  },
+  {
+    "code": "SOUTHTRAILS",
+    "description": "Flat ₹1,000 off on heritage & coastal packages",
+    "discountType": "fixed",
+    "discountValue": 1000.0,
+    "minOrderAmount": 4000.0,
+    "maxDiscountAmount": 1000.0
+  },
+  {
+    "code": "DRIVE15",
+    "description": "15% discount on self-drive car rentals and private taxis",
+    "discountType": "percent",
+    "discountValue": 15.0,
+    "minOrderAmount": 1500.0,
+    "maxDiscountAmount": 2000.0
+  }
+]

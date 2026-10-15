@@ -1,0 +1,17 @@
+{
+  "name": "roamly-mern",
+  "version": "2.0.0",
+  "description": "Roamly - South India travel marketplace (MongoDB, Express, React, Node)",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix client install",
+    "dev:api": "npm --prefix server run dev",
+    "dev:api:memory": "npm --prefix server run dev:memory",
+    "dev:client": "npm --prefix client run dev",
+    "seed": "npm --prefix server run seed",
+    "test": "npm --prefix server test",
+    "build": "npm --prefix client run build",
+    "docker:up": "docker compose up --build -d",
+    "docker:seed": "docker compose exec server node seed/mongoSeed.js --force"
+  },
+  "private": true
+}

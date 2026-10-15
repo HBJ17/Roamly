@@ -1,0 +1,545 @@
+[
+  {
+    "agency": "kodai_tours",
+    "city": "Kodaikanal",
+    "title": "Kodaikanal Misty Pines & Lake Classic Getaway",
+    "category": "Hill Station",
+    "price": 7999,
+    "durationDays": 3,
+    "durationNights": 2,
+    "description": "A refreshing 3-day mountain retreat exploring mist-covered Coaker’s Walk, star-shaped Kodai Lake, Pillar Rocks, and pine forest trails.",
+    "highlights": [
+      "Coaker’s Walk",
+      "Kodai Lake Boating",
+      "Pillar Rocks",
+      "Bryant Park",
+      "Silver Cascade Falls",
+      "Pine Forest Walk"
+    ],
+    "inclusions": [
+      "3-Star Mountain Resort",
+      "Daily Buffet Breakfast",
+      "Sightseeing Cab",
+      "Boating Pass",
+      "Tea Plantation Walk"
+    ],
+    "foodHighlights": [
+      "Homemade Kodai Chocolates",
+      "Hot Filter Coffee",
+      "Hill Station Masala Corn & Herbal Soups"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?auto=format&fit=crop&w=800&q=80",
+    "pros": [
+      "Fast-paced and budget-friendly",
+      "Covers all prime postcard landmarks",
+      "Ideal for a quick weekend recharge"
+    ],
+    "cons": [
+      "Rushed schedule with limited leisure time",
+      "Misses remote waterfalls and deep trekking trails"
+    ],
+    "idealFor": "Weekend travelers & couples looking for a quick mountain break",
+    "maxGroupSize": 24,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "kodai_tours",
+    "city": "Kodaikanal",
+    "title": "Kodaikanal Wilderness, Berijam Forest & High Valley Trek",
+    "category": "Hill Station",
+    "price": 14500,
+    "durationDays": 5,
+    "durationNights": 4,
+    "description": "A relaxed 5-day immersive holiday including exclusive Berijam Lake forest permits, Vattakanal dolphin nose sunrise trek, and organic spice plantation stay.",
+    "highlights": [
+      "Berijam Biosphere Forest Safari",
+      "Vattakanal Dolphin Nose Trek",
+      "Mannavanur Sheep Farm & Lake",
+      "Guna Caves",
+      "Silent Valley Viewpoint",
+      "Kodai Solar Observatory"
+    ],
+    "inclusions": [
+      "4-Star Premium Valley View Chalet",
+      "Daily Breakfast & Dinner",
+      "Private SUV Sightseeing",
+      "Forest Entry Permits",
+      "Campfire Evening"
+    ],
+    "foodHighlights": [
+      "Farm-to-Table Organic Meals",
+      "Badaga Herb Roast Dishes",
+      "Authentic Kodai Cheeses & Wood-Fired Sourdough Pizzas"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80",
+    "pros": [
+      "Deep leisurely pace",
+      "Includes protected eco-zones and hidden lakes",
+      "Ample time for relaxation and photography",
+      "Campfire dinner included"
+    ],
+    "cons": [
+      "Higher overall price",
+      "Requires moderate walking stamina for valley treks"
+    ],
+    "idealFor": "Nature lovers, photographers & families desiring an in-depth serene vacation",
+    "maxGroupSize": 16,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "kodai_tours",
+    "city": "Kodaikanal",
+    "title": "Kodaikanal & Western Ghats Ultimate Mountain Odyssey",
+    "category": "Hill Station",
+    "price": 21900,
+    "durationDays": 7,
+    "durationNights": 6,
+    "description": "The definitive 7-day high-altitude adventure covering all Kodai highlights plus offbeat Poombari terraced villages, Kukkal shola forest, and yoga retreats.",
+    "highlights": [
+      "Poombari Garlic Terrace Hills",
+      "Kukkal Forest Sanctuary",
+      "Pambar Waterfalls Safari",
+      "Berijam Lake",
+      "Night Sky Stargazing at Observatory",
+      "Kurinji Andavar Temple"
+    ],
+    "inclusions": [
+      "Luxury Boutique Villa with Fireplace",
+      "All Meals Included",
+      "Dedicated 4x4 Vehicle",
+      "Forest & Wildlife Guide",
+      "Spa & Wellness Session"
+    ],
+    "foodHighlights": [
+      "Multi-Course Traditional Hill Country Banquet",
+      "Artisan Kodai Chocolate Tasting Masterclass",
+      "Fresh Strawberry & Plum Delicacies"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+    "pros": [
+      "Complete all-inclusive coverage",
+      "Zero rush",
+      "Access to secluded mountain villages and remote waterfalls",
+      "Spa and bonfire sessions included"
+    ],
+    "cons": [
+      "Requires a full week leave",
+      "Premium price point"
+    ],
+    "idealFor": "Long-stay travelers, remote work vacationers, honeymooners & trekking enthusiasts",
+    "maxGroupSize": 16,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "madurai_tours",
+    "city": "Madurai",
+    "title": "Madurai Meenakshi Temple Express Weekend",
+    "category": "Heritage",
+    "price": 4999,
+    "durationDays": 2,
+    "durationNights": 1,
+    "description": "Experience the spiritual grandeur and culinary vibrant night markets of the ancient Athens of the East in a compact 2-day express tour.",
+    "highlights": [
+      "Meenakshi Amman Temple Special Darshan",
+      "Thousand Pillar Hall",
+      "Thirumalai Nayakkar Palace Light & Sound Show",
+      "Vandiyur Mariamman Teppakulam"
+    ],
+    "inclusions": [
+      "3-Star City Hotel Stay",
+      "South Indian Breakfast",
+      "AC Sedan Sightseeing",
+      "Temple Guide"
+    ],
+    "foodHighlights": [
+      "Original Famous Madurai Jigarthanda Tasting",
+      "Murugan Idli Shop Breakfast",
+      "Madurai Kari Dosa Dinner"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80",
+    "pros": [
+      "Very affordable",
+      "Seamless quick weekend getaway",
+      "Covers the essential temple darshan and top street foods"
+    ],
+    "cons": [
+      "Tight timeline",
+      "Does not include day excursions to Keeladi or Alagar Kovil"
+    ],
+    "idealFor": "Weekend pilgrims & short-trip city explorers",
+    "maxGroupSize": 24,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "madurai_tours",
+    "city": "Madurai",
+    "title": "Madurai Grand Nayakkar Heritage & Keeladi Civilization Trail",
+    "category": "Heritage",
+    "price": 11200,
+    "durationDays": 4,
+    "durationNights": 3,
+    "description": "Comprehensive 4-day deep dive into Sangam-era history at the Keeladi Archaeological Museum, Alagar Hills temple, and Chettinad architectural fringes.",
+    "highlights": [
+      "Keeladi Archaeological Excavation Museum",
+      "Alagar Kovil & Pazhamudircholai Hill Temple",
+      "Meenakshi Golden Tower Darshan",
+      "Banana Market Walk",
+      "Thirupparankundram Rock-Cut Shrine"
+    ],
+    "inclusions": [
+      "4-Star Heritage Palace Resort",
+      "Daily Breakfast & Chef Dinners",
+      "Private AC Chauffeur Cab",
+      "VIP Temple Darshan Passes",
+      "Historian Guide"
+    ],
+    "foodHighlights": [
+      "Chettinad Spicy Kuzhambu Feast on Banana Leaf",
+      "Bun Parotta Masterclass",
+      "Madurai Halwa & Jigarthanda Safari"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80",
+    "pros": [
+      "In-depth historical immersion",
+      "Includes world-renowned Keeladi museum",
+      "Guided food walk through historic bazaars",
+      "Relaxed afternoon palace visits"
+    ],
+    "cons": [
+      "Involves local market walking in warmer daytime temperatures"
+    ],
+    "idealFor": "History buffs, culture enthusiasts, foodies & multi-generational families",
+    "maxGroupSize": 24,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "chennai_tours",
+    "city": "Chennai",
+    "title": "Chennai Coastal Breeze & Colonial Heritage Trail",
+    "category": "Beach",
+    "price": 6800,
+    "durationDays": 3,
+    "durationNights": 2,
+    "description": "Discover Madras history from 1644 Fort St. George, San Thome Cathedral, colorful Mylapore Kapaleeshwarar temple, and vibrant Marina beach evenings.",
+    "highlights": [
+      "Kapaleeshwarar Temple Mylapore Walk",
+      "Marina Beach Lighthouse Panorama",
+      "San Thome Basilica",
+      "Fort St. George Colonial Museum",
+      "Government Museum Bronze Gallery"
+    ],
+    "inclusions": [
+      "3-Star Seaside Hotel",
+      "Daily Buffet Breakfast",
+      "Private AC Car",
+      "Museum Fast-Track Entry",
+      "Filter Coffee Experience"
+    ],
+    "foodHighlights": [
+      "Mylapore Ghee Roast Dosas with 4 Chutneys",
+      "Fresh Marina Beach Sundal",
+      "Madras Filter Coffee & Authentic South Indian Thali"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80",
+    "pros": [
+      "Efficient coverage of city icons",
+      "Great blend of coastal breeze and historic landmarks",
+      "Easy airport and railway connectivity"
+    ],
+    "cons": [
+      "City traffic during peak hours",
+      "Shorter stay doesn’t cover Mahabalipuram shore temples"
+    ],
+    "idealFor": "Business travelers extending stay, weekend coastal explorers & first-time Tamil Nadu visitors",
+    "maxGroupSize": 24,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "chennai_tours",
+    "city": "Chennai",
+    "title": "Chennai & Mahabalipuram UNESCO Shore Temple Immersion",
+    "category": "Beach",
+    "price": 13900,
+    "durationDays": 5,
+    "durationNights": 4,
+    "description": "A 5-day coastal luxury tour spanning ancient Madras, East Coast Road scenic drives, and the 7th-century UNESCO Shore Temples of Mahabalipuram.",
+    "highlights": [
+      "Mahabalipuram Shore Temple & Arjuna’s Penance",
+      "DakshinaChitra Living History Museum",
+      "Covelong Beach Watersports",
+      "Mylapore Silk Street",
+      "Cholamandal Artists’ Village"
+    ],
+    "inclusions": [
+      "4-Star Beachside Resort on ECR",
+      "Daily Breakfast & Seafood Dinners",
+      "Private AC Chauffeur Car",
+      "Monument Passes",
+      "Surfing / Boating Voucher"
+    ],
+    "foodHighlights": [
+      "Fresh Coastal Crab & Fish Curry",
+      "Chettinad Spiced Prawns",
+      "Dakshin Fine Dining Experience",
+      "Coconut Tender Water Refreshments"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+    "pros": [
+      "Expands to scenic ECR beaches and world heritage monuments",
+      "Relaxed coastal resort stay",
+      "Combines culture, beach activities, and living art villages"
+    ],
+    "cons": [
+      "Higher price due to premium beach resort stay and extended cab hire"
+    ],
+    "idealFor": "Families, heritage travelers, beach enthusiasts & slow-paced vacationers",
+    "maxGroupSize": 16,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "thanjavur_tours",
+    "city": "Thanjavur",
+    "title": "Thanjavur Brihadisvara Great Chola Temple Trail",
+    "category": "Heritage",
+    "price": 6500,
+    "durationDays": 3,
+    "durationNights": 2,
+    "description": "Marvel at the 1,000-year-old architectural marvel Brihadisvara Big Temple, explore the Maratha Palace, and visit generation-old bronze casting artisans.",
+    "highlights": [
+      "Brihadisvara UNESCO Big Temple Darshan",
+      "Thanjavur Maratha Royal Palace & Art Gallery",
+      "Saraswathi Mahal Ancient Manuscript Library",
+      "Bronze & Art Plate Workshops"
+    ],
+    "inclusions": [
+      "Heritage 3-Star Hotel Stay",
+      "Daily South Indian Breakfast",
+      "Private AC Sightseeing Vehicle",
+      "Certified Historian Guide",
+      "Art Souvenir Gift"
+    ],
+    "foodHighlights": [
+      "Authentic Thanjavur Thali with More Kuzhambu",
+      "Kumbakonam Degree Coffee",
+      "Fresh Banana Leaf Sambhar Rice & Ash Gourd Halwa"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=800&q=80",
+    "pros": [
+      "Focused exploration of world-famous Chola architecture",
+      "Meets authentic metalcraft artisans",
+      "Pocket-friendly heritage tour"
+    ],
+    "cons": [
+      "Does not include nearby temple towns like Gangaikonda Cholapuram or Darasuram"
+    ],
+    "idealFor": "Architecture lovers, spiritual seekers & culture buffs",
+    "maxGroupSize": 24,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "thanjavur_tours",
+    "city": "Thanjavur",
+    "title": "Great Living Chola Dynasty Complete Triangle (Thanjavur - Kumbakonam - Gangaikonda)",
+    "category": "Heritage",
+    "price": 13200,
+    "durationDays": 5,
+    "durationNights": 4,
+    "description": "Complete 5-day expedition covering the trio of UNESCO Great Living Chola Temples, ancient weaving clusters, and tranquil Cauvery delta villages.",
+    "highlights": [
+      "Brihadisvara Temple at Thanjavur",
+      "Gangaikonda Cholapuram Sanctuary",
+      "Airavatesvara Temple Darshan at Darasuram",
+      "Kumbakonam Brass & Silk Weavers",
+      "Royal Palace Courtyard"
+    ],
+    "inclusions": [
+      "Heritage Luxury Ayurvedic Resort Stay",
+      "Daily Breakfast & Traditional Dinners",
+      "AC Chauffeur Car",
+      "Temple VIP Passes",
+      "Village Bull Cart Ride"
+    ],
+    "foodHighlights": [
+      "Delta Harvest Feast with 14 Native Curries",
+      "Traditional Kumbakonam Ghee Roast",
+      "Filter Coffee Tasting & Svatma Classical Dinner"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=800&q=80",
+    "pros": [
+      "Comprehensive coverage of all three UNESCO Chola monuments",
+      "Rich artisan and handloom village visits",
+      "Authentic heritage resort experience"
+    ],
+    "cons": [
+      "Moderate road travel between delta temple clusters"
+    ],
+    "idealFor": "Art historians, photographers, spiritual explorers & discerning culture seekers",
+    "maxGroupSize": 16,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "bangalore_tours",
+    "city": "Bangalore",
+    "title": "Bangalore Garden City, Palaces & Craft Breweries",
+    "category": "Cultural",
+    "price": 7200,
+    "durationDays": 3,
+    "durationNights": 2,
+    "description": "Explore the royal Tudor-style Bangalore Palace, lush Lalbagh Botanical Gardens, Tipu Sultan’s Summer Palace, and the vibrant pub & craft brewing culture.",
+    "highlights": [
+      "Bangalore Tudor Palace Tour",
+      "Lalbagh Glass House & 200-yr-old Trees",
+      "Cubbon Park Walk",
+      "Tipu Sultan Summer Palace",
+      "Indiranagar Craft Brewery Experience"
+    ],
+    "inclusions": [
+      "4-Star Central Hotel",
+      "Daily Buffet Breakfast",
+      "Private AC Sedan Sightseeing",
+      "Palace Entry Passes",
+      "Craft Tasting Voucher"
+    ],
+    "foodHighlights": [
+      "Iconic Vidyarthi Bhavan Masala Dosa",
+      "CTR Benne Dosa",
+      "Craft Beer Tasting Flights",
+      "Authentic Karnataka Ragi Mudde Thali"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=800&q=80",
+    "pros": [
+      "Exciting blend of royal heritage, vast botanical green spaces, and modern cosmopolitan gastronomy",
+      "Very flexible itinerary"
+    ],
+    "cons": [
+      "City traffic during evening rush hours"
+    ],
+    "idealFor": "Young professionals, couples, urban explorers & food & beverage enthusiasts",
+    "maxGroupSize": 24,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "bangalore_tours",
+    "city": "Bangalore",
+    "title": "Bangalore & Nandi Hills Royal Nature & Vineyard Escape",
+    "category": "Cultural",
+    "price": 14900,
+    "durationDays": 5,
+    "durationNights": 4,
+    "description": "A 5-day luxurious retreat combining Bengaluru heritage, early morning Nandi Hills cloud sunrise, Grover Zampa vineyard wine tour, and Bannerghatta safari.",
+    "highlights": [
+      "Nandi Hills Sunrise & Bhoga Nandeeshwara Temple",
+      "Grover Zampa Vineyard Tour & Wine Tasting",
+      "Bannerghatta National Park Jungle Safari",
+      "Bangalore Palace",
+      "MG Road Walking Safari"
+    ],
+    "inclusions": [
+      "Luxury 5-Star Garden Palace Hotel",
+      "Daily Breakfast & Gourmet Dinners",
+      "Private SUV Chauffeur",
+      "Safari & Vineyard Passes"
+    ],
+    "foodHighlights": [
+      "Vineyard Gourmet Cheese & Wine Pairing",
+      "Mysore Pak Tasting",
+      "Udupi Multi-Course Feast & High Tea at Palace Gardens"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80",
+    "pros": [
+      "Expands into breathtaking cloud-top hills and boutique vineyards",
+      "Top-tier luxury hotel stay",
+      "Wildlife safari included"
+    ],
+    "cons": [
+      "Early 4:30 AM departure required for Nandi sunrise on Day 3"
+    ],
+    "idealFor": "Leisure travelers, wine enthusiasts, families & luxury seekers",
+    "maxGroupSize": 16,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "kanyakumari_tours",
+    "city": "Kanyakumari",
+    "title": "Kanyakumari Lands End, Sunrise & Ocean Confluence",
+    "category": "Pilgrimage",
+    "price": 6200,
+    "durationDays": 3,
+    "durationNights": 2,
+    "description": "Stand at the southern tip of the Indian subcontinent where the Indian Ocean, Arabian Sea, and Bay of Bengal unite. Witness spectacular sunrise and sunset.",
+    "highlights": [
+      "Vivekananda Rock Memorial & Ferry Ride",
+      "133-ft Thiruvalluvar Statue",
+      "Triveni Sangam Holy Dip",
+      "Sunset Viewpoint at Beach Promenade",
+      "Kanyakumari Bhagavathy Amman Temple"
+    ],
+    "inclusions": [
+      "3-Star Sea Facing Hotel",
+      "Daily Breakfast",
+      "Private AC Sightseeing Car",
+      "Ferry Passes",
+      "Temple Guide"
+    ],
+    "foodHighlights": [
+      "Coastal Kanyakumari Nethili Fish Fry",
+      "Fresh Coconut Banana Halwa",
+      "Appam with Sweet Coconut Milk & Filter Coffee"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80",
+    "pros": [
+      "Witness both sunrise and sunset over the ocean from the same point",
+      "Unmatched spiritual & geographical significance",
+      "Budget-friendly"
+    ],
+    "cons": [
+      "Peak season ferry queues for Vivekananda Rock",
+      "Afternoon coastal heat"
+    ],
+    "idealFor": "Spiritual travelers, geography enthusiasts, families & budget travelers",
+    "maxGroupSize": 24,
+    "cancellationPolicy": "Moderate"
+  },
+  {
+    "agency": "kanyakumari_tours",
+    "city": "Kanyakumari",
+    "title": "Kanyakumari & Travancore Coastal Castles Odyssey",
+    "category": "Pilgrimage",
+    "price": 13500,
+    "durationDays": 5,
+    "durationNights": 4,
+    "description": "A 5-day scenic expedition exploring Kanyakumari along with the 16th-century wooden marvel Padmanabhapuram Palace, Mathur Hanging Trough, and Vattakottai ocean fort.",
+    "highlights": [
+      "Padmanabhapuram Teakwood Palace Tour",
+      "Vattakottai Beachside Granite Fort",
+      "Mathur Aqueduct Hanging Trough",
+      "Vivekananda Rock Memorial",
+      "Suchindram Thanumalayan Temple",
+      "Sunset Catamaran Cruise"
+    ],
+    "inclusions": [
+      "4-Star Oceanfront Suite Resort",
+      "Daily Breakfast & Seafood Dinners",
+      "Private AC Chauffeur Car",
+      "Ferry & Palace VIP Passes",
+      "Catamaran Ride"
+    ],
+    "foodHighlights": [
+      "Travancore Royal Sadya Feast",
+      "Fresh Coastal Seafood Platters",
+      "Tirunelveli Ghee Halwa & South Coastal Coconut Curries"
+    ],
+    "imageUrl": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80",
+    "pros": [
+      "Explores hidden coastal forts and majestic teakwood palaces",
+      "Unhurried relaxed pace with sunset catamaran cruise",
+      "Seafront private balcony stay"
+    ],
+    "cons": [
+      "Requires inter-district sightseeing transit along the scenic coastal route"
+    ],
+    "idealFor": "History buffs, beach lovers, honeymooners & multi-generational vacationers",
+    "maxGroupSize": 16,
+    "cancellationPolicy": "Moderate"
+  }
+]
