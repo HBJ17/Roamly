@@ -35,8 +35,8 @@ export default function ReviewsSection({ itemType, itemId, rating, count }) {
           {[5, 4, 3, 2, 1].map((n) => (
             <div key={n} className="row small" style={{ flexWrap: 'nowrap' }}>
               <span style={{ width: 24 }}>{n}★</span>
-              <div style={{ flex: 1, height: 8, border: '1.5px solid #000', borderRadius: 4, background: '#fff' }}>
-                <div style={{ width: `${((breakdown[n] || 0) / total) * 100}%`, height: '100%', background: 'var(--pastel-yellow)' }} />
+              <div style={{ flex: 1, height: 8, borderRadius: 99, background: 'var(--sand-deep)', overflow: 'hidden' }}>
+                <div style={{ width: `${((breakdown[n] || 0) / total) * 100}%`, height: '100%', background: 'var(--sun)' }} />
               </div>
               <span style={{ width: 24, textAlign: 'right' }}>{breakdown[n] || 0}</span>
             </div>

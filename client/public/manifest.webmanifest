@@ -5,8 +5,8 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#faf7ee",
-  "theme_color": "#fef08a",
+  "background_color": "#f6efe3",
+  "theme_color": "#10302f",
   "icons": [
     { "src": "/roamly_logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ]
