@@ -348,7 +348,7 @@ export default function PlannerPage() {
                 <div key={h._id} className={`card ${sel.hotel === h._id ? '' : ''}`} style={{ padding: 16, background: sel.hotel === h._id ? 'var(--pastel-yellow-light)' : undefined }}>
                   <div className="row-between">
                     <div className="row" style={{ flexWrap: 'nowrap' }}>
-                      <img src={h.imageUrl} alt="" style={{ width: 90, height: 64, objectFit: 'cover', border: '1.5px solid #000', borderRadius: 6 }} />
+                      <img src={h.imageUrl} alt="" style={{ width: 90, height: 64, objectFit: 'cover', borderRadius: 12 }} />
                       <div><b>{h.name}</b><div className="small muted">{'★'.repeat(h.starRating)} · {h.address}</div></div>
                     </div>
                     <Stars value={h.rating} count={h.reviewCount} />

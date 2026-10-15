@@ -4,12 +4,12 @@ import L from 'leaflet';
 const pin = (color, label = '') =>
   L.divIcon({
     className: '',
-    html: `<div style="background:${color};border:2px solid #000;border-radius:50% 50% 50% 0;transform:rotate(-45deg);width:22px;height:22px;box-shadow:2px 2px 0 #000;display:flex;align-items:center;justify-content:center"><span style="transform:rotate(45deg);font:700 10px sans-serif">${label}</span></div>`,
+    html: `<div style="background:${color};border:2px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);width:22px;height:22px;box-shadow:0 4px 10px -4px rgba(16,48,47,.6);display:flex;align-items:center;justify-content:center"><span style="transform:rotate(45deg);font:700 10px sans-serif;color:#fff">${label}</span></div>`,
     iconSize: [22, 22],
     iconAnchor: [11, 22]
   });
 
-const COLORS = { attraction: '#fef08a', hotel: '#bae6fd', center: '#fecdd3' };
+const COLORS = { attraction: '#f29a2e', hotel: '#127c7a', center: '#e2603f' };
 
 /**
  * markers: [{ lat, lng, title, kind: 'attraction' | 'hotel' | 'center', label }]

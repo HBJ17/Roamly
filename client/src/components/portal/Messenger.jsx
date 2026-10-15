@@ -107,7 +107,7 @@ export default function Messenger({ basePath }) {
       <div className="card chat-thread" style={{ padding: 14 }}>
         {!thread ? <p className="muted">Choose a conversation.</p> : (
           <>
-            <div style={{ borderBottom: '2px solid #000', paddingBottom: 8, marginBottom: 8 }}>
+            <div style={{ borderBottom: '1px solid var(--line)', paddingBottom: 8, marginBottom: 8 }}>
               <b>{counterpart(thread.conversation)}</b>
               <div className="small muted">{thread.conversation.subject}{thread.conversation.bookingReference ? ` · ${thread.conversation.bookingReference}` : ''}</div>
             </div>
